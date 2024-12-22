@@ -133,7 +133,7 @@ func New() Model {
 		// item{title: "Terrycloth", desc: "In other words, towel fabric"},
 	}
 	ti := textinput.New()
-	ti.Placeholder = "New item name..."
+	ti.Placeholder = "New command name..."
 	ti.Focus()
 	m := Model{list: list.New(items, list.NewDefaultDelegate(), 0, 0), input: ti}
 	m.list.Title = "Workflows"
