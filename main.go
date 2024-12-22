@@ -30,8 +30,9 @@ var (
 				Width(15).
 				Height(5).
 				Align(lipgloss.Center, lipgloss.Center).
-				BorderStyle(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color("69"))
+				BorderStyle(lipgloss.HiddenBorder())
+				// BorderStyle(lipgloss.NormalBorder()).
+				// BorderForeground(lipgloss.Color("69"))
 )
 
 type termDimensions struct {
@@ -97,17 +98,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	fistPanelWidth := int(math.Floor(float64(m.termDimensions.width) * 0.5))
-	secondPanelWidth := m.termDimensions.width - fistPanelWidth - 4
-	panelHeight := m.termDimensions.height - 5
+	secondPanelWidth := m.termDimensions.width - fistPanelWidth
+	panelHeight := m.termDimensions.height
+	var s string
 	if m.focused() == leftView {
-		return lipgloss.JoinHorizontal(lipgloss.Left, 
-			focusedModelStyle.Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
-			modelStyle.Width(secondPanelWidth).Height(panelHeight).Render(m.form.View()))
+		s = lipgloss.JoinHorizontal(lipgloss.Top, 
+			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
+			modelStyle.Faint(true).Width(secondPanelWidth).Height(panelHeight).Render(m.form.View()))
 	} else {
-		return lipgloss.JoinHorizontal(lipgloss.Left, 
-			modelStyle.Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
+		s = lipgloss.JoinHorizontal(lipgloss.Top, 
+			modelStyle.Faint(true).AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
 			focusedModelStyle.Width(secondPanelWidth).Height(panelHeight).Render(m.form.View()))
 	}
+	return s
+	// return m.list.View() + "\n" + m.form.View() + "\n" + m.footer.View()}
 }
 
 func main() {
