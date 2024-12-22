@@ -8,7 +8,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/shared"
-	// "github.com/evertonstz/go-workflows/shared"
 )
 
 type addNewItemState uint
@@ -40,15 +39,20 @@ func (m Model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
+func (m *Model) changeState(v addNewItemState) addNewItemState {
+	m.state = v
+	return m.state
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+a" {
 			if m.state == viewOff {
-				m.state = viewOn
+				m.changeState(viewOn)
 			} else {
-				m.state = viewOff
+				m.changeState(viewOff)
 			}
 		}
 		if msg.String() == "ctrl+c" {
@@ -66,10 +70,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}
 			case viewOn:
+				if m.input.Value() == "" {
+					return m, nil
+				}
 				var c tea.Cmd
 				m.list.InsertItem(0, item{title: m.input.Value(), desc: "", dateAdded: time.Now(), dateUpdated: time.Now()})
 				m.input.Reset()
 				m.list, c = m.list.Update(msg)
+				m.changeState(viewOff)
 				return m, c
 			}
 		}
