@@ -74,6 +74,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
+		if msg.String() == "y" {
+			// copy the description to the clipboard
+			selectedItem := m.list.SelectedItem()
+			if selectedItem != nil {
+				if selected, ok := selectedItem.(item); ok {
+					return m, func() tea.Msg {
+						return shared.CopyToClipboard{Desc: selected.desc}
+					}
+					
+				}
+			}
+		}
 		if msg.String() == "enter" {
 			switch m.state {
 			case addNewOn:
