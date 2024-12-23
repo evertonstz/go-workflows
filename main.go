@@ -5,7 +5,6 @@ import (
 	"log"
 	"math"
 
-	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/footer"
@@ -62,15 +61,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case shared.CopyToClipboard:
-		clipboard.WriteAll(msg.Desc)
+		handleClipboardCopy(msg.Desc)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
 	case shared.SaveItem:
-		// updates de list
-		// TODO: save to sqlite
-		r, _ := m.list.Update(msg)
-		m.list = r.(list.Model)
+		handleSaveItem(m, msg)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -79,7 +75,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.state == listView {
 				m.state = editView
 				return m, func() tea.Msg {
-					return shared.ItemMsg{Title: m.list.CurentItem().Title(), Desc: m.list.CurentItem().Description()}
+					return shared.ItemMsg{Title: m.list.CurentItem().Title(), 
+						Desc: m.list.CurentItem().Description()}
 				}
 			} else {
 				m.state = listView
