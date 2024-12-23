@@ -7,7 +7,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/evertonstz/go-workflows/components/footer"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared"
@@ -44,7 +43,6 @@ type model struct {
 	state          sessionState
 	list           list.Model
 	textArea       textarea.Model
-	footer         footer.Model
 	termDimensions termDimensions
 }
 
@@ -121,7 +119,6 @@ func main() {
 	m := model{
 		list:     list.New(),
 		textArea: textarea.New(),
-		footer:   footer.New(),
 	}
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
