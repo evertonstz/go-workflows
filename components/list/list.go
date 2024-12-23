@@ -27,6 +27,8 @@ type item struct {
 
 func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
+func (i item) DateAdded() time.Time { return i.dateAdded }
+func (i item) DateUpdated() time.Time { return i.dateUpdated }
 func (i item) FilterValue() string { return i.title }
 
 type Model struct {

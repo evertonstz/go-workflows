@@ -64,6 +64,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
 	case shared.SaveItem:
+		// updates de list
+		// TODO: save to sqlite
 		r, _ := m.list.Update(msg)
 		m.list = r.(list.Model)
 	case tea.KeyMsg:
