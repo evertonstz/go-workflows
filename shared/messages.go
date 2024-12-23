@@ -1,5 +1,10 @@
 package shared
 
-type SelectedItemMsg struct {
-	Item string
+type ItemMsg struct {
+	Title string
+	Desc string
+}
+
+type SaveItem struct {
+	Desc string
 }

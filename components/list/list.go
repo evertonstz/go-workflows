@@ -13,8 +13,8 @@ import (
 type addNewItemState uint
 
 const (
-	viewOff addNewItemState = iota
-	viewOn
+	addNewOff addNewItemState = iota
+	addNewOn
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -35,6 +35,10 @@ type Model struct {
 	list  list.Model
 }
 
+func (m Model) CurentItem() item {
+	return m.list.SelectedItem().(item)
+}
+
 func (m Model) Init() tea.Cmd {
 	return textinput.Blink
 }
@@ -47,12 +51,22 @@ func (m *Model) changeState(v addNewItemState) addNewItemState {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
+	case shared.SaveItem:
+		selectedItem := m.list.SelectedItem()
+		if selectedItem != nil {
+			if selected, ok := selectedItem.(item); ok {
+				selected.desc = msg.Desc
+				selected.dateUpdated = time.Now()
+				m.list.SetItem(m.list.Index(), item{title: selected.title, desc: selected.desc, 
+					dateAdded: selected.dateAdded, dateUpdated: selected.dateUpdated})
+			}
+	}
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+a" {
-			if m.state == viewOff {
-				m.changeState(viewOn)
+			if m.state == addNewOff {
+				m.changeState(addNewOn)
 			} else {
-				m.changeState(viewOff)
+				m.changeState(addNewOff)
 			}
 		}
 		if msg.String() == "ctrl+c" {
@@ -60,16 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if msg.String() == "enter" {
 			switch m.state {
-			case viewOff:
-				selectedItem := m.list.SelectedItem()
-				if selectedItem != nil {
-					if selected, ok := selectedItem.(item); ok {
-						return m, func() tea.Msg {
-							return shared.SelectedItemMsg{Item: selected.title}
-						}
-					}
-				}
-			case viewOn:
+			case addNewOn:
 				if m.input.Value() == "" {
 					return m, nil
 				}
@@ -77,7 +82,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.list.InsertItem(0, item{title: m.input.Value(), desc: "", dateAdded: time.Now(), dateUpdated: time.Now()})
 				m.input.Reset()
 				m.list, c = m.list.Update(msg)
-				m.changeState(viewOff)
+				m.changeState(addNewOff)
 				return m, c
 			}
 		}
@@ -87,11 +92,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch m.state {
-	case viewOff:
+	case addNewOff:
 		var c tea.Cmd
 		m.list, c = m.list.Update(msg)
 		cmds = append(cmds, c)
-	case viewOn:
+	case addNewOn:
 		var c tea.Cmd
 		m.input, c = m.input.Update(msg)
 		cmds = append(cmds, c)
@@ -105,9 +110,9 @@ func (m Model) View() string {
 	listView := docStyle.Render(m.list.View())
 	inputView := docStyle.Render(m.input.View())
 	switch m.state {
-	case viewOff:
+	case addNewOff:
 		v = listView
-	case viewOn:
+	case addNewOn:
 		v = lipgloss.JoinVertical(lipgloss.Top, listView, inputView)
 	}
 

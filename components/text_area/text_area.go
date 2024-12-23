@@ -8,46 +8,53 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 type errMsg error
 
-type model struct {
-	textarea textarea.Model
+type Model struct {
+	TextArea textarea.Model
 	err      error
 }
 
-func New() model {
+func New() Model {
 	ti := textarea.New()
-	ti.Placeholder = "Once upon a time..."
+	ti.Placeholder = "Paste or type your command here..."
 	ti.Focus()
 
-	return model{
-		textarea: ti,
+	return Model{
+		TextArea: ti,
 		err:      nil,
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return textarea.Blink
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case shared.ItemMsg:
+		m.TextArea.SetValue(msg.Desc)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
-			if m.textarea.Focused() {
-				m.textarea.Blur()
+			if m.TextArea.Focused() {
+				m.TextArea.Blur()
 			}
 		case tea.KeyCtrlC:
 			return m, tea.Quit
+		case tea.KeyCtrlS:
+			return m, func() tea.Msg {
+				return shared.SaveItem{Desc: m.TextArea.Value()}
+			}
 		default:
-			if !m.textarea.Focused() {
-				cmd = m.textarea.Focus()
+			if !m.TextArea.Focused() {
+				cmd = m.TextArea.Focus()
 				cmds = append(cmds, cmd)
 			}
 		}
@@ -58,15 +65,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	m.textarea, cmd = m.textarea.Update(msg)
+	m.TextArea, cmd = m.TextArea.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 	return fmt.Sprintf(
 		"Tell me a story.\n\n%s\n\n%s",
-		m.textarea.View(),
+		m.TextArea.View(),
 		"(ctrl+c to quit)",
 	) + "\n\n"
 }

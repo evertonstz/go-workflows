@@ -9,14 +9,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/footer"
 	"github.com/evertonstz/go-workflows/components/list"
-	"github.com/evertonstz/go-workflows/components/text_area"
+	textarea "github.com/evertonstz/go-workflows/components/text_area"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 type sessionState uint
 
 const (
-	leftView sessionState = iota
-	rightView
+	listView sessionState = iota
+	editView
 )
 
 var (
@@ -30,8 +31,8 @@ var (
 				Height(5).
 				Align(lipgloss.Center, lipgloss.Center).
 				BorderStyle(lipgloss.HiddenBorder())
-				// BorderStyle(lipgloss.NormalBorder()).
-				// BorderForeground(lipgloss.Color("69"))
+	// BorderStyle(lipgloss.NormalBorder()).
+	// BorderForeground(lipgloss.Color("69"))
 )
 
 type termDimensions struct {
@@ -41,8 +42,8 @@ type termDimensions struct {
 
 type model struct {
 	state          sessionState
-	list           tea.Model
-	textArea       tea.Model
+	list           list.Model
+	textArea       textarea.Model
 	footer         footer.Model
 	termDimensions termDimensions
 }
@@ -62,27 +63,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
+	case shared.SaveItem:
+		r, _ := m.list.Update(msg)
+		m.list = r.(list.Model)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "tab":
-			if m.state == leftView {
-				m.state = rightView
+			if m.state == listView {
+				m.state = editView
+				return m, func() tea.Msg {
+					return shared.ItemMsg{Title: m.list.CurentItem().Title(), Desc: m.list.CurentItem().Description()}
+				}
 			} else {
-				m.state = leftView
+				m.state = listView
 			}
 		}
 	}
 
 	switch m.focused() {
-	case leftView:
+	case listView:
 		var c tea.Cmd
-		m.list, c = m.list.Update(msg)
+		var updatedListAreaModel tea.Model
+		updatedListAreaModel, c = m.list.Update(msg)
+		m.list = updatedListAreaModel.(list.Model)
 		cmds = append(cmds, c)
-	case rightView:
+	case editView:
 		var c tea.Cmd
-		m.textArea, c = m.textArea.Update(msg)
+		var updatedTextAreaModel tea.Model
+		updatedTextAreaModel, c = m.textArea.Update(msg)
+		m.textArea = updatedTextAreaModel.(textarea.Model)
 		cmds = append(cmds, c)
 	}
 	return m, tea.Batch(cmds...)
@@ -93,13 +104,12 @@ func (m model) View() string {
 	secondPanelWidth := m.termDimensions.width - fistPanelWidth
 	panelHeight := m.termDimensions.height
 	var s string
-	if m.focused() == leftView {
-		s = lipgloss.JoinHorizontal(lipgloss.Top, 
-			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
-			modelStyle.Faint(true).Width(secondPanelWidth).Height(panelHeight).Render(m.textArea.View()))
+	if m.focused() == listView {
+		s = lipgloss.JoinHorizontal(lipgloss.Top,
+			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())))
 	} else {
-		s = lipgloss.JoinHorizontal(lipgloss.Top, 
-			modelStyle.Faint(true).AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())), 
+		s = lipgloss.JoinHorizontal(lipgloss.Top,
+			modelStyle.Faint(true).AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())),
 			focusedModelStyle.Width(secondPanelWidth).Height(panelHeight).Render(m.textArea.View()))
 	}
 	return s
@@ -107,9 +117,9 @@ func (m model) View() string {
 
 func main() {
 	m := model{
-		list:   list.New(),
+		list:     list.New(),
 		textArea: textarea.New(),
-		footer: footer.New(),
+		footer:   footer.New(),
 	}
 
 	p := tea.NewProgram(m, tea.WithAltScreen())

@@ -20,9 +20,9 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case shared.SelectedItemMsg:
+	case shared.ItemMsg:
 		// Update the selected item when notified
-		m.selectedItem = msg.Item
+		m.selectedItem = msg.Desc
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "backspace":
