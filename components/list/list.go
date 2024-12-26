@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -17,16 +18,17 @@ const (
 	addNewOn
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
-
 type item struct {
-	title, desc string
+	title, desc, command string
 	dateAdded   time.Time
 	dateUpdated time.Time
 }
 
+var docStyle = lipgloss.NewStyle().Margin(1, 2)
+
 func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
+func (i item) Command() string { return i.command }
 func (i item) DateAdded() time.Time { return i.dateAdded }
 func (i item) DateUpdated() time.Time { return i.dateUpdated }
 func (i item) FilterValue() string { return i.title }
@@ -39,6 +41,14 @@ type Model struct {
 
 func (m Model) CurentItem() item {
 	return m.list.SelectedItem().(item)
+}
+
+func (m Model) AllItems() []item {
+	var items []item
+	for _, i := range m.list.Items() {
+		items = append(items, i.(item))
+	}
+	return items
 }
 
 func (m Model) Init() tea.Cmd {
@@ -59,11 +69,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if selected, ok := selectedItem.(item); ok {
 				selected.desc = msg.Desc
 				selected.dateUpdated = time.Now()
-				m.list.SetItem(m.list.Index(), item{title: selected.title, desc: selected.desc, 
+				m.list.SetItem(m.list.Index(), item{title: selected.title, desc: selected.desc, command: selected.command,
 					dateAdded: selected.dateAdded, dateUpdated: selected.dateUpdated})
 			}
 	}
-	case tea.KeyMsg:
+case persist.ConfigLoadedMsg:
+	var data []list.Item
+	for _, i := range msg.Items.Items {
+		data = append(data, list.Item(item{title: i.Title,
+			desc: i.Desc, command: i.Command, dateAdded: i.DateAdded, dateUpdated: i.DateUpdated}))
+	}
+	m.list.SetItems(data)
+case tea.KeyMsg:
 		if msg.String() == "ctrl+a" {
 			if m.state == addNewOff {
 				m.changeState(addNewOn)
@@ -93,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 				var c tea.Cmd
-				m.list.InsertItem(0, item{title: m.input.Value(), desc: "", dateAdded: time.Now(), dateUpdated: time.Now()})
+				m.list.InsertItem(0, item{title: m.input.Value(), desc: "", command: "" , dateAdded: time.Now(), dateUpdated: time.Now()})
 				m.input.Reset()
 				m.list, c = m.list.Update(msg)
 				m.changeState(addNewOff)
@@ -135,9 +152,9 @@ func (m Model) View() string {
 
 func New() Model {
 	items := []list.Item{
-		item{title: "Raspberry Pi’s", desc: "I have ’em all over my house", dateAdded: time.Now(), dateUpdated: time.Now()},
-		item{title: "Nutella", desc: "It's good on toast", dateAdded: time.Now(), dateUpdated: time.Now()},
-		item{title: "Bitter melon", desc: "It cools you down", dateAdded: time.Now(), dateUpdated: time.Now()},
+		// item{title: "Raspberry Pi’s", desc: "I have ’em all over my house", dateAdded: time.Now(), dateUpdated: time.Now()},
+		// item{title: "Nutella", desc: "It's good on toast", dateAdded: time.Now(), dateUpdated: time.Now()},
+		// item{title: "Bitter melon", desc: "It cools you down", dateAdded: time.Now(), dateUpdated: time.Now()},
 		// item{title: "Nice socks", desc: "And by that I mean socks without holes"},
 		// item{title: "Eight hours of sleep", desc: "I had this once"},
 		// item{title: "Cats", desc: "Usually"},

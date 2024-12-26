@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/list"
+	"github.com/evertonstz/go-workflows/components/persist"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared"
 )
@@ -43,11 +44,12 @@ type model struct {
 	state          sessionState
 	list           list.Model
 	textArea       textarea.Model
+	persistPath    string
 	termDimensions termDimensions
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return persist.InitConfigManager("go-workflows")
 }
 
 func (m model) focused() sessionState {
@@ -58,13 +60,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case persist.Paths:
+		m.persistPath = msg.DataFile
+		return m, persist.LoadConfigFile(msg.DataFile)
+	case persist.ConfigLoadedMsg:
+		// handle dataFile into list
+		m.list.Update(m)
 	case shared.CopyToClipboard:
 		handleClipboardCopy(msg.Desc)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
 	case shared.SaveItem:
-		handleSaveItem(m, msg)
+		return handleSaveItem(m, msg)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -104,6 +112,7 @@ func (m model) View() string {
 	secondPanelWidth := m.termDimensions.width - fistPanelWidth
 	panelHeight := m.termDimensions.height
 	var s string
+	
 	if m.focused() == listView {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
 			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())))
