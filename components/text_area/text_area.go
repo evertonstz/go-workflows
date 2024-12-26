@@ -39,7 +39,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case shared.ItemMsg:
-		m.TextArea.SetValue(msg.Desc)
+		m.TextArea.SetValue(msg.Command)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
@@ -50,7 +50,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case tea.KeyCtrlS:
 			return m, func() tea.Msg {
-				return shared.SaveItem{Desc: m.TextArea.Value()}
+				return shared.SaveItem{Command: m.TextArea.Value()}
 			}
 		default:
 			if !m.TextArea.Focused() {

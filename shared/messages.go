@@ -1,12 +1,12 @@
 package shared
 
 type ItemMsg struct {
-	Title string
-	Desc  string
+	Title   string
+	Command string
 }
 
 type SaveItem struct {
-	Desc string
+	Command string
 }
 
 type CopyToClipboard struct {

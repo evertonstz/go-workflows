@@ -21,16 +21,13 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case shared.ItemMsg:
-		// Update the selected item when notified
-		m.selectedItem = msg.Desc
+		m.selectedItem = msg.Command
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "backspace":
 			if len(m.input) > 0 {
 				m.input = m.input[:len(m.input)-1]
 			}
-		case "enter":
-			// Handle form submission
 		default:
 			m.input += msg.String()
 		}

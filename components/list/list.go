@@ -67,10 +67,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		selectedItem := m.list.SelectedItem()
 		if selectedItem != nil {
 			if selected, ok := selectedItem.(item); ok {
-				selected.desc = msg.Desc
+				selected.command = msg.Command
 				selected.dateUpdated = time.Now()
-				m.list.SetItem(m.list.Index(), item{title: selected.title, desc: selected.desc, command: selected.command,
-					dateAdded: selected.dateAdded, dateUpdated: selected.dateUpdated})
+				m.list.SetItem(m.list.Index(), item{title: selected.title, 
+					desc: selected.desc, 
+					command: selected.command,
+					dateAdded: selected.dateAdded, 
+					dateUpdated: selected.dateUpdated})
 			}
 		}
 	case persist.PersistionFileLoadedMsg:
@@ -92,12 +95,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		if msg.String() == "y" {
-			// copy the description to the clipboard
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(item); ok {
 					return m, func() tea.Msg {
-						return shared.CopyToClipboard{Command: selected.desc}
+						return shared.CopyToClipboard{Command: selected.command}
 					}
 
 				}

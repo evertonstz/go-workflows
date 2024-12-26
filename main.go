@@ -81,7 +81,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state = editView
 				return m, func() tea.Msg {
 					return shared.ItemMsg{Title: m.list.CurentItem().Title(),
-						Desc: m.list.CurentItem().Description()}
+						Command: m.list.CurentItem().Command()}
 				}
 			} else {
 				m.state = listView

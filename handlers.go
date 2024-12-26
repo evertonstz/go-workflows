@@ -20,7 +20,6 @@ func handleClipboardCopy(m model, msg shared.CopyToClipboard) (model, tea.Cmd) {
 }
 
 func handleSaveItem(m model, msg shared.SaveItem) (model, tea.Cmd) {
-	// TODO: save to sqlite
 	r, _ := m.list.Update(msg)
 	m.list = r.(list.Model)
 
