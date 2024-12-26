@@ -49,7 +49,7 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	return persist.InitConfigManager("go-workflows")
+	return persist.InitPersistionManager("go-workflows")
 }
 
 func (m model) focused() sessionState {
@@ -62,12 +62,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case persist.Paths:
 		m.persistPath = msg.DataFile
-		return m, persist.LoadConfigFile(msg.DataFile)
-	case persist.ConfigLoadedMsg:
-		// handle dataFile into list
+		return m, persist.LoadPersistionFile(msg.DataFile)
+	case persist.PersistionFileLoadedMsg:
 		m.list.Update(m)
 	case shared.CopyToClipboard:
-		handleClipboardCopy(msg.Desc)
+		return handleClipboardCopy(m, msg)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
@@ -77,11 +76,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "tab":
+		case "enter":
 			if m.state == listView {
 				m.state = editView
 				return m, func() tea.Msg {
-					return shared.ItemMsg{Title: m.list.CurentItem().Title(), 
+					return shared.ItemMsg{Title: m.list.CurentItem().Title(),
 						Desc: m.list.CurentItem().Description()}
 				}
 			} else {
@@ -112,7 +111,7 @@ func (m model) View() string {
 	secondPanelWidth := m.termDimensions.width - fistPanelWidth
 	panelHeight := m.termDimensions.height
 	var s string
-	
+
 	if m.focused() == listView {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
 			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())))

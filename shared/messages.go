@@ -10,5 +10,9 @@ type SaveItem struct {
 }
 
 type CopyToClipboard struct {
-	Desc string
+	Command string
+}
+
+type ErrorMsg struct {
+	Err error
 }

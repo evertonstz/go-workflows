@@ -6,7 +6,7 @@ import (
 )
 
 type Model struct {
-	input       string
+	input        string
 	selectedItem string
 }
 

@@ -9,11 +9,14 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-func handleClipboardCopy(t string) {
-	err := clipboard.WriteAll(t)
+func handleClipboardCopy(m model, msg shared.CopyToClipboard) (model, tea.Cmd) {
+	err := clipboard.WriteAll(msg.Command)
 	if err != nil {
-		panic(err)
+		return m, func() tea.Msg {
+			return shared.ErrorMsg{Err: err}
+		}
 	}
+	return m, nil
 }
 
 func handleSaveItem(m model, msg shared.SaveItem) (model, tea.Cmd) {
@@ -21,7 +24,6 @@ func handleSaveItem(m model, msg shared.SaveItem) (model, tea.Cmd) {
 	r, _ := m.list.Update(msg)
 	m.list = r.(list.Model)
 
-	// iterate over the list and save to file
 	var items []models.Item
 	for _, i := range m.list.AllItems() {
 		items = append(items, models.Item{Title: i.Title(), 
@@ -31,6 +33,6 @@ func handleSaveItem(m model, msg shared.SaveItem) (model, tea.Cmd) {
 			DateUpdated: i.DateUpdated()})
 	}
 	data := models.Items{Items: items}
-	//return d inside a list
+
 	return m, persist.SaveConfigFile(m.persistPath, data)
 }
