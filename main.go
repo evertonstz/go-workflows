@@ -114,11 +114,22 @@ func (m model) View() string {
 
 	if m.focused() == listView {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
-			focusedModelStyle.AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())))
+			focusedModelStyle.
+				AlignHorizontal(lipgloss.Left).
+				Width(fistPanelWidth).
+				Height(panelHeight).
+				Render(fmt.Sprintf("%4s", m.list.View())))
 	} else {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
-			modelStyle.Faint(true).AlignHorizontal(lipgloss.Left).Width(fistPanelWidth).Height(panelHeight).Render(fmt.Sprintf("%4s", m.list.View())),
-			focusedModelStyle.Width(secondPanelWidth).Height(panelHeight).Render(m.textArea.View()))
+			modelStyle.Faint(true).
+				AlignHorizontal(lipgloss.Left).
+				Width(fistPanelWidth).
+				Height(panelHeight).
+				Render(fmt.Sprintf("%4s", m.list.View())),
+			focusedModelStyle.
+				Width(secondPanelWidth).
+				Height(panelHeight).
+				Render(m.textArea.View()))
 	}
 	return s
 }

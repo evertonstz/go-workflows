@@ -25,7 +25,8 @@ func handleSaveItem(m model, msg shared.SaveItem) (model, tea.Cmd) {
 
 	var items []models.Item
 	for _, i := range m.list.AllItems() {
-		items = append(items, models.Item{Title: i.Title(), 
+		items = append(items, models.Item{
+			Title: i.Title(), 
 			Desc: i.Description(), 
 			Command: i.Command(), 
 			DateAdded: i.DateAdded(), 
