@@ -1,8 +1,5 @@
 package textarea
 
-// A simple program demonstrating the textarea component from the Bubbles
-// component library.
-
 import (
 	"fmt"
 
@@ -59,7 +56,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-	// We handle errors just like any other message
 	case errMsg:
 		m.err = msg
 		return m, nil
