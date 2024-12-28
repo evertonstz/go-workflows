@@ -5,11 +5,17 @@ type ItemMsg struct {
 	Command string
 }
 
-type SaveItem struct {
+type SaveCommandMsg struct {
 	Command string
 }
 
-type CopyToClipboard struct {
+type AddNewItemMsg struct {
+	Title       string
+	Description string
+	Command     string
+}
+
+type CopyToClipboardMsg struct {
 	Command string
 }
 

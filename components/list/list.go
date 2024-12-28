@@ -4,17 +4,14 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-type addNewItemState uint
-
 const (
-	addNewOff addNewItemState = iota
+	addNewOff inputs = iota
 	addNewOn
 )
 
@@ -34,9 +31,13 @@ func (i item) DateUpdated() time.Time { return i.dateUpdated }
 func (i item) FilterValue() string    { return i.title }
 
 type Model struct {
-	state addNewItemState
-	input textinput.Model
-	list  list.Model
+	state  inputs
+	inputs InputsModel
+	list   list.Model
+}
+
+func (m Model) InputOn() bool {
+	return m.state == addNewOn
 }
 
 func (m Model) CurentItem() item {
@@ -52,10 +53,10 @@ func (m Model) AllItems() []item {
 }
 
 func (m Model) Init() tea.Cmd {
-	return textinput.Blink
+	return nil
 }
 
-func (m *Model) changeState(v addNewItemState) addNewItemState {
+func (m *Model) changeState(v inputs) inputs {
 	m.state = v
 	return m.state
 }
@@ -63,17 +64,33 @@ func (m *Model) changeState(v addNewItemState) addNewItemState {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
-	case shared.SaveItem:
+	case AddNewItemMsg:
+		if m.inputs.Title.Value() == "" || m.inputs.Description.Value() == "" {
+			return m, nil
+		}
+		newItem := item{
+			title:       msg.Title,
+			desc:        msg.Description,
+			dateAdded:   time.Now(),
+			dateUpdated: time.Now(),
+		}
+		m.list.InsertItem(len(m.list.Items()), newItem)
+		m.changeState(addNewOff)
+		return m, func() tea.Msg {
+			return shared.SaveCommandMsg{Command: ""}
+		}
+
+	case shared.SaveCommandMsg:
 		selectedItem := m.list.SelectedItem()
 		if selectedItem != nil {
 			if selected, ok := selectedItem.(item); ok {
 				selected.command = msg.Command
 				selected.dateUpdated = time.Now()
 				m.list.SetItem(m.list.Index(), item{
-					title: selected.title, 
-					desc: selected.desc, 
-					command: selected.command,
-					dateAdded: selected.dateAdded, 
+					title:       selected.title,
+					desc:        selected.desc,
+					command:     selected.command,
+					dateAdded:   selected.dateAdded,
 					dateUpdated: selected.dateUpdated})
 			}
 		}
@@ -81,10 +98,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var data []list.Item
 		for _, i := range msg.Items.Items {
 			data = append(data, list.Item(item{
-				title: i.Title,
-				desc: i.Desc, 
-				command: i.Command, 
-				dateAdded: i.DateAdded, 
+				title:       i.Title,
+				desc:        i.Desc,
+				command:     i.Command,
+				dateAdded:   i.DateAdded,
 				dateUpdated: i.DateUpdated}))
 		}
 		m.list.SetItems(data)
@@ -96,15 +113,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.changeState(addNewOff)
 			}
 		}
-		if msg.String() == "ctrl+c" {
-			return m, tea.Quit
-		}
 		if msg.String() == "y" {
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(item); ok {
 					return m, func() tea.Msg {
-						return shared.CopyToClipboard{Command: selected.command}
+						return shared.CopyToClipboardMsg{Command: selected.command}
 					}
 
 				}
@@ -113,19 +127,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "enter" {
 			switch m.state {
 			case addNewOn:
-				if m.input.Value() == "" {
-					return m, nil
-				}
 				var c tea.Cmd
-				m.list.InsertItem(0, item{
-					title: m.input.Value(), 
-					desc: "", 
-					command: "", 
-					dateAdded: time.Now(), 
-					dateUpdated: time.Now()})
-				m.input.Reset()
-				m.list, c = m.list.Update(msg)
-				m.changeState(addNewOff)
+				m.inputs, c = m.inputs.Update(msg)
 				return m, c
 			}
 		}
@@ -141,7 +144,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, c)
 	case addNewOn:
 		var c tea.Cmd
-		m.input, c = m.input.Update(msg)
+		m.inputs, c = m.inputs.Update(msg)
 		cmds = append(cmds, c)
 	}
 
@@ -151,7 +154,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var v string
 	listView := docStyle.Render(m.list.View())
-	inputView := docStyle.Render(m.input.View())
+	inputView := docStyle.Render(m.inputs.View())
 	switch m.state {
 	case addNewOff:
 		v = listView
@@ -163,11 +166,7 @@ func (m Model) View() string {
 }
 
 func New() Model {
-	ti := textinput.New()
-	ti.Placeholder = "New command name..."
-	ti.Focus()
-
-	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), input: ti}
+	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: NewInputsModel()}
 	m.list.Title = "Workflows"
 	m.Init()
 	return m

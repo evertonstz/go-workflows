@@ -31,8 +31,6 @@ var (
 				Height(5).
 				Align(lipgloss.Center, lipgloss.Center).
 				BorderStyle(lipgloss.HiddenBorder())
-	// BorderStyle(lipgloss.NormalBorder()).
-	// BorderForeground(lipgloss.Color("69"))
 )
 
 type termDimensions struct {
@@ -65,26 +63,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, persist.LoadPersistionFile(msg.DataFile)
 	case persist.PersistionFileLoadedMsg:
 		m.list.Update(m)
-	case shared.CopyToClipboard:
+	case shared.CopyToClipboardMsg:
 		return handleClipboardCopy(m, msg)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
-	case shared.SaveItem:
+	case shared.SaveCommandMsg:
 		return handleSaveItem(m, msg)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "enter":
-			if m.state == listView {
+			if m.state == listView && !m.list.InputOn() {
 				m.state = editView
 				return m, func() tea.Msg {
 					return shared.ItemMsg{Title: m.list.CurentItem().Title(),
 						Command: m.list.CurentItem().Command()}
 				}
-			} else {
-				m.state = listView
+			} else if m.state == listView && m.list.InputOn() {
+				var c tea.Cmd
+				_, c = m.list.Update(msg)
+				return m, tea.Batch(c)
 			}
 		}
 	}

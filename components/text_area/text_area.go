@@ -43,11 +43,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.TextArea.Focused() {
 				m.TextArea.Blur()
 			}
-		case tea.KeyCtrlC:
-			return m, tea.Quit
 		case tea.KeyCtrlS:
 			return m, func() tea.Msg {
-				return shared.SaveItem{Command: m.TextArea.Value()}
+				return shared.SaveCommandMsg{Command: m.TextArea.Value()}
 			}
 		default:
 			if !m.TextArea.Focused() {
@@ -68,8 +66,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return fmt.Sprintf(
-		"Tell me a story.\n\n%s\n\n%s",
+		"%s\n%s",
 		m.TextArea.View(),
-		"(ctrl+c to quit)",
-	) + "\n\n"
+		"(esc to return to list, ctrl+s to save)",
+	)
 }
