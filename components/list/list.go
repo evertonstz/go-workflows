@@ -32,7 +32,7 @@ func (i item) FilterValue() string    { return i.title }
 
 type Model struct {
 	state  inputs
-	inputs InputsModel
+	inputs inputsModel
 	list   list.Model
 }
 
@@ -64,7 +64,7 @@ func (m *Model) changeState(v inputs) inputs {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
-	case AddNewItemMsg:
+	case addNewItemMsg:
 		if m.inputs.Title.Value() == "" || m.inputs.Description.Value() == "" {
 			return m, nil
 		}
@@ -166,7 +166,7 @@ func (m Model) View() string {
 }
 
 func New() Model {
-	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: NewInputsModel()}
+	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel()}
 	m.list.Title = "Workflows"
 	m.Init()
 	return m

@@ -28,36 +28,36 @@ const (
 	submit
 )
 
-type InputsModel struct {
+type inputsModel struct {
 	Title         textinput.Model
 	Description   textinput.Model
 	selectedInput inputs
 }
 
-type AddNewItemMsg struct {
+type addNewItemMsg struct {
 	Title       string
 	Description string
 }
 
-func NewInputsModel() InputsModel {
+func newInputsModel() inputsModel {
 	titleModel := textinput.New()
 	titleModel.Placeholder = "Title"
 	titleModel.Focus()
 	descModel := textinput.New()
 	descModel.Placeholder = "Description"
 
-	return InputsModel{
+	return inputsModel{
 		Title:         titleModel,
 		Description:   descModel,
 		selectedInput: title,
 	}
 }
 
-func (m InputsModel) Init() tea.Cmd {
+func (m inputsModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m InputsModel) Focus(i inputs) (InputsModel, tea.Cmd) {
+func (m inputsModel) focusInput(i inputs) (inputsModel, tea.Cmd) {
 	switch i {
 	case title:
 		m.Title.Focus()
@@ -76,7 +76,7 @@ func (m InputsModel) Focus(i inputs) (InputsModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m InputsModel) Update(msg tea.Msg) (InputsModel, tea.Cmd) {
+func (m inputsModel) Update(msg tea.Msg) (inputsModel, tea.Cmd) {
 	titleModel, titleCmd := m.Title.Update(msg)
 	descModel, descCmd := m.Description.Update(msg)
 	switch msg := msg.(type) {
@@ -84,9 +84,9 @@ func (m InputsModel) Update(msg tea.Msg) (InputsModel, tea.Cmd) {
 		if msg.String() == "down" {
 			switch m.selectedInput {
 			case title:
-				return m.Focus(description)
+				return m.focusInput(description)
 			case description:
-				return m.Focus(submit)
+				return m.focusInput(submit)
 			case submit:
 				return m, nil
 			}
@@ -97,16 +97,16 @@ func (m InputsModel) Update(msg tea.Msg) (InputsModel, tea.Cmd) {
 			case title:
 				return m, nil
 			case description:
-				return m.Focus(title)
+				return m.focusInput(title)
 			case submit:
-				return m.Focus(description)
+				return m.focusInput(description)
 			}
 		}
 
 		if msg.String() == "enter" {
 			if m.selectedInput == submit {
 				return m, func() tea.Msg {
-					return AddNewItemMsg{
+					return addNewItemMsg{
 						Title:       m.Title.Value(),
 						Description: m.Description.Value(),
 					}
@@ -115,14 +115,14 @@ func (m InputsModel) Update(msg tea.Msg) (InputsModel, tea.Cmd) {
 		}
 	}
 
-	return InputsModel{
+	return inputsModel{
 		Title:         titleModel,
 		Description:   descModel,
 		selectedInput: m.selectedInput,
 	}, tea.Batch(titleCmd, descCmd)
 }
 
-func (m InputsModel) View() string {
+func (m inputsModel) View() string {
 	switch m.selectedInput {
 	case title:
 		return lipgloss.JoinVertical(lipgloss.Top, focusedStyle.Render(m.Title.View()),
