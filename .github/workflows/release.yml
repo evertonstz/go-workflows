@@ -17,17 +17,25 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Cross compile
+      - name: Cross compile and package
         run: |
           mkdir -p bin
+
           # Linux binaries
-          GOOS=linux GOARCH=amd64 go build -o bin/server-linux-amd64 .
-          GOOS=linux GOARCH=arm64 go build -o bin/server-linux-arm64 .
+          GOOS=linux GOARCH=amd64 go build -o bin/go-workflows .
+          tar -czvf bin/go-workflows-linux-amd64.tar.gz -C bin go-workflows
+          GOOS=linux GOARCH=arm64 go build -o bin/go-workflows .
+          tar -czvf bin/go-workflows-linux-arm64.tar.gz -C bin go-workflows
+
           # macOS binaries
-          GOOS=darwin GOARCH=amd64 go build -o bin/server-darwin-amd64 .
-          GOOS=darwin GOARCH=arm64 go build -o bin/server-darwin-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -o bin/go-workflows .
+          tar -czvf bin/go-workflows-darwin-amd64.tar.gz -C bin go-workflows
+          GOOS=darwin GOARCH=arm64 go build -o bin/go-workflows .
+          tar -czvf bin/go-workflows-darwin-arm64.tar.gz -C bin go-workflows
+
           # Windows binaries
-          GOOS=windows GOARCH=amd64 go build -o bin/server-windows-amd64.exe .
+          GOOS=windows GOARCH=amd64 go build -o bin/go-workflows.exe .
+          zip -j bin/go-workflows-windows-amd64.zip bin/go-workflows.exe
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -39,8 +47,8 @@ jobs:
             - macOS binaries (amd64, arm64)
             - Windows binary (amd64)
           files: |
-            bin/server-linux-amd64
-            bin/server-linux-arm64
-            bin/server-darwin-amd64
-            bin/server-darwin-arm64
-            bin/server-windows-amd64.exe
+            bin/go-workflows-linux-amd64.tar.gz
+            bin/go-workflows-linux-arm64.tar.gz
+            bin/go-workflows-darwin-amd64.tar.gz
+            bin/go-workflows-darwin-arm64.tar.gz
+            bin/go-workflows-windows-amd64.zip
