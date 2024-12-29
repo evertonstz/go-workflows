@@ -21,13 +21,13 @@ jobs:
         run: |
           mkdir -p bin
           # Linux binaries
-          GOOS=linux GOARCH=amd64 go build -o bin/server-linux-amd64 ./cmd/server
-          GOOS=linux GOARCH=arm64 go build -o bin/server-linux-arm64 ./cmd/server
+          GOOS=linux GOARCH=amd64 go build -o bin/server-linux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -o bin/server-linux-arm64 .
           # macOS binaries
-          GOOS=darwin GOARCH=amd64 go build -o bin/server-darwin-amd64 ./cmd/server
-          GOOS=darwin GOARCH=arm64 go build -o bin/server-darwin-arm64 ./cmd/server
+          GOOS=darwin GOARCH=amd64 go build -o bin/server-darwin-amd64 .
+          GOOS=darwin GOARCH=arm64 go build -o bin/server-darwin-arm64 .
           # Windows binaries
-          GOOS=windows GOARCH=amd64 go build -o bin/server-windows-amd64.exe ./cmd/server
+          GOOS=windows GOARCH=amd64 go build -o bin/server-windows-amd64.exe .
 
       - name: Release
         uses: softprops/action-gh-release@v1
