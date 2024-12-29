@@ -20,24 +20,26 @@ var (
 	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
 )
 
-type inputs uint
+type (
+	inputs uint
+
+	inputsModel struct {
+		Title         textinput.Model
+		Description   textinput.Model
+		selectedInput inputs
+	}
+
+	addNewItemMsg struct {
+		Title       string
+		Description string
+	}
+)
 
 const (
 	title inputs = iota
 	description
 	submit
 )
-
-type inputsModel struct {
-	Title         textinput.Model
-	Description   textinput.Model
-	selectedInput inputs
-}
-
-type addNewItemMsg struct {
-	Title       string
-	Description string
-}
 
 func newInputsModel() inputsModel {
 	titleModel := textinput.New()

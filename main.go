@@ -13,13 +13,6 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-type sessionState uint
-
-const (
-	listView sessionState = iota
-	editView
-)
-
 var (
 	modelStyle = lipgloss.NewStyle().
 			Width(15).
@@ -33,18 +26,26 @@ var (
 				BorderStyle(lipgloss.HiddenBorder())
 )
 
-type termDimensions struct {
-	width  int
-	height int
-}
+type (
+	termDimensions struct {
+		width  int
+		height int
+	}
 
-type model struct {
-	state          sessionState
-	list           list.Model
-	textArea       textarea.Model
-	persistPath    string
-	termDimensions termDimensions
-}
+	model struct {
+		state          sessionState
+		list           list.Model
+		textArea       textarea.Model
+		persistPath    string
+		termDimensions termDimensions
+	}
+	sessionState uint
+)
+
+const (
+	listView sessionState = iota
+	editView
+)
 
 func (m model) Init() tea.Cmd {
 	return persist.InitPersistionManager("go-workflows")

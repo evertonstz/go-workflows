@@ -8,8 +8,6 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-type errMsg error
-
 type Model struct {
 	TextArea textarea.Model
 	err      error
@@ -53,10 +51,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, cmd)
 			}
 		}
-
-	case errMsg:
-		m.err = msg
-		return m, nil
 	}
 
 	m.TextArea, cmd = m.TextArea.Update(msg)

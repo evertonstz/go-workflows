@@ -10,16 +10,16 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-const (
-	addNewOff inputs = iota
-	addNewOn
-)
-
 type item struct {
 	title, desc, command string
 	dateAdded            time.Time
 	dateUpdated          time.Time
 }
+
+const (
+	addNewOff inputs = iota
+	addNewOn
+)
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
