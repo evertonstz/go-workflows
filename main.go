@@ -75,6 +75,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "esc":
+			if m.state == editView {
+				m.state = listView
+			}
+			return m, nil
 		case "enter":
 			if m.state == listView && !m.list.InputOn() {
 				m.state = editView
