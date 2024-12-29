@@ -6,7 +6,7 @@ tasks:
       - go build -v -i main.go
   format:
     cmds:
-      - go fmt ./...
+      - goimports -w .
   lint:
     cmds:
       - golangci-lint run ./...
