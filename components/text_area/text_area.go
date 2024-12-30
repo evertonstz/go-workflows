@@ -5,12 +5,14 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
 type Model struct {
-	TextArea textarea.Model
-	err      error
+	TextArea    textarea.Model
+	currentItem models.Item
+	err         error
 }
 
 func New() Model {
@@ -34,7 +36,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case shared.DidSetCurrentItemMsg:
-		m.TextArea.SetValue(msg.Item.Command)
+		m.currentItem = msg.Item
+		m.TextArea.SetValue(m.currentItem.Command)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
@@ -42,9 +45,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.TextArea.Blur()
 			}
 		case tea.KeyCtrlS:
-			return m, func() tea.Msg {
-				return shared.SaveCommandMsg{Command: m.TextArea.Value()}
-			}
+			m.currentItem.Command = m.TextArea.Value()
+			return m, shared.UpdateItemCmd(m.currentItem)
 		default:
 			if !m.TextArea.Focused() {
 				cmd = m.TextArea.Focus()

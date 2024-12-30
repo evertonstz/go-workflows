@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertonstz/go-workflows/models"
 
@@ -21,5 +23,12 @@ func CopyToClipboardCmd(t string) tea.Cmd {
 func SetCurrentItemCmd(i models.Item) tea.Cmd {
 	return func() tea.Msg {
 		return DidSetCurrentItemMsg{Item: i}
+	}
+}
+
+func UpdateItemCmd(i models.Item) tea.Cmd {
+	return func() tea.Msg {
+		i.DateUpdated = time.Now()
+		return DidUpdateItemMsg{Item: i}
 	}
 }

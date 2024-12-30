@@ -7,8 +7,8 @@ type (
 		Item models.Item
 	}
 
-	SaveCommandMsg struct {
-		Command string
+	DidUpdateItemMsg struct {
+		Item models.Item
 	}
 
 	AddNewItemMsg struct {

@@ -10,6 +10,7 @@ import (
 	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/components/persist"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
+	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -68,12 +69,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.persistPath = msg.DataFile
 		return m, persist.LoadDataFileCmd(msg.DataFile)
 	case persist.LoadedDataFileMsg:
-		m.list.Update(m)
+		m.list.Update(msg)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
-	case shared.SaveCommandMsg:
-		return handleSaveItem(m, msg)
+	case shared.DidUpdateItemMsg:
+		m.list.Update(msg)
+
+		var items []models.Item
+		for _, i := range m.list.AllItems() {
+			items = append(items, models.Item{
+				Title:       i.Title(),
+				Desc:        i.Description(),
+				Command:     i.Command(),
+				DateAdded:   i.DateAdded(),
+				DateUpdated: i.DateUpdated()})
+		}
+		data := models.Items{Items: items}
+
+		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":

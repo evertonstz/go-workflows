@@ -55,7 +55,7 @@ func LoadDataFileCmd(path string) tea.Cmd {
 	}
 }
 
-func SaveConfigFile(path string, data models.Items) tea.Cmd {
+func PersistListData(path string, data models.Items) tea.Cmd {
 	return func() tea.Msg {
 		config, err := json.Marshal(data)
 		if err != nil {
