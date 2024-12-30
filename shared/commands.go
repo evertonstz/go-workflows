@@ -17,12 +17,6 @@ func CopyToClipboardCmd(t string) tea.Cmd {
 	}
 }
 
-func SaveSelectedItemCmd(c string) tea.Cmd {
-	return func() tea.Msg {
-		return SaveCommandMsg{Command: c}
-	}
-}
-
 func SetCurrentItemCmd(i models.Item) tea.Cmd {
 	return func() tea.Msg {
 		return DidSetCurrentItemMsg{Item: i}
