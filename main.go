@@ -85,9 +85,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "enter":
 			if m.focused() == listView && !m.list.InputOn() {
-				var cmds []tea.Cmd
 				var c tea.Cmd
-
 				m.changeFocus(editView)
 
 				updatedListModel, c := m.list.Update(msg)
