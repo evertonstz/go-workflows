@@ -94,11 +94,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				updatedTextAreaModel, c := m.textArea.Update(msg)
 				m.textArea = updatedTextAreaModel.(textarea.Model)
 				cmds = append(cmds, c)
-				return m, tea.Batch(cmds...)
+
 			} else if m.focused() == listView && m.list.InputOn() {
-				var c tea.Cmd
-				_, c = m.list.Update(msg)
-				return m, tea.Batch(c)
+				_, c := m.list.Update(msg)
+				cmds = append(cmds, c)
 			}
 		}
 	}
