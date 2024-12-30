@@ -55,6 +55,11 @@ func (m model) focused() sessionState {
 	return m.state
 }
 
+func (m *model) changeFocus(v sessionState) sessionState {
+	m.state = v
+	return m.state
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
@@ -79,13 +84,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "enter":
-			if m.state == listView && !m.list.InputOn() {
-				m.state = editView
-				return m, func() tea.Msg {
-					return shared.ItemMsg{Title: m.list.CurentItem().Title(),
-						Command: m.list.CurentItem().Command()}
-				}
-			} else if m.state == listView && m.list.InputOn() {
+			if m.focused() == listView && !m.list.InputOn() {
+				var cmds []tea.Cmd
+				var c tea.Cmd
+
+				m.changeFocus(editView)
+
+				updatedListModel, c := m.list.Update(msg)
+				m.list = updatedListModel.(list.Model)
+				cmds = append(cmds, c)
+				updatedTextAreaModel, c := m.textArea.Update(msg)
+				m.textArea = updatedTextAreaModel.(textarea.Model)
+				cmds = append(cmds, c)
+				return m, tea.Batch(cmds...)
+			} else if m.focused() == listView && m.list.InputOn() {
 				var c tea.Cmd
 				_, c = m.list.Update(msg)
 				return m, tea.Batch(c)

@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/persist"
+	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -123,6 +124,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if msg.String() == "enter" {
 			switch m.state {
+			case addNewOff:
+				return m, shared.SetCurrentItemCmd(models.Item{
+					Title:       m.CurentItem().Title(),
+					Desc:        m.CurentItem().Description(),
+					Command:     m.CurentItem().Command(),
+					DateAdded:   m.CurentItem().DateAdded(),
+					DateUpdated: m.CurentItem().DateUpdated()},
+				)
 			case addNewOn:
 				var c tea.Cmd
 				m.inputs, c = m.inputs.Update(msg)

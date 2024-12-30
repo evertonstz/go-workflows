@@ -33,8 +33,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case shared.ItemMsg:
-		m.TextArea.SetValue(msg.Command)
+	case shared.DidSetCurrentItemMsg:
+		m.TextArea.SetValue(msg.Item.Command)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:

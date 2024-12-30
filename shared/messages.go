@@ -1,9 +1,10 @@
 package shared
 
+import "github.com/evertonstz/go-workflows/models"
+
 type (
-	ItemMsg struct {
-		Title   string
-		Command string
+	DidSetCurrentItemMsg struct {
+		Item models.Item
 	}
 
 	SaveCommandMsg struct {
