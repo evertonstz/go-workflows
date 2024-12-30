@@ -117,10 +117,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(item); ok {
-					return m, func() tea.Msg {
-						return shared.CopyToClipboardMsg{Command: selected.command}
-					}
-
+					return m, shared.CopyToClipboardCmd(selected.command)
 				}
 			}
 		}

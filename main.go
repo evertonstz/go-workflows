@@ -64,8 +64,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, persist.LoadPersistionFile(msg.DataFile)
 	case persist.PersistionFileLoadedMsg:
 		m.list.Update(m)
-	case shared.CopyToClipboardMsg:
-		return handleClipboardCopy(m, msg)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height

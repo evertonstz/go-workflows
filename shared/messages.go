@@ -16,9 +16,7 @@ type (
 		Command     string
 	}
 
-	CopyToClipboardMsg struct {
-		Command string
-	}
+	CopiedToClipboardMsg struct{}
 
 	ErrorMsg struct {
 		Err error
