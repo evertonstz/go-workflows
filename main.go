@@ -48,7 +48,7 @@ const (
 )
 
 func (m model) Init() tea.Cmd {
-	return persist.InitPersistionManager("go-workflows")
+	return persist.InitPersistionManagerCmd("go-workflows")
 }
 
 func (m model) focused() sessionState {
@@ -64,10 +64,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case persist.Paths:
+	case persist.InitiatedPersistion:
 		m.persistPath = msg.DataFile
-		return m, persist.LoadPersistionFile(msg.DataFile)
-	case persist.PersistionFileLoadedMsg:
+		return m, persist.LoadDataFileCmd(msg.DataFile)
+	case persist.LoadedDataFileMsg:
 		m.list.Update(m)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width

@@ -12,16 +12,16 @@ import (
 )
 
 type (
-	Paths struct {
+	InitiatedPersistion struct {
 		DataFile string
 	}
 
-	PersistionFileLoadedMsg struct {
+	LoadedDataFileMsg struct {
 		Items models.Items
 	}
 )
 
-func InitPersistionManager(appName string) tea.Cmd {
+func InitPersistionManagerCmd(appName string) tea.Cmd {
 	return func() tea.Msg {
 		dataFile, err := xdg.DataFile(fmt.Sprintf("%s/data.json", appName))
 		if err != nil {
@@ -30,28 +30,28 @@ func InitPersistionManager(appName string) tea.Cmd {
 
 		err = os.MkdirAll(xdg.ConfigHome+"/"+appName, os.ModePerm)
 		if err != nil {
-			return shared.ErrorMsg{Err: err}
+			panic(err)
 		}
 
-		return Paths{
+		return InitiatedPersistion{
 			DataFile: dataFile,
 		}
 	}
 }
 
-func LoadPersistionFile(path string) tea.Cmd {
+func LoadDataFileCmd(path string) tea.Cmd {
 	return func() tea.Msg {
 		data, err := os.ReadFile(path)
 		if err != nil {
-			return shared.ErrorMsg{Err: fmt.Errorf("failed to read file: %w", err)}
+			panic(err)
 		}
 
 		var config models.Items
 		if err := json.Unmarshal(data, &config); err != nil {
-			return shared.ErrorMsg{Err: fmt.Errorf("failed to analyze JSON: %w", err)}
+			panic(err)
 		}
 
-		return PersistionFileLoadedMsg{Items: config}
+		return LoadedDataFileMsg{Items: config}
 	}
 }
 

@@ -95,7 +95,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					dateUpdated: selected.dateUpdated})
 			}
 		}
-	case persist.PersistionFileLoadedMsg:
+	case persist.LoadedDataFileMsg:
 		var data []list.Item
 		for _, i := range msg.Items.Items {
 			data = append(data, list.Item(item{
