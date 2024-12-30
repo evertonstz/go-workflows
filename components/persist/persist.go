@@ -25,7 +25,7 @@ func InitPersistionManager(appName string) tea.Cmd {
 	return func() tea.Msg {
 		dataFile, err := xdg.DataFile(fmt.Sprintf("%s/data.json", appName))
 		if err != nil {
-			return shared.ErrorMsg{Err: err}
+			panic(err)
 		}
 
 		err = os.MkdirAll(xdg.ConfigHome+"/"+appName, os.ModePerm)
