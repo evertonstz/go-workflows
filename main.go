@@ -73,6 +73,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
+		m.textArea.SetSize(int(math.Floor(float64(msg.Width) * 0.5)),
+							int(math.Floor(float64(msg.Height) * 0.75)))
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 

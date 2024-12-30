@@ -171,6 +171,7 @@ func (m Model) View() string {
 func New() Model {
 	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel()}
 	m.list.Title = "Workflows"
+	m.list.SetShowHelp(false)
 	m.Init()
 	return m
 }
