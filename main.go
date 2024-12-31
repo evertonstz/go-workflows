@@ -5,6 +5,8 @@ import (
 	"log"
 	"math"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/list"
@@ -34,6 +36,8 @@ type (
 	}
 
 	model struct {
+		keys           keyMap
+		help           help.Model
 		state          sessionState
 		list           list.Model
 		textArea       textarea.Model
@@ -73,8 +77,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
-		m.textArea.SetSize(int(math.Floor(float64(msg.Width) * 0.5)),
-							int(math.Floor(float64(msg.Height) * 0.75)))
+		m.textArea.SetSize(int(math.Floor(float64(msg.Width)*0.5)),
+			int(math.Floor(float64(msg.Height)*0.75)))
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 
@@ -91,15 +95,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch {
+		case key.Matches(msg, m.keys.Help):
+			m.help.ShowAll = !m.help.ShowAll
+		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
-		case "esc":
+		case key.Matches(msg, m.keys.Esc):
 			if m.state == editView {
 				m.state = listView
 			}
 			return m, nil
-		case "enter":
+		case key.Matches(msg, m.keys.Enter):
 			if m.focused() == listView && !m.list.InputOn() {
 				var c tea.Cmd
 				m.changeFocus(editView)
@@ -160,11 +166,14 @@ func (m model) View() string {
 				Height(panelHeight).
 				Render(m.textArea.View()))
 	}
-	return s
+	helpView := m.help.View(m.keys)
+	return fmt.Sprintf("%s\n%s", s, helpView)
 }
 
 func main() {
 	m := model{
+		keys:     keys,
+		help:     help.New(),
 		list:     list.New(),
 		textArea: textarea.New(),
 	}

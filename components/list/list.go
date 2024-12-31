@@ -104,7 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.list.SetItems(data)
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+a" {
+		if msg.String() == "a" {
 			if m.state == addNewOff {
 				m.changeState(addNewOn)
 			} else {
