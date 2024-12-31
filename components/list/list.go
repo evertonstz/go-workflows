@@ -1,6 +1,7 @@
 package list
 
 import (
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -22,7 +23,7 @@ const (
 	addNewOn
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var docStyle = lipgloss.NewStyle().MarginTop(1)
 
 func (i myItem) Title() string          { return i.title }
 func (i myItem) Description() string    { return i.desc }
@@ -57,9 +58,16 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) changeState(v inputs) inputs {
-	m.state = v
-	return m.state
+func (m *Model) showAddNew() {
+	m.state = addNewOn
+}
+
+func (m *Model) hideAddNew() {
+	m.state = addNewOff
+}
+
+func (m *Model) SetSize(width, height int) {
+	m.list.SetSize(width, height)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -76,10 +84,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			dateUpdated: time.Now(),
 		}
 		m.list.InsertItem(len(m.list.Items()), newItem)
-		m.changeState(addNewOff)
+		m.hideAddNew()
 		return m, nil
 	case shared.DidUpdateItemMsg:
-		print(22222)
 		for i, item := range m.list.Items() {
 			if item.(myItem).title == msg.Item.Title {
 				m.list.SetItem(i, myItem{
@@ -104,11 +111,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.list.SetItems(data)
 	case tea.KeyMsg:
+		if msg.String() == "esc" {
+			if m.state == addNewOn {
+				m.hideAddNew()
+				return m, nil
+			}
+		}
 		if msg.String() == "a" {
 			if m.state == addNewOff {
-				m.changeState(addNewOn)
-			} else {
-				m.changeState(addNewOff)
+				m.showAddNew()
+				return m, nil
 			}
 		}
 		if msg.String() == "y" {
@@ -156,13 +168,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var v string
-	listView := docStyle.Render(m.list.View())
+	// listView := docStyle.Render(m.list.View())
 	inputView := docStyle.Render(m.inputs.View())
+	inputViewHeight := strings.Count(inputView, "\n")
 	switch m.state {
 	case addNewOff:
-		v = listView
+		v = docStyle.Render(m.list.View())
 	case addNewOn:
-		v = lipgloss.JoinVertical(lipgloss.Top, listView, inputView)
+		v = lipgloss.JoinVertical(lipgloss.Top,
+			docStyle.
+				Height(m.list.Height()-inputViewHeight).
+				Render(m.list.View()),
+			inputView)
 	}
 
 	return v

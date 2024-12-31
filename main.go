@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -17,16 +18,14 @@ import (
 )
 
 var (
-	modelStyle = lipgloss.NewStyle().
+	leftPanelStyle = lipgloss.NewStyle().
+			PaddingTop(2).
+			AlignHorizontal(lipgloss.Left).
+			BorderStyle(lipgloss.HiddenBorder())
+	rightPanelStyle = lipgloss.NewStyle().
 			Width(15).
 			Height(5).
-			Align(lipgloss.Center, lipgloss.Center).
 			BorderStyle(lipgloss.HiddenBorder())
-	focusedModelStyle = lipgloss.NewStyle().
-				Width(15).
-				Height(5).
-				Align(lipgloss.Center, lipgloss.Center).
-				BorderStyle(lipgloss.HiddenBorder())
 )
 
 type (
@@ -79,6 +78,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termDimensions.height = msg.Height
 		m.textArea.SetSize(int(math.Floor(float64(msg.Width)*0.5)),
 			int(math.Floor(float64(msg.Height)*0.75)))
+		m.list.SetSize(int(math.Floor(float64(msg.Width)*0.5)),
+			int(math.Floor(float64(msg.Height)*0.75)))
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 
@@ -104,6 +105,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.state == editView {
 				m.state = listView
 			}
+			r, _ := m.list.Update(msg)
+			m.list = r.(list.Model)
 			return m, nil
 		case key.Matches(msg, m.keys.Enter):
 			if m.focused() == listView && !m.list.InputOn() {
@@ -145,29 +148,33 @@ func (m model) View() string {
 	fistPanelWidth := int(math.Floor(float64(m.termDimensions.width) * 0.5))
 	secondPanelWidth := m.termDimensions.width - fistPanelWidth
 	panelHeight := m.termDimensions.height
-	var s string
 
+	helpView := lipgloss.NewStyle().Width(m.termDimensions.width).PaddingLeft(2).Render(m.help.View(keys))
+
+	helpHeight := strings.Count(helpView, "\n")
+
+	var s string
 	if m.focused() == listView {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
-			focusedModelStyle.
+			leftPanelStyle.
+				PaddingTop(2).
 				AlignHorizontal(lipgloss.Left).
 				Width(fistPanelWidth).
-				Height(panelHeight).
+				Height(panelHeight-helpHeight).
 				Render(fmt.Sprintf("%4s", m.list.View())))
 	} else {
 		s = lipgloss.JoinHorizontal(lipgloss.Top,
-			modelStyle.Faint(true).
-				AlignHorizontal(lipgloss.Left).
+			leftPanelStyle.
+				Faint(true).
 				Width(fistPanelWidth).
 				Height(panelHeight).
 				Render(fmt.Sprintf("%4s", m.list.View())),
-			focusedModelStyle.
+			rightPanelStyle.
 				Width(secondPanelWidth).
 				Height(panelHeight).
 				Render(m.textArea.View()))
 	}
-	helpView := m.help.View(m.keys)
-	return fmt.Sprintf("%s\n%s", s, helpView)
+	return lipgloss.JoinVertical(lipgloss.Left, s, helpView)
 }
 
 func main() {
