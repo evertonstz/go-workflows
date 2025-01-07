@@ -23,6 +23,8 @@ var (
 			AlignHorizontal(lipgloss.Left).
 			BorderStyle(lipgloss.HiddenBorder())
 	rightPanelStyle = lipgloss.NewStyle().
+			PaddingRight(3).
+			PaddingTop(3).
 			Width(15).
 			Height(5).
 			BorderStyle(lipgloss.HiddenBorder())
@@ -77,7 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
 		m.textArea.SetSize(int(math.Floor(float64(msg.Width)*0.5)),
-			int(math.Floor(float64(msg.Height)*0.75)))
+			int(math.Floor(float64(msg.Height)*0.25)))
 		m.list.SetSize(int(math.Floor(float64(msg.Width)*0.5)),
 			int(math.Floor(float64(msg.Height)*0.75)))
 	case shared.DidUpdateItemMsg:
@@ -163,13 +165,14 @@ func (m model) View() string {
 				Height(panelHeight-helpHeight).
 				Render(fmt.Sprintf("%4s", m.list.View())))
 	} else {
-		s = lipgloss.JoinHorizontal(lipgloss.Top,
+		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			leftPanelStyle.
 				Faint(true).
 				Width(fistPanelWidth).
 				Height(panelHeight).
 				Render(fmt.Sprintf("%4s", m.list.View())),
 			rightPanelStyle.
+				// Border(lipgloss.ThickBorder()).
 				Width(secondPanelWidth).
 				Height(panelHeight).
 				Render(m.textArea.View()))

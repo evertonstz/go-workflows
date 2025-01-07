@@ -1,8 +1,6 @@
 package textarea
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertonstz/go-workflows/models"
@@ -17,8 +15,10 @@ type Model struct {
 
 func New() Model {
 	ti := textarea.New()
+	ti.ShowLineNumbers = false
 	ti.Placeholder = "Paste or type your command here..."
 	ti.Focus()
+	ti.Prompt = ""
 
 	return Model{
 		TextArea: ti,
@@ -66,9 +66,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return fmt.Sprintf(
-		"%s\n%s",
-		m.TextArea.View(),
-		"(esc to return to list, ctrl+s to save)",
-	)
+	return m.TextArea.View()
 }
