@@ -3,14 +3,21 @@ package textarea
 import (
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
 type Model struct {
-	TextArea    textarea.Model
-	currentItem models.Item
-	err         error
+	TextArea        textarea.Model
+	highlightedText string
+	currentItem     models.Item
+	editing         bool
+	err             error
+}
+
+func (m *Model) SetEditing(editing bool) {
+	m.editing = editing
 }
 
 func New() Model {
@@ -21,13 +28,15 @@ func New() Model {
 	ti.Prompt = ""
 
 	return Model{
-		TextArea: ti,
-		err:      nil,
+		TextArea:        ti,
+		highlightedText: ti.Placeholder,
+		editing:         false,
+		err:             nil,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return textarea.Blink
+	return nil
 }
 
 func (m *Model) SetSize(width, height int) {
@@ -66,5 +75,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.TextArea.View()
+	if m.editing {
+		return m.TextArea.View()
+	}
+
+	rawText := m.TextArea.Value()
+	highlightedText := SyntaxHighlight(rawText)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Top,
+		highlightedText,
+	)
 }

@@ -63,6 +63,12 @@ func (m model) focused() sessionState {
 
 func (m *model) changeFocus(v sessionState) sessionState {
 	m.state = v
+	switch v {
+	case listView:
+		m.textArea.SetEditing(false)
+	case editView:
+		m.textArea.SetEditing(true)
+	}
 	return m.state
 }
 
@@ -105,7 +111,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.Esc):
 			if m.state == editView {
-				m.state = listView
+				m.changeFocus(listView)
 			}
 			r, _ := m.list.Update(msg)
 			m.list = r.(list.Model)
@@ -163,7 +169,12 @@ func (m model) View() string {
 				AlignHorizontal(lipgloss.Left).
 				Width(fistPanelWidth).
 				Height(panelHeight-helpHeight).
-				Render(fmt.Sprintf("%4s", m.list.View())))
+				Render(fmt.Sprintf("%4s", m.list.View())),
+			rightPanelStyle.
+				// Border(lipgloss.ThickBorder()).
+				Width(secondPanelWidth).
+				Height(panelHeight).
+				Render(m.textArea.View()))
 	} else {
 		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			leftPanelStyle.
