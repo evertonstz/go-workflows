@@ -33,9 +33,10 @@ func (i myItem) DateUpdated() time.Time { return i.dateUpdated }
 func (i myItem) FilterValue() string    { return i.title }
 
 type Model struct {
-	state  inputs
-	inputs inputsModel
-	list   list.Model
+	state           inputs
+	inputs          inputsModel
+	list            list.Model
+	lastSelectedIdx int // Track the last selected index
 }
 
 func (m Model) InputOn() bool {
@@ -68,6 +69,17 @@ func (m *Model) hideAddNew() {
 
 func (m *Model) SetSize(width, height int) {
 	m.list.SetSize(width, height)
+}
+
+func (m Model) setCurrentItemCmd(cmds []tea.Cmd) []tea.Cmd {
+	cmds = append(cmds, shared.SetCurrentItemCmd(models.Item{
+		Title:       m.CurentItem().Title(),
+		Desc:        m.CurentItem().Description(),
+		Command:     m.CurentItem().Command(),
+		DateAdded:   m.CurentItem().DateAdded(),
+		DateUpdated: m.CurentItem().DateUpdated()},
+	))
+	return cmds
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -110,6 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				dateUpdated: i.DateUpdated}))
 		}
 		m.list.SetItems(data)
+		cmds = m.setCurrentItemCmd(cmds)
 	case tea.KeyMsg:
 		if msg.String() == "esc" {
 			if m.state == addNewOn {
@@ -157,6 +170,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var c tea.Cmd
 		m.list, c = m.list.Update(msg)
 		cmds = append(cmds, c)
+		if m.list.Index() != m.lastSelectedIdx {
+			cmds = m.setCurrentItemCmd(cmds)
+			m.lastSelectedIdx = m.list.Index()
+		}
 	case addNewOn:
 		var c tea.Cmd
 		m.inputs, c = m.inputs.Update(msg)
@@ -186,7 +203,7 @@ func (m Model) View() string {
 }
 
 func New() Model {
-	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel()}
+	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel(), state: addNewOff}
 	m.list.Title = "Workflows"
 	m.list.SetShowHelp(false)
 	m.Init()

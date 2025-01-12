@@ -139,8 +139,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case listView:
 		var c tea.Cmd
 		var updatedListAreaModel tea.Model
+		var updatedTextAreaModel tea.Model
 		updatedListAreaModel, c = m.list.Update(msg)
 		m.list = updatedListAreaModel.(list.Model)
+		cmds = append(cmds, c)
+		updatedTextAreaModel, c = m.textArea.Update(msg)
+		m.textArea = updatedTextAreaModel.(textarea.Model)
 		cmds = append(cmds, c)
 	case editView:
 		var c tea.Cmd
