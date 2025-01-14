@@ -17,6 +17,12 @@ type Model struct {
 }
 
 func (m *Model) SetEditing(editing bool) {
+	switch editing {
+	case true:
+		m.TextArea.Focus()
+	case false:
+		m.TextArea.Blur()
+	}
 	m.editing = editing
 }
 
@@ -24,7 +30,6 @@ func New() Model {
 	ti := textarea.New()
 	ti.ShowLineNumbers = false
 	ti.Placeholder = "Paste or type your command here..."
-	ti.Focus()
 	ti.Prompt = ""
 
 	return Model{
@@ -61,11 +66,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlS:
 			m.currentItem.Command = m.TextArea.Value()
 			return m, shared.UpdateItemCmd(m.currentItem)
-		default:
-			if !m.TextArea.Focused() {
-				cmd = m.TextArea.Focus()
-				cmds = append(cmds, cmd)
-			}
 		}
 	}
 

@@ -132,6 +132,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				_, c := m.list.Update(msg)
 				cmds = append(cmds, c)
 			}
+		default:
+			if m.help.ShowAll {
+				m.help.ShowAll = false
+			}
 		}
 	}
 

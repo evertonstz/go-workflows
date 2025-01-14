@@ -44,8 +44,8 @@ var keys = keyMap{
 		key.WithHelp("↓/j", "move down"),
 	),
 	Help: key.NewBinding(
-		key.WithKeys("?"),
-		key.WithHelp("?", "toggle help"),
+		key.WithKeys("ctrl+h"),
+		key.WithHelp("ctrl+h", "toggle help"),
 	),
 	Esc: key.NewBinding(
 		key.WithKeys("esc"),
@@ -56,7 +56,7 @@ var keys = keyMap{
 		key.WithHelp("enter", "edit workflow"),
 	),
 	Quit: key.NewBinding(
-		key.WithKeys("q", "ctrl+c"),
-		key.WithHelp("q", "quit"),
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
 	),
 }
