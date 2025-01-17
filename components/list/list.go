@@ -23,7 +23,7 @@ const (
 	addNewOn
 )
 
-var docStyle = lipgloss.NewStyle().MarginTop(1)
+var docStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
 
 func (i myItem) Title() string          { return i.title }
 func (i myItem) Description() string    { return i.desc }
@@ -68,7 +68,8 @@ func (m *Model) hideAddNew() {
 }
 
 func (m *Model) SetSize(width, height int) {
-	m.list.SetSize(width, height)
+	h, v := docStyle.GetFrameSize()
+	m.list.SetSize(width-h, height-v)
 }
 
 func (m Model) setCurrentItemCmd(cmds []tea.Cmd) []tea.Cmd {
@@ -161,8 +162,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v-6)
+		// h, v := docStyle.GetFrameSize()
+		// m.list.SetSize(msg.Width-h, msg.Height-v-6)
 	}
 
 	switch m.state {
@@ -186,11 +187,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var v string
 	// listView := docStyle.Render(m.list.View())
-	inputView := docStyle.Render(m.inputs.View())
+	inputView := m.inputs.View()
 	inputViewHeight := strings.Count(inputView, "\n")
 	switch m.state {
 	case addNewOff:
 		v = docStyle.Render(m.list.View())
+		// return  m.list.View()
 	case addNewOn:
 		v = lipgloss.JoinVertical(lipgloss.Top,
 			docStyle.
