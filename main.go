@@ -190,8 +190,8 @@ func (m model) View() string {
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	} else {
 		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
-			leftPanelStyle.Faint(true).Render(m.list.View()),
-			rightPanelStyle.Render(m.textArea.View()))
+			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
+			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
 	// return lipgloss.JoinVertical(lipgloss.Left, s, helpView)
 	return s
