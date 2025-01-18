@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -38,6 +39,7 @@ type (
 	panelsStyle struct {
 		leftPanelStyle  lipgloss.Style
 		rightPanelStyle lipgloss.Style
+		helpPanelStyle  lipgloss.Style
 	}
 
 	model struct {
@@ -48,6 +50,7 @@ type (
 		textArea       textarea.Model
 		persistPath    string
 		termDimensions termDimensions
+		helpHeight	   int
 		panelsStyle    panelsStyle
 	}
 	sessionState uint
@@ -77,6 +80,29 @@ func (m *model) changeFocus(v sessionState) sessionState {
 	return m.state
 }
 
+func (m *model) setSizes() {
+	m.helpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
+
+	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
+		Width(int(math.Floor(float64(m.termDimensions.width) * 0.5))).
+		Height(m.termDimensions.height - m.helpHeight - 2).
+		Border(lipgloss.NormalBorder())
+	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
+		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth()).
+		Height(m.termDimensions.height - m.helpHeight - 2).
+		Border(lipgloss.NormalBorder())
+	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.helpHeight)
+
+	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
+	rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
+
+	leftPanelWidth := int(math.Floor(float64(m.panelsStyle.leftPanelStyle.GetWidth()-leftWidthFrameSize) * leftPanelWidthPercentage))
+	rightPanelWidth := int(math.Floor(float64(m.panelsStyle.rightPanelStyle.GetWidth()-rightWidthFrameSize) * rightPanelWidthPercentage))
+
+	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
+	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
@@ -89,23 +115,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
-		m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
-											Width(int(math.Floor(float64(msg.Width) * 0.5))).
-											Height(msg.Height - 2).
-											Border(lipgloss.NormalBorder())
-		m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
-											Width(msg.Width - m.panelsStyle.leftPanelStyle.GetWidth()).
-											Height(msg.Height - 2).
-											Border(lipgloss.NormalBorder())
-        
-		leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
-		rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
-
-		leftPanelWidth := int(math.Floor(float64(m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize) * leftPanelWidthPercentage))
-		rightPanelWidth := int(math.Floor(float64(m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize) * rightPanelWidthPercentage))
-
-		m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight() - leftHeightFrameSize)
-		m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight() - rightHeightFrameSize)
+		m.setSizes()
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 
@@ -125,6 +135,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.Help):
 			m.help.ShowAll = !m.help.ShowAll
+			m.setSizes()
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.Esc):
@@ -179,10 +190,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	// helpView := lipgloss.NewStyle().Width(m.termDimensions.width).PaddingLeft(2).Render(m.help.View(keys))
-
-	// helpHeight := strings.Count(helpView, "\n") + 1
-
 	var s string
 	if m.focused() == listView {
 		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
@@ -193,8 +200,7 @@ func (m model) View() string {
 			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
-	// return lipgloss.JoinVertical(lipgloss.Left, s, helpView)
-	return s
+	return lipgloss.JoinVertical(lipgloss.Left, s, m.help.View(m.keys))
 }
 
 func main() {
@@ -206,7 +212,9 @@ func main() {
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle.AlignHorizontal(lipgloss.Left),
 			rightPanelStyle: rightPanelStyle.AlignHorizontal(lipgloss.Left),
+			helpPanelStyle:  lipgloss.NewStyle().PaddingLeft(2),
 		},
+		helpHeight: 0,
 	}
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
