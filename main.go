@@ -186,17 +186,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	var s string
+	var mainContent string
 	if m.focused() == listView {
-		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
+		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			m.panelsStyle.leftPanelStyle.Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	} else {
-		s = lipgloss.JoinHorizontal(lipgloss.Bottom,
+		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, s, m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
+	return lipgloss.JoinVertical(lipgloss.Left, mainContent, m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 
 func main() {
