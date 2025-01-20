@@ -19,14 +19,12 @@ import (
 var (
 	leftPanelWidthPercentage = 0.5
 	leftPanelStyle = lipgloss.NewStyle().
-			AlignHorizontal(lipgloss.Left).
-			BorderStyle(lipgloss.NormalBorder())
+			AlignHorizontal(lipgloss.Left)
 	rightPanelStyle = lipgloss.NewStyle().
 			AlignHorizontal(lipgloss.Left).
-			PaddingTop(0).
+			PaddingTop(2).
 			Width(15).
-			Height(5).
-			BorderStyle(lipgloss.NormalBorder())
+			Height(5)
 )
 
 type (
@@ -84,12 +82,10 @@ func (m *model) setSizes() {
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
-		Height(m.termDimensions.height - m.helpHeight - 2).
-		Border(lipgloss.NormalBorder())
+		Height(m.termDimensions.height - m.helpHeight - 2)
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
-		Height(m.termDimensions.height - m.helpHeight - 2).
-		Border(lipgloss.NormalBorder())
+		Height(m.termDimensions.height - m.helpHeight - 2)
 	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.helpHeight)
 
 	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
