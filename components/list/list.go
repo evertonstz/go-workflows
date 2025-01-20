@@ -23,7 +23,7 @@ const (
 	addNewOn
 )
 
-var docStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder())
+var docStyle = lipgloss.NewStyle()
 
 func (i myItem) Title() string          { return i.title }
 func (i myItem) Description() string    { return i.desc }
