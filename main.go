@@ -22,6 +22,7 @@ var (
 			AlignHorizontal(lipgloss.Left).
 			BorderStyle(lipgloss.NormalBorder())
 	rightPanelStyle = lipgloss.NewStyle().
+			AlignHorizontal(lipgloss.Left).
 			PaddingTop(0).
 			Width(15).
 			Height(5).
@@ -208,8 +209,8 @@ func main() {
 		list:     list.New(),
 		textArea: textarea.New(),
 		panelsStyle: panelsStyle{
-			leftPanelStyle:  leftPanelStyle.AlignHorizontal(lipgloss.Left),
-			rightPanelStyle: rightPanelStyle.AlignHorizontal(lipgloss.Left),
+			leftPanelStyle:  leftPanelStyle,
+			rightPanelStyle: rightPanelStyle,
 			helpPanelStyle:  lipgloss.NewStyle().PaddingLeft(2),
 		},
 		helpHeight: 0,
