@@ -25,6 +25,7 @@ var (
 			PaddingTop(2).
 			Width(15).
 			Height(5)
+	helpPanelStyle = lipgloss.NewStyle().PaddingLeft(2)
 )
 
 type (
@@ -195,7 +196,7 @@ func (m model) View() string {
 			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, s, m.help.View(m.keys))
+	return lipgloss.JoinVertical(lipgloss.Left, s, m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 
 func main() {
@@ -207,7 +208,7 @@ func main() {
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
 			rightPanelStyle: rightPanelStyle,
-			helpPanelStyle:  lipgloss.NewStyle().PaddingLeft(2),
+			helpPanelStyle:  helpPanelStyle,
 		},
 		helpHeight: 0,
 	}
