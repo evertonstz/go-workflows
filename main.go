@@ -83,10 +83,10 @@ func (m *model) setSizes() {
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
-		Height(m.termDimensions.height - m.currentHelpHeight - 2)
+		Height(m.termDimensions.height - m.currentHelpHeight)
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
-		Height(m.termDimensions.height - m.currentHelpHeight - 2)
+		Height(m.termDimensions.height - m.currentHelpHeight)
 	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.currentHelpHeight)
 
 	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
