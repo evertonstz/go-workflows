@@ -23,8 +23,7 @@ var (
 			AlignHorizontal(lipgloss.Left).
 			BorderStyle(lipgloss.NormalBorder())
 	rightPanelStyle = lipgloss.NewStyle().
-			PaddingRight(3).
-			PaddingTop(3).
+			PaddingTop(0).
 			Width(15).
 			Height(5).
 			BorderStyle(lipgloss.NormalBorder())
@@ -96,8 +95,8 @@ func (m *model) setSizes() {
 	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
 	rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
 
-	leftPanelWidth := int(math.Floor(float64(m.panelsStyle.leftPanelStyle.GetWidth()-leftWidthFrameSize) * leftPanelWidthPercentage))
-	rightPanelWidth := int(math.Floor(float64(m.panelsStyle.rightPanelStyle.GetWidth()-rightWidthFrameSize) * rightPanelWidthPercentage))
+	leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
+	rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)

@@ -8,6 +8,8 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
+var highlightedTextStyle = lipgloss.NewStyle()
+
 type Model struct {
 	TextArea        textarea.Model
 	highlightedText string
@@ -83,7 +85,10 @@ func (m Model) View() string {
 	highlightedText := SyntaxHighlight(rawText)
 
 	return lipgloss.JoinVertical(
-		lipgloss.Top,
-		highlightedText,
+		lipgloss.Left,
+		highlightedTextStyle.
+		Width(m.TextArea.Width()).
+		Height(m.TextArea.Height()).
+		Render(highlightedText),
 	)
 }
