@@ -48,7 +48,7 @@ type (
 		textArea       textarea.Model
 		persistPath    string
 		termDimensions termDimensions
-		helpHeight	   int
+		currentHelpHeight	   int
 		panelsStyle    panelsStyle
 	}
 	sessionState uint
@@ -79,15 +79,15 @@ func (m *model) changeFocus(v sessionState) sessionState {
 }
 
 func (m *model) setSizes() {
-	m.helpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
+	m.currentHelpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
-		Height(m.termDimensions.height - m.helpHeight - 2)
+		Height(m.termDimensions.height - m.currentHelpHeight - 2)
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
-		Height(m.termDimensions.height - m.helpHeight - 2)
-	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.helpHeight)
+		Height(m.termDimensions.height - m.currentHelpHeight - 2)
+	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.currentHelpHeight)
 
 	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
 	rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
@@ -210,7 +210,7 @@ func main() {
 			rightPanelStyle: rightPanelStyle,
 			helpPanelStyle:  helpPanelStyle,
 		},
-		helpHeight: 0,
+		currentHelpHeight: 0,
 	}
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
