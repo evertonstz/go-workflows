@@ -59,6 +59,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	if !m.visible {
+		if m.defaultText == "" {
+			return ""
+		}
 		return style.SetString(m.defaultText).Render()
 	}
 	return style.SetString(m.Text).Render()
