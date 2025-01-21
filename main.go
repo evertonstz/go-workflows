@@ -19,18 +19,18 @@ import (
 
 var (
 	leftPanelWidthPercentage = 0.5
-	leftPanelStyle = lipgloss.NewStyle().
-			AlignHorizontal(lipgloss.Left)
+	leftPanelStyle           = lipgloss.NewStyle().
+					AlignHorizontal(lipgloss.Left)
 	rightPanelStyle = lipgloss.NewStyle().
 			AlignHorizontal(lipgloss.Left).
 			PaddingTop(2).
 			Width(15).
 			Height(5)
-	helpPanelStyle = lipgloss.NewStyle().PaddingLeft(2)
+	helpPanelStyle         = lipgloss.NewStyle().PaddingLeft(2)
 	notificationPanelStyle = lipgloss.NewStyle().
-			PaddingLeft(2).
-			Height(1).
-			AlignHorizontal(lipgloss.Left)
+				PaddingLeft(2).
+				Height(1).
+				AlignHorizontal(lipgloss.Left)
 )
 
 type (
@@ -105,15 +105,15 @@ func (m *model) setSizes() {
 	leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
 	rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
 
-	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight() - leftHeightFrameSize)
-	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight() - rightHeightFrameSize)
+	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
+	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-    case shared.CopiedToClipboardMsg:
+	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:
 		return m, notification.ShowNotificationCmd("Saved!")
@@ -217,7 +217,7 @@ func (m model) View() string {
 	}
 	return lipgloss.JoinVertical(lipgloss.Left,
 		m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
-		mainContent, 
+		mainContent,
 		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 

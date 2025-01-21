@@ -20,7 +20,7 @@ type (
 		Items models.Items
 	}
 
-	PersistedFileMsg struct {}
+	PersistedFileMsg struct{}
 )
 
 func InitPersistionManagerCmd(appName string) tea.Cmd {

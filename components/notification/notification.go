@@ -28,10 +28,10 @@ func New(defaultText string) Model {
 }
 
 var style = lipgloss.NewStyle().
-				PaddingLeft(1).
-				PaddingRight(1).	
-				Background(lipgloss.Color("62")).
-				Foreground(lipgloss.Color("230"))
+	PaddingLeft(1).
+	PaddingRight(1).
+	Background(lipgloss.Color("62")).
+	Foreground(lipgloss.Color("230"))
 
 func (m Model) Init() tea.Cmd {
 	return nil

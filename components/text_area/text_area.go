@@ -87,8 +87,8 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		highlightedTextStyle.
-		Width(m.TextArea.Width()).
-		Height(m.TextArea.Height()).
-		Render(highlightedText),
+			Width(m.TextArea.Width()).
+			Height(m.TextArea.Height()).
+			Render(highlightedText),
 	)
 }
