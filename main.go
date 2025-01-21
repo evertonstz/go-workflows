@@ -140,11 +140,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "n":
-			// Envia uma notificação quando a tecla 'n' é pressionada
-			return m, notification.CmdShowNotification("Essa é uma notificação!")
-		}
 		switch {
 		case key.Matches(msg, m.keys.Help):
 			m.help.ShowAll = !m.help.ShowAll
