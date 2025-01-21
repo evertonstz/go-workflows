@@ -19,6 +19,8 @@ type (
 	LoadedDataFileMsg struct {
 		Items models.Items
 	}
+
+	PersistedFileMsg struct {}
 )
 
 func InitPersistionManagerCmd(appName string) tea.Cmd {
@@ -66,6 +68,6 @@ func PersistListData(path string, data models.Items) tea.Cmd {
 			return shared.ErrorMsg{Err: fmt.Errorf("failed saving file: %w", err)}
 		}
 
-		return nil
+		return PersistedFileMsg{}
 	}
 }

@@ -113,6 +113,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case persist.PersistedFileMsg:
+		return m, notification.CmdShowNotification("Updated!")
 	case persist.InitiatedPersistion:
 		m.persistPath = msg.DataFile
 		return m, persist.LoadDataFileCmd(msg.DataFile)
