@@ -161,9 +161,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, c
 			}
 		}
-	case tea.WindowSizeMsg:
-		// h, v := docStyle.GetFrameSize()
-		// m.list.SetSize(msg.Width-h, msg.Height-v-6)
 	}
 
 	switch m.state {
