@@ -10,8 +10,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/list"
-	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/components/notification"
+	"github.com/evertonstz/go-workflows/components/persist"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
@@ -113,8 +113,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+    case shared.CopiedToClipboardMsg:
+		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:
-		return m, notification.CmdShowNotification("Updated!")
+		return m, notification.ShowNotificationCmd("Saved!")
 	case persist.InitiatedPersistion:
 		m.persistPath = msg.DataFile
 		return m, persist.LoadDataFileCmd(msg.DataFile)

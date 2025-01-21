@@ -80,7 +80,7 @@ func startTimer(duration time.Duration, done chan struct{}) tea.Cmd {
 	}
 }
 
-func CmdShowNotification(text string) tea.Cmd {
+func ShowNotificationCmd(text string) tea.Cmd {
 	return func() tea.Msg {
 		return Msg{Text: text}
 	}
