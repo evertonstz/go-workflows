@@ -12,16 +12,18 @@ type Msg struct {
 }
 
 type Model struct {
-	Text      string
-	visible   bool
-	timerDone chan struct{}
+	Text        string
+	defaultText string
+	visible     bool
+	timerDone   chan struct{}
 }
 
-func New() Model {
+func New(defaultText string) Model {
 	return Model{
-		Text:      "",
-		visible:   false,
-		timerDone: nil,
+		Text:        "",
+		defaultText: defaultText,
+		visible:     false,
+		timerDone:   nil,
 	}
 }
 
@@ -55,7 +57,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	if !m.visible {
-		return ""
+		return style.SetString(m.defaultText).Render()
 	}
 	return style.SetString(m.Text).Render()
 }

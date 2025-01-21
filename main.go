@@ -225,7 +225,7 @@ func main() {
 		help:         help.New(),
 		list:         list.New(),
 		textArea:     textarea.New(),
-		notification: notification.New(),
+		notification: notification.New("Workflows"),
 		panelsStyle: panelsStyle{
 			leftPanelStyle:         leftPanelStyle,
 			rightPanelStyle:        rightPanelStyle,
