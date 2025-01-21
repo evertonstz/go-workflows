@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/components/persist"
+	"github.com/evertonstz/go-workflows/components/notification"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
@@ -26,6 +27,7 @@ var (
 			Width(15).
 			Height(5)
 	helpPanelStyle = lipgloss.NewStyle().PaddingLeft(2)
+	notificationPanelStyle = lipgloss.NewStyle().PaddingLeft(2).Height(1)
 )
 
 type (
@@ -35,21 +37,23 @@ type (
 	}
 
 	panelsStyle struct {
-		leftPanelStyle  lipgloss.Style
-		rightPanelStyle lipgloss.Style
-		helpPanelStyle  lipgloss.Style
+		leftPanelStyle         lipgloss.Style
+		rightPanelStyle        lipgloss.Style
+		helpPanelStyle         lipgloss.Style
+		notificationPanelStyle lipgloss.Style
 	}
 
 	model struct {
-		keys           keyMap
-		help           help.Model
-		state          sessionState
-		list           list.Model
-		textArea       textarea.Model
-		persistPath    string
-		termDimensions termDimensions
-		currentHelpHeight	   int
-		panelsStyle    panelsStyle
+		keys              keyMap
+		help              help.Model
+		state             sessionState
+		list              list.Model
+		textArea          textarea.Model
+		persistPath       string
+		notification      notification.Model
+		termDimensions    termDimensions
+		currentHelpHeight int
+		panelsStyle       panelsStyle
 	}
 	sessionState uint
 )
@@ -87,7 +91,9 @@ func (m *model) setSizes() {
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
 		Height(m.termDimensions.height - m.currentHelpHeight)
-	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.Width(m.termDimensions.width).Height(m.currentHelpHeight)
+	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.
+		Width(m.termDimensions.width).
+		Height(m.currentHelpHeight)
 
 	leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
 	rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
@@ -95,8 +101,8 @@ func (m *model) setSizes() {
 	leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
 	rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
 
-	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
-	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
+	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight() - leftHeightFrameSize)
+	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight() - rightHeightFrameSize)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -128,6 +134,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
+		switch msg.String() {
+		case "n":
+			// Envia uma notificação quando a tecla 'n' é pressionada
+			return m, notification.CmdShowNotification("Essa é uma notificação!")
+		}
 		switch {
 		case key.Matches(msg, m.keys.Help):
 			m.help.ShowAll = !m.help.ShowAll
@@ -182,6 +193,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.textArea = updatedTextAreaModel.(textarea.Model)
 		cmds = append(cmds, c)
 	}
+
+	notfyModel, notfyMsg := m.notification.Update(msg)
+	cmds = append(cmds, notfyMsg)
+	m.notification = notfyModel
+
 	return m, tea.Batch(cmds...)
 }
 
@@ -196,19 +212,24 @@ func (m model) View() string {
 			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, mainContent, m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
+	return lipgloss.JoinVertical(lipgloss.Left,
+		mainContent, 
+		m.notification.View(),
+		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 
 func main() {
 	m := model{
-		keys:     keys,
-		help:     help.New(),
-		list:     list.New(),
-		textArea: textarea.New(),
+		keys:         keys,
+		help:         help.New(),
+		list:         list.New(),
+		textArea:     textarea.New(),
+		notification: notification.New(),
 		panelsStyle: panelsStyle{
-			leftPanelStyle:  leftPanelStyle,
-			rightPanelStyle: rightPanelStyle,
-			helpPanelStyle:  helpPanelStyle,
+			leftPanelStyle:         leftPanelStyle,
+			rightPanelStyle:        rightPanelStyle,
+			helpPanelStyle:         helpPanelStyle,
+			notificationPanelStyle: notificationPanelStyle,
 		},
 		currentHelpHeight: 0,
 	}
