@@ -27,7 +27,10 @@ var (
 			Width(15).
 			Height(5)
 	helpPanelStyle = lipgloss.NewStyle().PaddingLeft(2)
-	notificationPanelStyle = lipgloss.NewStyle().PaddingLeft(2).Height(1)
+	notificationPanelStyle = lipgloss.NewStyle().
+			PaddingLeft(2).
+			Height(1).
+			AlignHorizontal(lipgloss.Left)
 )
 
 type (
@@ -83,14 +86,15 @@ func (m *model) changeFocus(v sessionState) sessionState {
 }
 
 func (m *model) setSizes() {
+	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
 	m.currentHelpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
-		Height(m.termDimensions.height - m.currentHelpHeight)
+		Height(m.termDimensions.height - m.currentHelpHeight - currentNotificationHeight)
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
-		Height(m.termDimensions.height - m.currentHelpHeight)
+		Height(m.termDimensions.height - m.currentHelpHeight - currentNotificationHeight)
 	m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.
 		Width(m.termDimensions.width).
 		Height(m.currentHelpHeight)
@@ -213,8 +217,8 @@ func (m model) View() string {
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
 	}
 	return lipgloss.JoinVertical(lipgloss.Left,
+		m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
 		mainContent, 
-		m.notification.View(),
 		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 
