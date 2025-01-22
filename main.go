@@ -46,8 +46,12 @@ type (
 		notificationPanelStyle lipgloss.Style
 	}
 
+	keys struct {
+		listKeys list.KeyMap
+	}
+
 	model struct {
-		keys              list.KeyMap
+		keys              keys
 		help              help.Model
 		state             sessionState
 		list              list.Model
@@ -87,7 +91,7 @@ func (m *model) changeFocus(v sessionState) sessionState {
 
 func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
-	m.currentHelpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
+	m.currentHelpHeight = strings.Count(m.help.View(m.keys.listKeys), "\n") + 1
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
@@ -107,6 +111,11 @@ func (m *model) updatePanelSizes() {
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
+}
+
+func (m *model) toggleHelpShowAll() {
+	m.help.ShowAll = !m.help.ShowAll
+	m.updatePanelSizes()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -143,19 +152,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keys.Help):
-			m.help.ShowAll = !m.help.ShowAll
-			m.updatePanelSizes()
-		case key.Matches(msg, m.keys.Quit):
+		case key.Matches(msg, m.keys.listKeys.Help):
+			m.toggleHelpShowAll()
+		case key.Matches(msg, m.keys.listKeys.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, m.keys.Esc):
+		case key.Matches(msg, m.keys.listKeys.Esc):
 			if m.state == editView {
 				m.changeFocus(listView)
 			}
 			r, _ := m.list.Update(msg)
 			m.list = r.(list.Model)
 			return m, nil
-		case key.Matches(msg, m.keys.Enter):
+		case key.Matches(msg, m.keys.listKeys.Enter):
 			if m.focused() == listView && !m.list.InputOn() {
 				var c tea.Cmd
 				m.changeFocus(editView)
@@ -173,7 +181,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		default:
 			if m.help.ShowAll {
-				m.help.ShowAll = false
+				m.toggleHelpShowAll()
 			}
 		}
 	}
@@ -218,12 +226,12 @@ func (m model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left,
 		m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
 		mainContent,
-		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
+		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys.listKeys)))
 }
 
 func new() model {
 	return model{
-		keys:         list.Keys,
+		keys:         keys{listKeys: list.Keys},
 		help:         help.New(),
 		list:         list.New(),
 		textArea:     textarea.New(),
