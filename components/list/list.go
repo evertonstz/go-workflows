@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -125,29 +126,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetItems(data)
 		cmds = m.setCurrentItemCmd(cmds)
 	case tea.KeyMsg:
-		if msg.String() == "esc" {
+		switch {
+		case key.Matches(msg, Keys.Esc):
 			if m.state == addNewOn {
 				m.hideAddNew()
 				return m, nil
 			}
-		}
-		if msg.String() == "a" {
+		case key.Matches(msg, Keys.AddNewWorkflow):
 			if m.state == addNewOff {
 				m.showAddNew()
 				return m, nil
 			}
-		}
-		if msg.String() == "y" {
+		case key.Matches(msg, Keys.CopyWorkflow):
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(myItem); ok {
 					return m, shared.CopyToClipboardCmd(selected.command)
 				}
 			}
-		}
-		if msg.String() == "enter" {
-			switch m.state {
-			case addNewOff:
+		case key.Matches(msg, Keys.Enter):
+			if m.state == addNewOff {
 				return m, shared.SetCurrentItemCmd(models.Item{
 					Title:       m.CurentItem().Title(),
 					Desc:        m.CurentItem().Description(),
@@ -155,11 +153,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					DateAdded:   m.CurentItem().DateAdded(),
 					DateUpdated: m.CurentItem().DateUpdated()},
 				)
-			case addNewOn:
-				var c tea.Cmd
-				m.inputs, c = m.inputs.Update(msg)
-				return m, c
 			}
+			var c tea.Cmd
+			m.inputs, c = m.inputs.Update(msg)
+			return m, c
 		}
 	}
 
