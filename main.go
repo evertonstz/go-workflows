@@ -85,7 +85,7 @@ func (m *model) changeFocus(v sessionState) sessionState {
 	return m.state
 }
 
-func (m *model) setSizes() {
+func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
 	m.currentHelpHeight = strings.Count(m.help.View(m.keys), "\n") + 1
 
@@ -125,7 +125,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
-		m.setSizes()
+		m.updatePanelSizes()
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 
@@ -145,7 +145,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.Help):
 			m.help.ShowAll = !m.help.ShowAll
-			m.setSizes()
+			m.updatePanelSizes()
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.Esc):
