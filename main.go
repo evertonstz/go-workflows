@@ -47,7 +47,7 @@ type (
 	}
 
 	model struct {
-		keys              keyMap
+		keys              list.KeyMap
 		help              help.Model
 		state             sessionState
 		list              list.Model
@@ -223,7 +223,7 @@ func (m model) View() string {
 
 func new() model {
 	return model{
-		keys:         keys,
+		keys:         list.Keys,
 		help:         help.New(),
 		list:         list.New(),
 		textArea:     textarea.New(),
