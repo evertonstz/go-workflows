@@ -221,8 +221,8 @@ func (m model) View() string {
 		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys)))
 }
 
-func main() {
-	m := model{
+func new() model {
+	return model{
 		keys:         keys,
 		help:         help.New(),
 		list:         list.New(),
@@ -236,9 +236,10 @@ func main() {
 		},
 		currentHelpHeight: 0,
 	}
+}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
-
+func main() {
+	p := tea.NewProgram(new(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("Error starting app: %v", err)
 	}
