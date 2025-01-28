@@ -17,6 +17,12 @@ type (
 		Command     string
 	}
 
+	DeleteItemMsg struct {
+		Index int
+	}
+
+	CloseConfirmationModalMsg struct{}
+
 	CopiedToClipboardMsg struct{}
 
 	ErrorMsg struct {

@@ -48,6 +48,10 @@ func (m Model) CurentItem() myItem {
 	return m.list.SelectedItem().(myItem)
 }
 
+func (m Model) CurrentItemIndex() int {
+	return m.list.Index()
+}
+
 func (m Model) AllItems() []myItem {
 	var items []myItem
 	for _, i := range m.list.Items() {

@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/components/persist"
@@ -51,6 +52,7 @@ type (
 	}
 
 	model struct {
+		confirmationModal confirmationmodal.Model
 		keys              keys
 		help              help.Model
 		state             sessionState
@@ -68,6 +70,7 @@ type (
 const (
 	listView sessionState = iota
 	editView
+	confirmationModalView
 )
 
 func (m model) Init() tea.Cmd {
@@ -85,6 +88,8 @@ func (m *model) changeFocus(v sessionState) sessionState {
 		m.textArea.SetEditing(false)
 	case editView:
 		m.textArea.SetEditing(true)
+	case confirmationModalView:
+		m.textArea.SetEditing(false)
 	}
 	return m.state
 }
@@ -118,10 +123,24 @@ func (m *model) toggleHelpShowAll() {
 	m.updatePanelSizes()
 }
 
+func (m *model) rebuildConfirmationModel(title string, confirm string, cancel string, confirmCmd tea.Cmd, cancelCmd tea.Cmd) {
+	m.confirmationModal = confirmationmodal.NewConfirmationModal(
+		title,
+		confirm,
+		cancel,
+		confirmCmd,
+		cancelCmd,
+	)
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case shared.CloseConfirmationModalMsg:
+		m.changeFocus(listView)
+	case shared.DeleteItemMsg:
+		print(msg.Index)
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:
@@ -152,6 +171,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, persist.PersistListData(m.persistPath, data)
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, m.keys.listKeys.Delete):
+			m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
+				"Yes",
+				"No",
+				shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()),
+				shared.CloseConfirmationModalCmd())
+			m.changeFocus(confirmationModalView)
 		case key.Matches(msg, m.keys.listKeys.Help):
 			m.toggleHelpShowAll()
 		case key.Matches(msg, m.keys.listKeys.Quit):
@@ -204,6 +230,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedTextAreaModel, c = m.textArea.Update(msg)
 		m.textArea = updatedTextAreaModel.(textarea.Model)
 		cmds = append(cmds, c)
+	case confirmationModalView:
+		var c tea.Cmd
+		var updatedConfirmationModalModel tea.Model
+		updatedConfirmationModalModel, c = m.confirmationModal.Update(msg)
+		m.confirmationModal = updatedConfirmationModalModel.(confirmationmodal.Model)
+		cmds = append(cmds, c)
 	}
 
 	notfyModel, notfyMsg := m.notification.Update(msg)
@@ -219,10 +251,14 @@ func (m model) View() string {
 		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			m.panelsStyle.leftPanelStyle.Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
-	} else {
+	} else if m.focused() == editView {
 		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
 			m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
+	} else if m.focused() == confirmationModalView {
+		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
+			m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
+			m.panelsStyle.rightPanelStyle.Render(m.confirmationModal.View()))
 	}
 	return lipgloss.JoinVertical(lipgloss.Left,
 		m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
@@ -232,6 +268,7 @@ func (m model) View() string {
 
 func new() model {
 	return model{
+		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
 		keys:         keys{listKeys: list.Keys},
 		help:         help.New(),
 		list:         list.New(),

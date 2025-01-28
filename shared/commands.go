@@ -26,6 +26,18 @@ func SetCurrentItemCmd(i models.Item) tea.Cmd {
 	}
 }
 
+func DeleteCurrentItemCmd(i int) tea.Cmd {
+	return func() tea.Msg {
+		return DeleteItemMsg{Index: i}
+	}
+}
+
+func CloseConfirmationModalCmd() tea.Cmd {
+	return func() tea.Msg {
+		return CloseConfirmationModalMsg{}
+	}
+}
+
 func UpdateItemCmd(i models.Item) tea.Cmd {
 	return func() tea.Msg {
 		i.DateUpdated = time.Now()
