@@ -13,7 +13,7 @@ type KeyMap struct {
 	Enter          key.Binding
 	CopyWorkflow   key.Binding
 	AddNewWorkflow key.Binding
-	Delete 	       key.Binding
+	Delete         key.Binding
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {

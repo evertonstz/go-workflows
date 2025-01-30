@@ -159,8 +159,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list = updatedListModel.(list.Model)
 		cmds = append(cmds, cmd)
 		m.changeFocus(listView)
-	    cmds = append(cmds, m.persistItems())
-		
+		cmds = append(cmds, m.persistItems())
+
 		return m, tea.Batch(cmds...)
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
@@ -278,11 +278,11 @@ func (m model) View() string {
 func new() model {
 	return model{
 		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
-		keys:         keys{listKeys: list.Keys},
-		help:         help.New(),
-		list:         list.New(),
-		textArea:     textarea.New(),
-		notification: notification.New("Workflows"),
+		keys:              keys{listKeys: list.Keys},
+		help:              help.New(),
+		list:              list.New(),
+		textArea:          textarea.New(),
+		notification:      notification.New("Workflows"),
 		panelsStyle: panelsStyle{
 			leftPanelStyle:         leftPanelStyle,
 			rightPanelStyle:        rightPanelStyle,
