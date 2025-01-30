@@ -133,6 +133,21 @@ func (m *model) rebuildConfirmationModel(title string, confirm string, cancel st
 	)
 }
 
+func (m model) persistItems() tea.Cmd {
+	var items []models.Item
+	for _, i := range m.list.AllItems() {
+		items = append(items, models.Item{
+			Title:       i.Title(),
+			Desc:        i.Description(),
+			Command:     i.Command(),
+			DateAdded:   i.DateAdded(),
+			DateUpdated: i.DateUpdated()})
+	}
+	data := models.Items{Items: items}
+
+	return persist.PersistListData(m.persistPath, data)
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
@@ -140,9 +155,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.changeFocus(listView)
 	case shared.DidDeleteItemMsg:
-		m.list.Update(msg)
+		updatedListModel, cmd := m.list.Update(msg)
+		m.list = updatedListModel.(list.Model)
+		cmds = append(cmds, cmd)
 		m.changeFocus(listView)
-		return m, notification.ShowNotificationCmd("Removed!")
+	    cmds = append(cmds, m.persistItems())
+		
+		return m, tea.Batch(cmds...)
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:
@@ -158,19 +177,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updatePanelSizes()
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
-
-		var items []models.Item
-		for _, i := range m.list.AllItems() {
-			items = append(items, models.Item{
-				Title:       i.Title(),
-				Desc:        i.Description(),
-				Command:     i.Command(),
-				DateAdded:   i.DateAdded(),
-				DateUpdated: i.DateUpdated()})
-		}
-		data := models.Items{Items: items}
-
-		return m, persist.PersistListData(m.persistPath, data)
+		return m, m.persistItems()
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.listKeys.Delete):
