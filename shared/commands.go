@@ -28,13 +28,13 @@ func SetCurrentItemCmd(i models.Item) tea.Cmd {
 
 func DeleteCurrentItemCmd(i int) tea.Cmd {
 	return func() tea.Msg {
-		return DeleteItemMsg{Index: i}
+		return DidDeleteItemMsg{Index: i}
 	}
 }
 
 func CloseConfirmationModalCmd() tea.Cmd {
 	return func() tea.Msg {
-		return CloseConfirmationModalMsg{}
+		return DidCloseConfirmationModalMsg{}
 	}
 }
 

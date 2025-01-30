@@ -137,10 +137,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case shared.CloseConfirmationModalMsg:
+	case shared.DidCloseConfirmationModalMsg:
 		m.changeFocus(listView)
-	case shared.DeleteItemMsg:
-		print(msg.Index)
+	case shared.DidDeleteItemMsg:
+		m.list.Update(msg)
+		m.changeFocus(listView)
+		return m, notification.ShowNotificationCmd("Removed!")
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:

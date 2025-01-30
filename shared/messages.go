@@ -17,11 +17,11 @@ type (
 		Command     string
 	}
 
-	DeleteItemMsg struct {
+	DidDeleteItemMsg struct {
 		Index int
 	}
 
-	CloseConfirmationModalMsg struct{}
+	DidCloseConfirmationModalMsg struct{}
 
 	CopiedToClipboardMsg struct{}
 

@@ -104,6 +104,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.InsertItem(len(m.list.Items()), newItem)
 		m.hideAddNew()
 		return m, nil
+	case shared.DidDeleteItemMsg:
+		m.list.RemoveItem(msg.Index) // Remove o item da lista
+	
+		// Ajusta o índice selecionado se necessário
+		if m.list.Index() >= len(m.list.Items()) {
+			newIndex := len(m.list.Items()) - 1
+			if newIndex < 0 {
+				newIndex = 0 // Se a lista estiver vazia, define o índice como 0
+			}
+			m.list.Select(newIndex) // Seleciona o novo índice
+		}
+			
+		return m, nil
 	case shared.DidUpdateItemMsg:
 		for i, item := range m.list.Items() {
 			if item.(myItem).title == msg.Item.Title {
