@@ -37,7 +37,7 @@ type Model struct {
 	state           inputs
 	inputs          inputsModel
 	list            list.Model
-	lastSelectedIdx int // Track the last selected index
+	lastSelectedIdx int
 }
 
 func (m Model) InputOn() bool {
@@ -105,15 +105,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.hideAddNew()
 		return m, nil
 	case shared.DidDeleteItemMsg:
-		m.list.RemoveItem(msg.Index) // Remove o item da lista
-
-		// Ajusta o índice selecionado se necessário
+		m.list.RemoveItem(msg.Index) 
 		if m.list.Index() >= len(m.list.Items()) {
 			newIndex := len(m.list.Items()) - 1
 			if newIndex < 0 {
-				newIndex = 0 // Se a lista estiver vazia, define o índice como 0
+				newIndex = 0
 			}
-			m.list.Select(newIndex) // Seleciona o novo índice
+			m.list.Select(newIndex)
 		}
 
 		return m, nil
