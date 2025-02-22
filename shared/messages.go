@@ -11,10 +11,10 @@ type (
 		Item models.Item
 	}
 
-	AddNewItemMsg struct {
+	DidAddNewItemMsg struct {
 		Title       string
 		Description string
-		Command     string
+		CommandText string
 	}
 
 	DidDeleteItemMsg struct {

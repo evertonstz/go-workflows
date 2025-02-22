@@ -32,6 +32,16 @@ func DeleteCurrentItemCmd(i int) tea.Cmd {
 	}
 }
 
+func AddNewItemCmd(title, description, command string) tea.Cmd {
+	return func() tea.Msg {
+		return DidAddNewItemMsg{
+			Title:       title,
+			Description: description,
+			CommandText: command,
+		}
+	}
+}
+
 func CloseConfirmationModalCmd() tea.Cmd {
 	return func() tea.Msg {
 		return DidCloseConfirmationModalMsg{}

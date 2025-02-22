@@ -91,18 +91,19 @@ func (m Model) setCurrentItemCmd(cmds []tea.Cmd) []tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
-	case addNewItemMsg:
-		if m.inputs.Title.Value() == "" || m.inputs.Description.Value() == "" {
-			return m, nil
-		}
+	case shared.DidAddNewItemMsg:
+		// if m.inputs.Title.Value() == "" || m.inputs.Description.Value() == "" {
+		// 	return m, nil
+		// }
 		newItem := myItem{
 			title:       msg.Title,
 			desc:        msg.Description,
+			command:     msg.CommandText,
 			dateAdded:   time.Now(),
 			dateUpdated: time.Now(),
 		}
 		m.list.InsertItem(len(m.list.Items()), newItem)
-		m.hideAddNew()
+		// m.hideAddNew()
 		return m, nil
 	case shared.DidDeleteItemMsg:
 		m.list.RemoveItem(msg.Index) 

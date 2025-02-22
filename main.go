@@ -162,6 +162,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case shared.DidAddNewItemMsg:
+		m.screen = listScreen
+		updatedListModel, _ := m.list.Update(msg)
+		m.list = updatedListModel.(list.Model)
+		return m, m.persistItems()
 	case shared.DidCloseConfirmationModalMsg:
 		m.changeFocus(listView)
 	case shared.DidDeleteItemMsg:
@@ -188,6 +193,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 		return m, m.persistItems()
+	
 	case tea.KeyMsg:
 		if m.screen == addNew {
 			switch {
@@ -205,7 +211,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		if m.focused() == listView {
+		if m.screen == listScreen {
 		switch {
 		case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
 			m.screen = addNew

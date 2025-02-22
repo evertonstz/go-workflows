@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 var (
@@ -38,12 +39,6 @@ type (
 		TextArea      textarea.Model
 		selectedInput inputs
 		styles        Styles
-	}
-
-	DidAddNewItemMsg struct {
-		Title       string
-		Description string
-		CommandText string
 	}
 )
 
@@ -157,13 +152,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		if msg.String() == "enter" {
 			if m.selectedInput == submit {
-				return m, func() tea.Msg {
-					return DidAddNewItemMsg{
-						Title:       m.Title.Value(),
-						Description: m.Description.Value(),
-						CommandText: m.TextArea.Value(),
-					}
-				}
+				return m, shared.AddNewItemCmd(m.Title.Value(), m.Description.Value(), m.TextArea.Value())
+				// return m, func() tea.Msg {
+				// 	return DidAddNewItemMsg{
+				// 		Title:       m.Title.Value(),
+				// 		Description: m.Description.Value(),
+				// 		CommandText: m.TextArea.Value(),
+				// 	}
+				// }
 			}
 		}
 	}
