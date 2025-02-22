@@ -160,13 +160,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if msg.String() == "enter" {
 			if m.selectedInput == submit {
 				return m, shared.AddNewItemCmd(m.Title.Value(), m.Description.Value(), m.TextArea.Value())
-				// return m, func() tea.Msg {
-				// 	return DidAddNewItemMsg{
-				// 		Title:       m.Title.Value(),
-				// 		Description: m.Description.Value(),
-				// 		CommandText: m.TextArea.Value(),
-				// 	}
-				// }
 			}
 		}
 	}
