@@ -61,6 +61,18 @@ func (m Model) SetSize(width, height int) {
 	m.styles.blurredTextArea = m.styles.blurredTextArea.Width(width)
 }
 
+func (m *Model) SetValues(title, description, command string) {
+	m.Title.SetValue(title)
+	m.Description.SetValue(description)
+	m.TextArea.SetValue(command)
+}
+
+func (m *Model) ResetForm() {
+	m.Title.SetValue("")
+	m.Description.SetValue("")
+	m.TextArea.SetValue("")
+}
+
 func New() Model {
 	titleModel := textinput.New()
 	titleModel.Placeholder = "Title"

@@ -214,6 +214,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.screen == listScreen {
 		switch {
 		case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
+			m.addNewScreen.ResetForm()
 			m.screen = addNew
 			return m, nil
 		case key.Matches(msg, m.keys.listKeys.Delete):
@@ -234,23 +235,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			r, _ := m.list.Update(msg)
 			m.list = r.(list.Model)
 			return m, nil
-		case key.Matches(msg, m.keys.listKeys.Enter):
-			if m.focused() == listView && !m.list.InputOn() {
-				var c tea.Cmd
-				m.changeFocus(editView)
-
-				updatedListModel, c := m.list.Update(msg)
-				m.list = updatedListModel.(list.Model)
-				cmds = append(cmds, c)
-				updatedTextAreaModel, c := m.textArea.Update(msg)
-				m.textArea = updatedTextAreaModel.(textarea.Model)
-				cmds = append(cmds, c)
-				return m, tea.Batch(cmds...)
-			} else if m.focused() == listView && m.list.InputOn() {
-				var c tea.Cmd
-				_, c = m.list.Update(msg)
-				return m, tea.Batch(c)
-			}
+		// TODO add edition function
+		// case key.Matches(msg, m.keys.listKeys.Enter):
+		// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),
+		// 								m.list.CurentItem().Description(),
+		// 								m.list.CurentItem().Command())
+		// 	m.screen = addNew
+		// 	return m, nil
 		default:
 			if m.help.ShowAll {
 				m.toggleHelpShowAll()
