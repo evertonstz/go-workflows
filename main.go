@@ -193,7 +193,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidUpdateItemMsg:
 		m.list.Update(msg)
 		return m, m.persistItems()
-	
+
 	case tea.KeyMsg:
 		if m.screen == addNew {
 			switch {
@@ -203,7 +203,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			case key.Matches(msg, m.keys.listKeys.Esc):
 				m.screen = listScreen
-				return m, nil				
+				return m, nil
 			default:
 				if m.help.ShowAll {
 					m.toggleHelpShowAll()
@@ -212,42 +212,42 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if m.screen == listScreen {
-		switch {
-		case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
-			m.addNewScreen.ResetForm()
-			m.screen = addNew
-			return m, nil
-		case key.Matches(msg, m.keys.listKeys.Delete):
-			m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
-				"Yes",
-				"No",
-				shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()),
-				shared.CloseConfirmationModalCmd())
-			m.changeFocus(confirmationModalView)
-		case key.Matches(msg, m.keys.listKeys.Help):
-			m.toggleHelpShowAll()
-		case key.Matches(msg, m.keys.listKeys.Quit):
-			return m, tea.Quit
-		case key.Matches(msg, m.keys.listKeys.Esc):
-			if m.state == editView {
-				m.changeFocus(listView)
-			}
-			r, _ := m.list.Update(msg)
-			m.list = r.(list.Model)
-			return m, nil
-		// TODO add edition function
-		// case key.Matches(msg, m.keys.listKeys.Enter):
-		// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),
-		// 								m.list.CurentItem().Description(),
-		// 								m.list.CurentItem().Command())
-		// 	m.screen = addNew
-		// 	return m, nil
-		default:
-			if m.help.ShowAll {
+			switch {
+			case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
+				m.addNewScreen.ResetForm()
+				m.screen = addNew
+				return m, nil
+			case key.Matches(msg, m.keys.listKeys.Delete):
+				m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
+					"Yes",
+					"No",
+					shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()),
+					shared.CloseConfirmationModalCmd())
+				m.changeFocus(confirmationModalView)
+			case key.Matches(msg, m.keys.listKeys.Help):
 				m.toggleHelpShowAll()
+			case key.Matches(msg, m.keys.listKeys.Quit):
+				return m, tea.Quit
+			case key.Matches(msg, m.keys.listKeys.Esc):
+				if m.state == editView {
+					m.changeFocus(listView)
+				}
+				r, _ := m.list.Update(msg)
+				m.list = r.(list.Model)
+				return m, nil
+			// TODO add edition function
+			// case key.Matches(msg, m.keys.listKeys.Enter):
+			// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),
+			// 								m.list.CurentItem().Description(),
+			// 								m.list.CurentItem().Command())
+			// 	m.screen = addNew
+			// 	return m, nil
+			default:
+				if m.help.ShowAll {
+					m.toggleHelpShowAll()
+				}
 			}
 		}
-	}
 	}
 
 	notfyModel, notfyCmd := m.notification.Update(msg)

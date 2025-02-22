@@ -83,7 +83,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.InsertItem(len(m.list.Items()), newItem)
 		return m, nil
 	case shared.DidDeleteItemMsg:
-		m.list.RemoveItem(msg.Index) 
+		m.list.RemoveItem(msg.Index)
 		if m.list.Index() >= len(m.list.Items()) {
 			newIndex := len(m.list.Items()) - 1
 			if newIndex < 0 {
