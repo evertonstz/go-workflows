@@ -49,16 +49,11 @@ const (
 	submit
 )
 
-func (m Model) SetSize(width, height int) {
+func (m *Model) SetSize(width, height int) {
 	m.Title.Width = width
 	m.Description.Width = width
 	m.TextArea.SetWidth(width)
 	m.TextArea.SetHeight(height)
-
-	m.styles.focusedInput = m.styles.focusedInput.Width(width)
-	m.styles.blurredInput = m.styles.blurredInput.Width(width)
-	m.styles.focusedTextArea = m.styles.focusedTextArea.Width(width)
-	m.styles.blurredTextArea = m.styles.blurredTextArea.Width(width)
 }
 
 func (m *Model) SetValues(title, description, command string) {
