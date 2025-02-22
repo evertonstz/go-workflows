@@ -13,18 +13,32 @@ var (
 	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 
-	focusedButton = focusedStyle.Render("[ Submit ]")
-	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
+	focusedTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205"))
+	blurredTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+
+	focusedButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("[ Submit ]")
+	blurredButton = fmt.Sprintf("[ %s ]", lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("Submit"))
 )
 
 type (
 	inputs uint
+
+
+	Styles struct {
+		focusedInput  lipgloss.Style
+		blurredInput  lipgloss.Style
+		focusedTextArea lipgloss.Style
+		blurredTextArea lipgloss.Style
+		focusedButton string
+		blurredButton string
+	}
 
 	Model struct {
 		Title         textinput.Model
 		Description   textinput.Model
 		TextArea      textarea.Model
 		selectedInput inputs
+		styles 	  Styles
 	}
 
 	DidAddNewItemMsg struct {
@@ -41,6 +55,18 @@ const (
 	submit
 )
 
+func (m Model) SetSize(width, height int) {
+	m.Title.Width = width
+	m.Description.Width = width
+	m.TextArea.SetWidth(width)
+	m.TextArea.SetHeight(10)
+
+	m.styles.focusedInput = m.styles.focusedInput.Width(10)
+	m.styles.blurredInput = m.styles.blurredInput.Width(width)
+	m.styles.focusedTextArea = m.styles.focusedTextArea.Width(width)
+	m.styles.blurredTextArea = m.styles.blurredTextArea.Width(width)
+}
+
 func New() Model {
 	titleModel := textinput.New()
 	titleModel.Placeholder = "Title"
@@ -48,12 +74,23 @@ func New() Model {
 	descModel := textinput.New()
 	descModel.Placeholder = "Description"
 	textareaModel := textarea.New()
+	textareaModel.Placeholder = "Paste or type your command here..."
+	textareaModel.Prompt = ""
+	textareaModel.ShowLineNumbers = false
 
 	return Model{
 		Title:         titleModel,
 		Description:   descModel,
 		TextArea:      textareaModel,
 		selectedInput: title,
+		styles: Styles{
+			focusedInput:  focusedStyle,
+			blurredInput:  blurredStyle,
+			focusedTextArea: focusedTextAreaStyle,
+			blurredTextArea: blurredTextAreaStyle,
+			focusedButton: focusedButton,
+			blurredButton: blurredButton,
+		},
 	}
 }
 
@@ -137,30 +174,31 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		Description:   descModel,
 		TextArea:      textModel,
 		selectedInput: m.selectedInput,
+		styles: m.styles,
 	}, tea.Batch(titleCmd, descCmd, textCmd)
 }
 
 func (m Model) View() string {
 	switch m.selectedInput {
 	case title:
-		return lipgloss.JoinVertical(lipgloss.Top, focusedStyle.Render(m.Title.View()),
-			blurredStyle.Render(m.Description.View()),
-			m.TextArea.View(),
-			blurredButton)
+		return lipgloss.JoinVertical(lipgloss.Top, m.styles.focusedInput.Render(m.Title.View()),
+		m.styles.blurredInput.Render(m.Description.View()),
+			m.styles.blurredTextArea.Render(m.TextArea.View()),
+			m.styles.blurredButton)
 	case description:
-		return lipgloss.JoinVertical(lipgloss.Top, blurredStyle.Render(m.Title.View()),
-			focusedStyle.Render(m.Description.View()),
-			m.TextArea.View(),
-			blurredButton)
+		return lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
+		m.styles.focusedInput.Render(m.Description.View()),
+		m.styles.blurredTextArea.Render(m.TextArea.View()),
+		m.styles.blurredButton)
 	case submit:
-		return lipgloss.JoinVertical(lipgloss.Top, blurredStyle.Render(m.Title.View()),
-			blurredStyle.Render(m.Description.View()),
-			m.TextArea.View(),
-			focusedButton)
+		return lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
+		m.styles.blurredInput.Render(m.Description.View()),
+		m.styles.blurredTextArea.Render(m.TextArea.View()),
+			m.styles.focusedButton)
 	default:
-		return lipgloss.JoinVertical(lipgloss.Top, blurredStyle.Render(m.Title.View()),
-			blurredStyle.Render(m.Description.View()),
-			m.TextArea.View(),
-			blurredButton)
+		return lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
+		m.styles.blurredInput.Render(m.Description.View()),
+			focusedTextAreaStyle.Render(m.TextArea.View()),
+			m.styles.blurredButton)
 	}
 }
