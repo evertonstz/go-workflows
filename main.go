@@ -15,6 +15,7 @@ import (
 	"github.com/evertonstz/go-workflows/components/persist"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/models"
+	addnew "github.com/evertonstz/go-workflows/screens/add_new"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -56,8 +57,10 @@ type (
 		keys              keys
 		help              help.Model
 		state             sessionState
+		screen            screenState
 		list              list.Model
 		textArea          textarea.Model
+		addNewScreen      addnew.Model
 		persistPath       string
 		notification      notification.Model
 		termDimensions    termDimensions
@@ -65,6 +68,12 @@ type (
 		panelsStyle       panelsStyle
 	}
 	sessionState uint
+	screenState  uint
+)
+
+const (
+	addNew screenState = iota
+	listScreen
 )
 
 const (
@@ -116,6 +125,7 @@ func (m *model) updatePanelSizes() {
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
+	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2)
 }
 
 func (m *model) toggleHelpShowAll() {
@@ -179,7 +189,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.Update(msg)
 		return m, m.persistItems()
 	case tea.KeyMsg:
+		if m.screen == addNew {
+			switch {
+			case key.Matches(msg, m.keys.listKeys.Help):
+				m.toggleHelpShowAll()
+			case key.Matches(msg, m.keys.listKeys.Quit):
+				return m, tea.Quit
+			case key.Matches(msg, m.keys.listKeys.Esc):
+				m.screen = listScreen
+				return m, nil				
+			default:
+				if m.help.ShowAll {
+					m.toggleHelpShowAll()
+				}
+			}
+		}
+
+		if m.focused() == listView {
 		switch {
+		case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
+			m.screen = addNew
+			return m, nil
 		case key.Matches(msg, m.keys.listKeys.Delete):
 			m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
 				"Yes",
@@ -221,41 +251,59 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-
-	switch m.focused() {
-	case listView:
-		var c tea.Cmd
-		var updatedListAreaModel tea.Model
-		var updatedTextAreaModel tea.Model
-		updatedListAreaModel, c = m.list.Update(msg)
-		m.list = updatedListAreaModel.(list.Model)
-		cmds = append(cmds, c)
-		updatedTextAreaModel, c = m.textArea.Update(msg)
-		m.textArea = updatedTextAreaModel.(textarea.Model)
-		cmds = append(cmds, c)
-	case editView:
-		var c tea.Cmd
-		var updatedTextAreaModel tea.Model
-		updatedTextAreaModel, c = m.textArea.Update(msg)
-		m.textArea = updatedTextAreaModel.(textarea.Model)
-		cmds = append(cmds, c)
-	case confirmationModalView:
-		var c tea.Cmd
-		var updatedConfirmationModalModel tea.Model
-		updatedConfirmationModalModel, c = m.confirmationModal.Update(msg)
-		m.confirmationModal = updatedConfirmationModalModel.(confirmationmodal.Model)
-		cmds = append(cmds, c)
 	}
 
-	notfyModel, notfyMsg := m.notification.Update(msg)
-	cmds = append(cmds, notfyMsg)
+	notfyModel, notfyCmd := m.notification.Update(msg)
+	cmds = append(cmds, notfyCmd)
 	m.notification = notfyModel
+
+	if m.screen == addNew {
+		addNewScreenModel, addNewScreenCmd := m.addNewScreen.Update(msg)
+		cmds = append(cmds, addNewScreenCmd)
+		m.addNewScreen = addNewScreenModel
+	}
+
+	if m.screen == listScreen {
+		switch m.focused() {
+		case listView:
+			var c tea.Cmd
+			var updatedListAreaModel tea.Model
+			var updatedTextAreaModel tea.Model
+			updatedListAreaModel, c = m.list.Update(msg)
+			m.list = updatedListAreaModel.(list.Model)
+			cmds = append(cmds, c)
+			updatedTextAreaModel, c = m.textArea.Update(msg)
+			m.textArea = updatedTextAreaModel.(textarea.Model)
+			cmds = append(cmds, c)
+		case editView:
+			var c tea.Cmd
+			var updatedTextAreaModel tea.Model
+			updatedTextAreaModel, c = m.textArea.Update(msg)
+			m.textArea = updatedTextAreaModel.(textarea.Model)
+			cmds = append(cmds, c)
+		case confirmationModalView:
+			var c tea.Cmd
+			var updatedConfirmationModalModel tea.Model
+			updatedConfirmationModalModel, c = m.confirmationModal.Update(msg)
+			m.confirmationModal = updatedConfirmationModalModel.(confirmationmodal.Model)
+			cmds = append(cmds, c)
+		}
+	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
 	var mainContent string
+
+	if m.screen == addNew {
+		return lipgloss.Place(m.termDimensions.width,
+			m.termDimensions.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			m.addNewScreen.View())
+	}
+
 	if m.focused() == listView {
 		mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
 			m.panelsStyle.leftPanelStyle.Render(m.list.View()),
@@ -282,6 +330,7 @@ func new() model {
 		help:              help.New(),
 		list:              list.New(),
 		textArea:          textarea.New(),
+		addNewScreen:      addnew.New(),
 		notification:      notification.New("Workflows"),
 		panelsStyle: panelsStyle{
 			leftPanelStyle:         leftPanelStyle,
@@ -290,6 +339,7 @@ func new() model {
 			notificationPanelStyle: notificationPanelStyle,
 		},
 		currentHelpHeight: 0,
+		screen:            listScreen,
 	}
 }
 
