@@ -147,11 +147,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.hideAddNew()
 				return m, nil
 			}
-		case key.Matches(msg, Keys.AddNewWorkflow):
-			if m.state == addNewOff {
-				m.showAddNew()
-				return m, nil
-			}
+		// case key.Matches(msg, Keys.AddNewWorkflow):
+		// 	if m.state == addNewOff {
+		// 		m.showAddNew()
+		// 		return m, nil
+		// 	}
 		case key.Matches(msg, Keys.CopyWorkflow):
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
