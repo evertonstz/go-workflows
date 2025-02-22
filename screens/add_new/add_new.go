@@ -1,9 +1,9 @@
 package addnew
 
 import (
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -24,14 +24,13 @@ var (
 type (
 	inputs uint
 
-
 	Styles struct {
-		focusedInput  lipgloss.Style
-		blurredInput  lipgloss.Style
+		focusedInput    lipgloss.Style
+		blurredInput    lipgloss.Style
 		focusedTextArea lipgloss.Style
 		blurredTextArea lipgloss.Style
-		focusedButton string
-		blurredButton string
+		focusedButton   string
+		blurredButton   string
 	}
 
 	Model struct {
@@ -39,7 +38,7 @@ type (
 		Description   textinput.Model
 		TextArea      textarea.Model
 		selectedInput inputs
-		styles 	  Styles
+		styles        Styles
 	}
 
 	DidAddNewItemMsg struct {
@@ -85,12 +84,12 @@ func New() Model {
 		TextArea:      textareaModel,
 		selectedInput: title,
 		styles: Styles{
-			focusedInput:  focusedStyle,
-			blurredInput:  blurredStyle,
+			focusedInput:    focusedStyle,
+			blurredInput:    blurredStyle,
 			focusedTextArea: focusedTextAreaStyle,
 			blurredTextArea: blurredTextAreaStyle,
-			focusedButton: focusedButton,
-			blurredButton: blurredButton,
+			focusedButton:   focusedButton,
+			blurredButton:   blurredButton,
 		},
 	}
 }
@@ -175,7 +174,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		Description:   descModel,
 		TextArea:      textModel,
 		selectedInput: m.selectedInput,
-		styles: m.styles,
+		styles:        m.styles,
 	}, tea.Batch(titleCmd, descCmd, textCmd)
 }
 
@@ -183,22 +182,22 @@ func (m Model) View() string {
 	switch m.selectedInput {
 	case title:
 		return mainStyle.Render(lipgloss.JoinVertical(lipgloss.Top, m.styles.focusedInput.Render(m.Title.View()),
-		m.styles.blurredInput.Render(m.Description.View()),
+			m.styles.blurredInput.Render(m.Description.View()),
 			m.styles.blurredTextArea.Render(m.TextArea.View()),
 			m.styles.blurredButton))
 	case description:
 		return mainStyle.Render(lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
-		m.styles.focusedInput.Render(m.Description.View()),
-		m.styles.blurredTextArea.Render(m.TextArea.View()),
-		m.styles.blurredButton))
+			m.styles.focusedInput.Render(m.Description.View()),
+			m.styles.blurredTextArea.Render(m.TextArea.View()),
+			m.styles.blurredButton))
 	case submit:
 		return mainStyle.Render(lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
-		m.styles.blurredInput.Render(m.Description.View()),
-		m.styles.blurredTextArea.Render(m.TextArea.View()),
+			m.styles.blurredInput.Render(m.Description.View()),
+			m.styles.blurredTextArea.Render(m.TextArea.View()),
 			m.styles.focusedButton))
 	default:
 		return mainStyle.Render(lipgloss.JoinVertical(lipgloss.Top, m.styles.blurredInput.Render(m.Title.View()),
-		m.styles.blurredInput.Render(m.Description.View()),
+			m.styles.blurredInput.Render(m.Description.View()),
 			focusedTextAreaStyle.Render(m.TextArea.View()),
 			m.styles.blurredButton))
 	}
