@@ -15,8 +15,8 @@ var (
 	focusedTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205"))
 	blurredTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("240"))
 
-	focusedButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("[ Submit ]")
-	blurredButton = lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("[ Submit ]")
+	focusedButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("[ Save ]")
+	blurredButton = lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("[ Save ]")
 
 	mainStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("240"))
 )
