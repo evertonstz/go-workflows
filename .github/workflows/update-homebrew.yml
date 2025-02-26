@@ -5,6 +5,7 @@ on:
     workflows: ["Build and release Go Project"]
     types:
       - completed
+    workflow_dispatch:
 
 permissions:
   contents: write
