@@ -20,9 +20,8 @@ jobs:
       - name: Get release info
         id: release_info
         run: |
-          echo "TAG_NAME=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
-          echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}" >> $GITHUB_ENV
-
+          echo "TAG_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+          echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
       - name: Get SHA256
         id: sha256
         run: |
