@@ -14,16 +14,16 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Obter informações do release
+      - name: Get release info
         id: release_info
         run: |
           echo "TAG_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
           echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
 
-      - name: Calcular SHA256
+      - name: Get SHA256 sums
         id: sha256
         run: |
           for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
@@ -33,10 +33,7 @@ jobs:
             echo "${PLATFORM}=${HASH}" >> sha256_hashes.txt
           done
 
-      - name: Debug - Mostrar SHA256 calculados
-        run: cat sha256_hashes.txt
-
-      - name: Atualizar fórmula
+      - name: Update formula
         run: |
           FORMULA_PATH="Formula/go-workflows.rb"
           TAG_NAME="${{ env.TAG_NAME }}"
@@ -50,7 +47,7 @@ jobs:
             sed -i "s|url \".*${PLATFORM}.*\"|url \"${URL}\"|g" $FORMULA_PATH
           done < sha256_hashes.txt
 
-      - name: Commitar atualizações
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
