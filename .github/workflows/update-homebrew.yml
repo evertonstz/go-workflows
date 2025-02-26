@@ -1,9 +1,10 @@
 name: Update Homebrew Formula
 
 on:
-  release:
-    types: [published]
-    branches: [main]
+  workflow_run:
+    workflows: ["Build and release Go Project"]
+    types:
+      - completed
 
 permissions:
   contents: write
