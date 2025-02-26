@@ -5,51 +5,55 @@ on:
     workflows: ["Build and release Go Project"]
     types:
       - completed
-    workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   update-formula:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Get release info
+      - name: Obter informações do release
         id: release_info
         run: |
           echo "TAG_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
           echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-      - name: Get SHA256
+
+      - name: Calcular SHA256
         id: sha256
         run: |
           for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
             FILE="go-workflows-${PLATFORM}.tar.gz"
             curl -L -o $FILE ${{ env.BASE_URL }}/$FILE
             HASH=$(sha256sum $FILE | awk '{print $1}')
-            echo "${PLATFORM}_SHA256=${HASH}" >> $GITHUB_ENV
+            echo "${PLATFORM}=${HASH}" >> sha256_hashes.txt
           done
 
-      - name: Update formula
+      - name: Debug - Mostrar SHA256 calculados
+        run: cat sha256_hashes.txt
+
+      - name: Atualizar fórmula
         run: |
           FORMULA_PATH="Formula/go-workflows.rb"
-          sed -i "s|version \".*\"|version \"${{ env.TAG_NAME }}\"|g" $FORMULA_PATH
+          TAG_NAME="${{ env.TAG_NAME }}"
+          
+          sed -i "s|version \".*\"|version \"${TAG_NAME}\"|g" $FORMULA_PATH
 
-          # Atualizar URLs e SHA256 para cada plataforma
-          for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
+          # Atualizar URLs e SHA256
+          while IFS="=" read -r PLATFORM HASH; do
             URL="${{ env.BASE_URL }}/go-workflows-${PLATFORM}.tar.gz"
-            HASH="${{ env.${PLATFORM}_SHA256 }}"
-            
             sed -i "/${PLATFORM}/!b;n;c\        sha256 \"${HASH}\"" $FORMULA_PATH
             sed -i "s|url \".*${PLATFORM}.*\"|url \"${URL}\"|g" $FORMULA_PATH
-          done
-      - name: Push the new formula
+          done < sha256_hashes.txt
+
+      - name: Commitar atualizações
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Formula/go-workflows.rb
-          git commit -m "Update Homebrew formula to ${{ env.TAG_NAME }}"
+          git commit -m "Atualizar fórmula Homebrew para ${{ env.TAG_NAME }}"
           git push
