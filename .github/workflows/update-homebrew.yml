@@ -1,0 +1,57 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get release info
+        id: release_info
+        run: |
+          echo "TAG_NAME=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+
+      - name: Get SHA256
+        id: sha256
+        run: |
+          for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
+            FILE="go-workflows-${PLATFORM}.tar.gz"
+            curl -L -o $FILE ${{ env.BASE_URL }}/$FILE
+            echo "${PLATFORM}_SHA256=$(sha256sum $FILE | awk '{print $1}')" >> $GITHUB_ENV
+          done
+
+      - name: Update formula
+        run: |
+          FORMULA_PATH="Formula/go-workflows.rb"
+
+          sed -i "s|version \".*\"|version \"${{ env.TAG_NAME }}\"|g" $FORMULA_PATH
+
+          sed -i "s|url \".*linux-amd64.*\"|url \"${{ env.BASE_URL }}/go-workflows-linux-amd64.tar.gz\"|g" $FORMULA_PATH
+          sed -i "s|sha256 \".*linux-amd64.*\"|sha256 \"${{ env.linux-amd64_SHA256 }}\"|g" $FORMULA_PATH
+
+          sed -i "s|url \".*linux-arm64.*\"|url \"${{ env.BASE_URL }}/go-workflows-linux-arm64.tar.gz\"|g" $FORMULA_PATH
+          sed -i "s|sha256 \".*linux-arm64.*\"|sha256 \"${{ env.linux-arm64_SHA256 }}\"|g" $FORMULA_PATH
+
+          sed -i "s|url \".*darwin-amd64.*\"|url \"${{ env.BASE_URL }}/go-workflows-darwin-amd64.tar.gz\"|g" $FORMULA_PATH
+          sed -i "s|sha256 \".*darwin-amd64.*\"|sha256 \"${{ env.darwin-amd64_SHA256 }}\"|g" $FORMULA_PATH
+
+          sed -i "s|url \".*darwin-arm64.*\"|url \"${{ env.BASE_URL }}/go-workflows-darwin-arm64.tar.gz\"|g" $FORMULA_PATH
+          sed -i "s|sha256 \".*darwin-arm64.*\"|sha256 \"${{ env.darwin-arm64_SHA256 }}\"|g" $FORMULA_PATH
+
+      - name: Push the new formula
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/go-workflows.rb
+          git commit -m "Update Homebrew formula to ${{ env.TAG_NAME }}"
+          git push
