@@ -28,27 +28,23 @@ jobs:
           for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
             FILE="go-workflows-${PLATFORM}.tar.gz"
             curl -L -o $FILE ${{ env.BASE_URL }}/$FILE
-            echo "${PLATFORM}_SHA256=$(sha256sum $FILE | awk '{print $1}')" >> $GITHUB_ENV
+            HASH=$(sha256sum $FILE | awk '{print $1}')
+            echo "${PLATFORM}_SHA256=${HASH}" >> $GITHUB_ENV
           done
 
       - name: Update formula
         run: |
           FORMULA_PATH="Formula/go-workflows.rb"
-
           sed -i "s|version \".*\"|version \"${{ env.TAG_NAME }}\"|g" $FORMULA_PATH
 
-          sed -i "s|url \".*linux-amd64.*\"|url \"${{ env.BASE_URL }}/go-workflows-linux-amd64.tar.gz\"|g" $FORMULA_PATH
-          sed -i "s|sha256 \".*linux-amd64.*\"|sha256 \"${{ env.linux-amd64_SHA256 }}\"|g" $FORMULA_PATH
-
-          sed -i "s|url \".*linux-arm64.*\"|url \"${{ env.BASE_URL }}/go-workflows-linux-arm64.tar.gz\"|g" $FORMULA_PATH
-          sed -i "s|sha256 \".*linux-arm64.*\"|sha256 \"${{ env.linux-arm64_SHA256 }}\"|g" $FORMULA_PATH
-
-          sed -i "s|url \".*darwin-amd64.*\"|url \"${{ env.BASE_URL }}/go-workflows-darwin-amd64.tar.gz\"|g" $FORMULA_PATH
-          sed -i "s|sha256 \".*darwin-amd64.*\"|sha256 \"${{ env.darwin-amd64_SHA256 }}\"|g" $FORMULA_PATH
-
-          sed -i "s|url \".*darwin-arm64.*\"|url \"${{ env.BASE_URL }}/go-workflows-darwin-arm64.tar.gz\"|g" $FORMULA_PATH
-          sed -i "s|sha256 \".*darwin-arm64.*\"|sha256 \"${{ env.darwin-arm64_SHA256 }}\"|g" $FORMULA_PATH
-
+          # Atualizar URLs e SHA256 para cada plataforma
+          for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
+            URL="${{ env.BASE_URL }}/go-workflows-${PLATFORM}.tar.gz"
+            HASH="${{ env.${PLATFORM}_SHA256 }}"
+            
+            sed -i "/${PLATFORM}/!b;n;c\        sha256 \"${HASH}\"" $FORMULA_PATH
+            sed -i "s|url \".*${PLATFORM}.*\"|url \"${URL}\"|g" $FORMULA_PATH
+          done
       - name: Push the new formula
         run: |
           git config user.name "github-actions[bot]"
