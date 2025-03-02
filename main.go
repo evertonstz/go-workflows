@@ -162,6 +162,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case shared.DidCloseAddNewScreenMsg:
+		m.screen = listScreen
+		m.changeFocus(listView)
+		return m, nil
 	case shared.DidAddNewItemMsg:
 		m.screen = listScreen
 		updatedListModel, _ := m.list.Update(msg)
@@ -214,7 +218,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.screen == listScreen {
 			switch {
 			case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
-				m.addNewScreen.ResetForm()
 				m.screen = addNew
 				return m, nil
 			case key.Matches(msg, m.keys.listKeys.Delete):

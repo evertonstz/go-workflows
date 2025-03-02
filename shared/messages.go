@@ -23,6 +23,8 @@ type (
 
 	DidCloseConfirmationModalMsg struct{}
 
+	DidCloseAddNewScreenMsg struct{}
+
 	CopiedToClipboardMsg struct{}
 
 	ErrorMsg struct {

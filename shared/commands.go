@@ -42,6 +42,12 @@ func AddNewItemCmd(title, description, command string) tea.Cmd {
 	}
 }
 
+func CloseAddNewScreenCmd() tea.Cmd {
+	return func() tea.Msg {
+		return DidCloseAddNewScreenMsg{}
+	}
+}
+
 func CloseConfirmationModalCmd() tea.Cmd {
 	return func() tea.Msg {
 		return DidCloseConfirmationModalMsg{}
