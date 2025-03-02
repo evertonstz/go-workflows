@@ -140,6 +140,10 @@ func (m *Model) focusInput(i inputs) (Model, tea.Cmd) {
 	return *m, nil
 }
 
+func (m Model) isFormValid() bool {
+	return m.Title.Value() != "" && m.Description.Value() != "" && m.TextArea.Value() != ""
+}
+
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	titleModel, titleCmd := m.Title.Update(msg)
 	descModel, descCmd := m.Description.Update(msg)
@@ -186,9 +190,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		if msg.String() == "enter" {
 			if m.selectedInput == submit {
-				// TODO check if the fields are empty before submitting
-				m.ResetForm()
-				return m, shared.AddNewItemCmd(m.Title.Value(), m.Description.Value(), m.TextArea.Value())
+				if m.isFormValid() {
+					var title, description, command string
+					title = m.Title.Value()
+					description = m.Description.Value()
+					command = m.TextArea.Value()
+
+					m.ResetForm()
+					return m, shared.AddNewItemCmd(title, description, command)
+				}
 			}
 			if m.selectedInput == close {
 				m.ResetForm()
