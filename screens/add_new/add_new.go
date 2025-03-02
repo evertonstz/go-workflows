@@ -149,7 +149,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	descModel, descCmd := m.Description.Update(msg)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "down" {
+		switch msg.String() {
+		case "down":
 			switch m.selectedInput {
 			case title:
 				return m.focusInput(description)
@@ -160,9 +161,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m, nil
 			}
-
-		}
-		if msg.String() == "up" {
+		case "up":
 			switch m.selectedInput {
 			case title:
 				return m, nil
@@ -173,23 +172,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m.focusInput(textArea)
 			}
-		}
-
-		if msg.String() == "right" {
-			switch m.selectedInput {
-			case submit:
+		case "right":
+			if m.selectedInput == submit {
 				return m.focusInput(close)
 			}
-		}
-		if msg.String() == "left" {
-			switch m.selectedInput {
-			case close:
+		case "left":
+			if m.selectedInput == close {
 				return m.focusInput(submit)
 			}
-		}
-
-		if msg.String() == "enter" {
-			if m.selectedInput == submit {
+		case "enter":
+			switch m.selectedInput {
+			case submit:
 				if m.isFormValid() {
 					var title, description, command string
 					title = m.Title.Value()
@@ -199,8 +192,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.ResetForm()
 					return m, shared.AddNewItemCmd(title, description, command)
 				}
-			}
-			if m.selectedInput == close {
+			case close:
 				m.ResetForm()
 				return m, shared.CloseAddNewScreenCmd()
 			}
