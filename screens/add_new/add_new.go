@@ -186,6 +186,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		if msg.String() == "enter" {
 			if m.selectedInput == submit {
+				// TODO check if the fields are empty before submitting
 				m.ResetForm()
 				return m, shared.AddNewItemCmd(m.Title.Value(), m.Description.Value(), m.TextArea.Value())
 			}
