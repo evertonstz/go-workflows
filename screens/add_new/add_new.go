@@ -180,6 +180,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			if m.selectedInput == close {
 				return m.focusInput(submit)
 			}
+		case "esc":
+			m.ResetForm()
+			return m, shared.CloseAddNewScreenCmd()
 		case "enter":
 			switch m.selectedInput {
 			case submit:

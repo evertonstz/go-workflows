@@ -9,8 +9,6 @@ type KeyMap struct {
 	Right          key.Binding
 	Help           key.Binding
 	Quit           key.Binding
-	Esc            key.Binding
-	Enter          key.Binding
 	CopyWorkflow   key.Binding
 	AddNewWorkflow key.Binding
 	Delete         key.Binding
@@ -20,17 +18,24 @@ func (k KeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.Help, k.Quit}
 }
 
+// func (k KeyMap) FullHelp() [][]key.Binding {
+// 	return [][]key.Binding{
+// 		{k.Delete, k.Up, k.Down, k.CopyWorkflow},
+// 		{k.AddNewWorkflow, k.Help, k.Quit},
+// 	}
+// }
+
 func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Up, k.Down, k.CopyWorkflow},
-		{k.AddNewWorkflow, k.Help, k.Quit},
+		{k.AddNewWorkflow,k.Delete, k.CopyWorkflow},
+		{k.Up, k.Down, k.Help, k.Quit},
 	}
 }
 
 var Keys = KeyMap{
 	Delete: key.NewBinding(
-		key.WithKeys("delete", "backspace"),
-		key.WithHelp("delete", "delete workflow"),
+		key.WithKeys("d"),
+		key.WithHelp("d", "delete workflow"),
 	),
 	AddNewWorkflow: key.NewBinding(
 		key.WithKeys("a"),
@@ -41,24 +46,16 @@ var Keys = KeyMap{
 		key.WithHelp("y", "copy workflow"),
 	),
 	Up: key.NewBinding(
-		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "move up"),
+		key.WithKeys("up"),
+		key.WithHelp("↑", "move up"),
 	),
 	Down: key.NewBinding(
-		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "move down"),
+		key.WithKeys("down"),
+		key.WithHelp("↓", "move down"),
 	),
 	Help: key.NewBinding(
-		key.WithKeys("ctrl+h"),
-		key.WithHelp("ctrl+h", "toggle help"),
-	),
-	Esc: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "close view"),
-	),
-	Enter: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "edit workflow"),
+		key.WithKeys("?"),
+		key.WithHelp("?", "toggle help"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),

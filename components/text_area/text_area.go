@@ -59,16 +59,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidSetCurrentItemMsg:
 		m.currentItem = msg.Item
 		m.TextArea.SetValue(m.currentItem.Command)
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			if m.TextArea.Focused() {
-				m.TextArea.Blur()
-			}
-		case tea.KeyCtrlS:
-			m.currentItem.Command = m.TextArea.Value()
-			return m, shared.UpdateItemCmd(m.currentItem)
-		}
 	}
 
 	m.TextArea, cmd = m.TextArea.Update(msg)

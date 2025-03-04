@@ -205,9 +205,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggleHelpShowAll()
 			case key.Matches(msg, m.keys.listKeys.Quit):
 				return m, tea.Quit
-			case key.Matches(msg, m.keys.listKeys.Esc):
-				m.screen = listScreen
-				return m, nil
 			default:
 				if m.help.ShowAll {
 					m.toggleHelpShowAll()
@@ -231,13 +228,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggleHelpShowAll()
 			case key.Matches(msg, m.keys.listKeys.Quit):
 				return m, tea.Quit
-			case key.Matches(msg, m.keys.listKeys.Esc):
-				if m.state == editView {
-					m.changeFocus(listView)
-				}
-				r, _ := m.list.Update(msg)
-				m.list = r.(list.Model)
-				return m, nil
 			// TODO add edition function
 			// case key.Matches(msg, m.keys.listKeys.Enter):
 			// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),
