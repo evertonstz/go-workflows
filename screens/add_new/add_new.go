@@ -1,10 +1,13 @@
 package addnew
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
+	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -149,8 +152,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	descModel, descCmd := m.Description.Update(msg)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "down":
+		switch {
+		case key.Matches(msg, helpkeys.AddNewKeys.Down):
 			switch m.selectedInput {
 			case title:
 				return m.focusInput(description)
@@ -161,7 +164,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m, nil
 			}
-		case "up":
+		case key.Matches(msg, helpkeys.AddNewKeys.Up):
 			switch m.selectedInput {
 			case title:
 				return m, nil
@@ -172,18 +175,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m.focusInput(textArea)
 			}
-		case "right":
+		case key.Matches(msg, helpkeys.AddNewKeys.Right):
 			if m.selectedInput == submit {
 				return m.focusInput(close)
 			}
-		case "left":
+		case key.Matches(msg, helpkeys.AddNewKeys.Left):
 			if m.selectedInput == close {
 				return m.focusInput(submit)
 			}
-		case "esc":
+		case key.Matches(msg, helpkeys.AddNewKeys.Close):
 			m.ResetForm()
 			return m, shared.CloseAddNewScreenCmd()
-		case "enter":
+		case key.Matches(msg, helpkeys.AddNewKeys.Submit):
 			switch m.selectedInput {
 			case submit:
 				if m.isFormValid() {
@@ -195,6 +198,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.ResetForm()
 					return m, shared.AddNewItemCmd(title, description, command)
 				}
+				return m, notification.ShowNotificationCmd("Please fill all fields!")
 			case close:
 				m.ResetForm()
 				return m, shared.CloseAddNewScreenCmd()

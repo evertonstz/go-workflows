@@ -1,8 +1,8 @@
-package list
+package keys
 
 import "github.com/charmbracelet/bubbles/key"
 
-type KeyMap struct {
+type ListKeyMap struct {
 	Up             key.Binding
 	Down           key.Binding
 	Left           key.Binding
@@ -14,25 +14,18 @@ type KeyMap struct {
 	Delete         key.Binding
 }
 
-func (k KeyMap) ShortHelp() []key.Binding {
+func (k ListKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.Help, k.Quit}
 }
 
-// func (k KeyMap) FullHelp() [][]key.Binding {
-// 	return [][]key.Binding{
-// 		{k.Delete, k.Up, k.Down, k.CopyWorkflow},
-// 		{k.AddNewWorkflow, k.Help, k.Quit},
-// 	}
-// }
-
-func (k KeyMap) FullHelp() [][]key.Binding {
+func (k ListKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.AddNewWorkflow,k.Delete, k.CopyWorkflow},
 		{k.Up, k.Down, k.Help, k.Quit},
 	}
 }
 
-var Keys = KeyMap{
+var LisKeys = ListKeyMap{
 	Delete: key.NewBinding(
 		key.WithKeys("d"),
 		key.WithHelp("d", "delete workflow"),
@@ -54,8 +47,8 @@ var Keys = KeyMap{
 		key.WithHelp("↓", "move down"),
 	),
 	Help: key.NewBinding(
-		key.WithKeys("?"),
-		key.WithHelp("?", "toggle help"),
+		key.WithKeys("ctrl+h"),
+		key.WithHelp("ctrl+h", "toggle help"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),

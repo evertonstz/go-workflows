@@ -16,6 +16,7 @@ import (
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/models"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -48,13 +49,8 @@ type (
 		notificationPanelStyle lipgloss.Style
 	}
 
-	keys struct {
-		listKeys list.KeyMap
-	}
-
 	model struct {
 		confirmationModal confirmationmodal.Model
-		keys              keys
 		help              help.Model
 		state             sessionState
 		screen            screenState
@@ -103,9 +99,16 @@ func (m *model) changeFocus(v sessionState) sessionState {
 	return m.state
 }
 
+func (m model) getHelpKeys() help.KeyMap {
+	if m.screen == addNew {
+		return helpkeys.AddNewKeys
+	}
+	return helpkeys.LisKeys
+}
+
 func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
-	m.currentHelpHeight = strings.Count(m.help.View(m.keys.listKeys), "\n") + 1
+	m.currentHelpHeight = strings.Count(m.help.View(m.getHelpKeys()), "\n") + 1
 
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
@@ -125,7 +128,7 @@ func (m *model) updatePanelSizes() {
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
-	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2)
+	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2 - leftHeightFrameSize - m.currentHelpHeight)
 }
 
 func (m *model) toggleHelpShowAll() {
@@ -162,6 +165,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case shared.ErrorMsg:
+		return m, notification.ShowNotificationCmd(msg.Err.Error())
 	case shared.DidCloseAddNewScreenMsg:
 		m.screen = listScreen
 		m.changeFocus(listView)
@@ -201,9 +206,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if m.screen == addNew {
 			switch {
-			case key.Matches(msg, m.keys.listKeys.Help):
+			case key.Matches(msg, helpkeys.LisKeys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, m.keys.listKeys.Quit):
+			case key.Matches(msg, helpkeys.LisKeys.Quit):
 				return m, tea.Quit
 			default:
 				if m.help.ShowAll {
@@ -214,19 +219,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if m.screen == listScreen {
 			switch {
-			case key.Matches(msg, m.keys.listKeys.AddNewWorkflow):
+			case key.Matches(msg, helpkeys.LisKeys.AddNewWorkflow):
 				m.screen = addNew
 				return m, nil
-			case key.Matches(msg, m.keys.listKeys.Delete):
+			case key.Matches(msg, helpkeys.LisKeys.Delete):
 				m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
 					"Yes",
 					"No",
 					shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()),
 					shared.CloseConfirmationModalCmd())
 				m.changeFocus(confirmationModalView)
-			case key.Matches(msg, m.keys.listKeys.Help):
+			case key.Matches(msg, helpkeys.LisKeys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, m.keys.listKeys.Quit):
+			case key.Matches(msg, helpkeys.LisKeys.Quit):
 				return m, tea.Quit
 			// TODO add edition function
 			// case key.Matches(msg, m.keys.listKeys.Enter):
@@ -287,11 +292,14 @@ func (m model) View() string {
 	var mainContent string
 
 	if m.screen == addNew {
-		return lipgloss.Place(m.termDimensions.width,
-			m.termDimensions.height,
-			lipgloss.Center,
-			lipgloss.Center,
-			m.addNewScreen.View())
+		return lipgloss.JoinVertical(lipgloss.Left,
+			m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
+			lipgloss.Place(m.termDimensions.width,
+				m.panelsStyle.leftPanelStyle.GetHeight(),
+				lipgloss.Center,
+				lipgloss.Center,
+				m.addNewScreen.View()),
+			m.panelsStyle.helpPanelStyle.Render(m.help.View(m.getHelpKeys())))
 	}
 
 	if m.focused() == listView {
@@ -310,13 +318,12 @@ func (m model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left,
 		m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
 		mainContent,
-		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.keys.listKeys)))
+		m.panelsStyle.helpPanelStyle.Render(m.help.View(m.getHelpKeys())))
 }
 
 func new() model {
 	return model{
 		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
-		keys:              keys{listKeys: list.Keys},
 		help:              help.New(),
 		list:              list.New(),
 		textArea:          textarea.New(),

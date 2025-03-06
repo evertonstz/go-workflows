@@ -10,6 +10,8 @@ import (
 	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
+
 )
 
 type myItem struct {
@@ -120,7 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = m.setCurrentItemCmd(cmds)
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, Keys.CopyWorkflow):
+		case key.Matches(msg, helpkeys.LisKeys.CopyWorkflow):
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(myItem); ok {
