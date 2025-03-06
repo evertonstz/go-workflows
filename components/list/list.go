@@ -7,11 +7,10 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
-	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-
 )
 
 type myItem struct {

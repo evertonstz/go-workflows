@@ -10,13 +10,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/components/persist"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/models"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
-	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/shared"
 )
 
@@ -128,7 +128,7 @@ func (m *model) updatePanelSizes() {
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
-	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2 - leftHeightFrameSize - m.currentHelpHeight)
+	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2-leftHeightFrameSize-m.currentHelpHeight)
 }
 
 func (m *model) toggleHelpShowAll() {

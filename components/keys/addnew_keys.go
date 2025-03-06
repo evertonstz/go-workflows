@@ -3,13 +3,13 @@ package keys
 import "github.com/charmbracelet/bubbles/key"
 
 type AddNewKeyMap struct {
-	Up             key.Binding
-	Down           key.Binding
-	Left           key.Binding
-	Right          key.Binding
-	Help           key.Binding
-	Close          key.Binding
-	Submit		   key.Binding
+	Up     key.Binding
+	Down   key.Binding
+	Left   key.Binding
+	Right  key.Binding
+	Help   key.Binding
+	Close  key.Binding
+	Submit key.Binding
 }
 
 func (k AddNewKeyMap) ShortHelp() []key.Binding {
@@ -18,7 +18,7 @@ func (k AddNewKeyMap) ShortHelp() []key.Binding {
 
 func (k AddNewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Up,k.Down, k.Left, k.Right},
+		{k.Up, k.Down, k.Left, k.Right},
 		{k.Help, k.Close},
 	}
 }

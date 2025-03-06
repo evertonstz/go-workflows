@@ -20,7 +20,7 @@ func (k ListKeyMap) ShortHelp() []key.Binding {
 
 func (k ListKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.AddNewWorkflow,k.Delete, k.CopyWorkflow},
+		{k.AddNewWorkflow, k.Delete, k.CopyWorkflow},
 		{k.Up, k.Down, k.Help, k.Quit},
 	}
 }
