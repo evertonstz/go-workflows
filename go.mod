@@ -9,6 +9,8 @@ require (
 	github.com/charmbracelet/lipgloss v1.0.0
 )
 
+require github.com/dustin/go-humanize v1.0.1 // indirect
+
 require (
 	github.com/adrg/xdg v0.5.3
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
