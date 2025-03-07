@@ -1,14 +1,23 @@
 package textarea
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
+
+	"github.com/dustin/go-humanize"
 )
 
 var highlightedTextStyle = lipgloss.NewStyle()
+var dateCellStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
+	Light: "#909090",
+	Dark:  "#626262",
+})
+var dateContainerStyle = lipgloss.NewStyle().Align(lipgloss.Right)
 
 type Model struct {
 	TextArea        textarea.Model
@@ -78,7 +87,14 @@ func (m Model) View() string {
 		lipgloss.Left,
 		highlightedTextStyle.
 			Width(m.TextArea.Width()).
-			Height(m.TextArea.Height()).
+			Height(m.TextArea.Height()-2).
 			Render(highlightedText),
+		dateContainerStyle.
+			Width(m.TextArea.Width()).
+			Height(2).
+			Render(lipgloss.JoinVertical(
+				lipgloss.Right,
+				dateCellStyle.Render(fmt.Sprintf("Added %s", humanize.Time(m.currentItem.DateAdded))),
+				dateCellStyle.Render(fmt.Sprintf("Last updated %s", humanize.Time(m.currentItem.DateUpdated))))),
 	)
 }
