@@ -77,6 +77,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	var lastUpdated string
+	if m.currentItem.DateAdded == m.currentItem.DateUpdated {
+		lastUpdated = "Updated: never"
+	} else {
+		lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentItem.DateUpdated))
+	}
+
 	if m.editing {
 		return m.TextArea.View()
 	}
@@ -95,7 +102,7 @@ func (m Model) View() string {
 			Height(2).
 			Render(lipgloss.JoinVertical(
 				lipgloss.Right,
-				dateCellStyle.Render(fmt.Sprintf("Added %s", humanize.Time(m.currentItem.DateAdded))),
-				dateCellStyle.Render(fmt.Sprintf("Last updated %s", humanize.Time(m.currentItem.DateUpdated))))),
+				dateCellStyle.Render(fmt.Sprintf("Added: %s", humanize.Time(m.currentItem.DateAdded))),
+				dateCellStyle.Render(lastUpdated))),
 	)
 }
