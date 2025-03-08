@@ -112,14 +112,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItems()
-	// case shared.DidDeleteItemMsg:
-	// 	updatedListModel, cmd := m.list.Update(msg)
-	// 	m.list = updatedListModel.(list.Model)
-	// 	cmds = append(cmds, cmd)
-	// 	m.changeFocus(listView)
-	// 	cmds = append(cmds, m.persistItems())
-
-		// return m, tea.Batch(cmds...)
+	case shared.DidDeleteItemMsg:
+		cmds = append(cmds, m.persistItems())
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
 	case persist.PersistedFileMsg:
