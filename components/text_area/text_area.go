@@ -14,10 +14,10 @@ import (
 
 var highlightedTextStyle = lipgloss.NewStyle()
 var dateCellStyle = lipgloss.NewStyle().
-								Foreground(lipgloss.AdaptiveColor{
-									Light: "#909090",
-									Dark:  "#626262",}).
-									PaddingRight(2)
+	Foreground(lipgloss.AdaptiveColor{
+		Light: "#909090",
+		Dark:  "#626262"}).
+	PaddingRight(2)
 var dateContainerStyle = lipgloss.NewStyle().Align(lipgloss.Right)
 
 type Model struct {
