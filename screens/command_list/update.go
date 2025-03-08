@@ -12,14 +12,22 @@ import (
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+	var cmd tea.Cmd
+	var listModel tea.Model
 
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, helpkeys.LisKeys.Esc):
+			if m.currentRightPanel == modal {
+				m.currentRightPanel = textArea
+				return m, nil
+			}
 		case key.Matches(msg, helpkeys.LisKeys.Delete):
-			m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
+			m.rebuildConfirmationModel(
+				"Are you sure you want to delete this workflow?",
 				"Yes",
 				"No",
 				tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
@@ -28,8 +36,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	var cmd tea.Cmd
-	var listModel tea.Model
 	listModel, cmd = m.list.Update(msg)
 	m.list = listModel.(list.Model)
 	cmds = append(cmds, cmd)

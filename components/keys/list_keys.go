@@ -12,6 +12,7 @@ type ListKeyMap struct {
 	CopyWorkflow   key.Binding
 	AddNewWorkflow key.Binding
 	Delete         key.Binding
+	Esc            key.Binding
 }
 
 func (k ListKeyMap) ShortHelp() []key.Binding {
@@ -53,5 +54,9 @@ var LisKeys = ListKeyMap{
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
+	),
+	Esc: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "close"),
 	),
 }

@@ -80,13 +80,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, notfyCmd)
 	m.notification = notfyModel
 
-	if m.screenState == addNew {
+	switch m.screenState {
+	case addNew:
 		addNewScreenModel, addNewScreenCmd := m.addNewScreen.Update(msg)
 		cmds = append(cmds, addNewScreenCmd)
 		m.addNewScreen = addNewScreenModel
-	}
-
-	if m.screenState == newList {
+	case newList:
 		var cmd tea.Cmd
 		updatedListScreenModel, cmd := m.listScreen.Update(msg)
 		m.listScreen = updatedListScreenModel.(commandlist.Model)
