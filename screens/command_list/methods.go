@@ -16,7 +16,7 @@ func (m *Model) SetSize(width, height int) {
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(width) * leftPanelWidthPercentage))).
 		Height(height)
-	
+
 	m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
 		Width(width - m.panelsStyle.leftPanelStyle.GetWidth()).
 		Height(height)

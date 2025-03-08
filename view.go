@@ -13,7 +13,7 @@ func (m model) View() string {
 		return lipgloss.JoinVertical(lipgloss.Left,
 			notificationView,
 			lipgloss.Place(m.termDimensions.width,
-				m.termDimensions.height - ( m.panelsStyle.notificationPanelStyle.GetHeight() + m.currentHelpHeight),
+				m.termDimensions.height-(m.panelsStyle.notificationPanelStyle.GetHeight()+m.currentHelpHeight),
 				lipgloss.Center,
 				lipgloss.Center,
 				m.addNewScreen.View()),
@@ -25,4 +25,5 @@ func (m model) View() string {
 			helpView)
 	default:
 		return ""
-}}
+	}
+}

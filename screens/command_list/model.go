@@ -21,25 +21,25 @@ var (
 
 type (
 	panelsStyle struct {
-	leftPanelStyle         lipgloss.Style
-	rightPanelStyle        lipgloss.Style
-}
+		leftPanelStyle  lipgloss.Style
+		rightPanelStyle lipgloss.Style
+	}
 
- Model struct {
-	list              list.Model
-	confirmationModal confirmationmodal.Model
-	textArea          textarea.Model
-	panelsStyle	      panelsStyle
-	currentRightPanel  currentRightPanel
-}
-currentRightPanel  uint
+	Model struct {
+		list              list.Model
+		confirmationModal confirmationmodal.Model
+		textArea          textarea.Model
+		panelsStyle       panelsStyle
+		currentRightPanel currentRightPanel
+	}
+	currentRightPanel uint
 )
 
 const (
 	textArea currentRightPanel = iota
 	modal
 )
-	
+
 func (m Model) Init() tea.Cmd {
 	return nil
 }
@@ -50,9 +50,9 @@ func New() Model {
 	confirmationmodal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
 
 	return Model{
-		list:     listModel,
+		list:              listModel,
 		confirmationModal: confirmationmodal,
-		textArea: textAreaModel,
+		textArea:          textAreaModel,
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
 			rightPanelStyle: rightPanelStyle,

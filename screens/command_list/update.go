@@ -3,11 +3,11 @@ package commandlist
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/evertonstz/go-workflows/components/list"
-	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-    "github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/components/list"
+	textarea "github.com/evertonstz/go-workflows/components/text_area"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -25,7 +25,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
 				shared.CloseConfirmationModalCmd())
 			m.currentRightPanel = modal
-	}}
+		}
+	}
 
 	var cmd tea.Cmd
 	var listModel tea.Model

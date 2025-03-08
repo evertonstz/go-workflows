@@ -42,7 +42,7 @@ type (
 		currentHelpHeight int
 		panelsStyle       panelsStyle
 	}
-	screenState  uint
+	screenState uint
 )
 
 const (
@@ -61,11 +61,11 @@ func new() model {
 		addNewScreen:      addnew.New(),
 		listScreen:        commandlist.New(),
 		notification:      notification.New("Workflows"),
-		panelsStyle:       panelsStyle{
-								helpPanelStyle:         helpPanelStyle,
-								notificationPanelStyle: notificationPanelStyle,
-							},
-		currentHelpHeight:  0,
-		screenState:        newList,
+		panelsStyle: panelsStyle{
+			helpPanelStyle:         helpPanelStyle,
+			notificationPanelStyle: notificationPanelStyle,
+		},
+		currentHelpHeight: 0,
+		screenState:       newList,
 	}
 }
