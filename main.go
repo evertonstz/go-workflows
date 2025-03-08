@@ -21,13 +21,6 @@ import (
 )
 
 var (
-	leftPanelStyle           = lipgloss.NewStyle().
-					AlignHorizontal(lipgloss.Left)
-	rightPanelStyle = lipgloss.NewStyle().
-			AlignHorizontal(lipgloss.Left).
-			PaddingTop(2).
-			Width(15).
-			Height(5)
 	helpPanelStyle         = lipgloss.NewStyle().PaddingLeft(2)
 	notificationPanelStyle = lipgloss.NewStyle().
 				PaddingLeft(2).
@@ -42,8 +35,6 @@ type (
 	}
 
 	panelsStyle struct {
-		leftPanelStyle         lipgloss.Style
-		rightPanelStyle        lipgloss.Style
 		helpPanelStyle         lipgloss.Style
 		notificationPanelStyle lipgloss.Style
 	}
@@ -51,7 +42,7 @@ type (
 	model struct {
 		confirmationModal confirmationmodal.Model
 		help              help.Model
-		screen            screenState
+		screenState       screenState
 		addNewScreen      addnew.Model
 		listScreen        commandlist.Model
 		persistPath       string
@@ -66,7 +57,6 @@ type (
 const (
 	addNew screenState = iota
 	newList
-	listScreen
 )
 
 func (m model) Init() tea.Cmd {
@@ -75,7 +65,7 @@ func (m model) Init() tea.Cmd {
 
 
 func (m model) getHelpKeys() help.KeyMap {
-	if m.screen == addNew {
+	if m.screenState == addNew {
 		return helpkeys.AddNewKeys
 	}
 	return helpkeys.LisKeys
@@ -85,24 +75,6 @@ func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
 	m.currentHelpHeight = strings.Count(m.help.View(m.getHelpKeys()), "\n") + 1
 
-	// m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
-	// 	Width(int(math.Floor(float64(m.termDimensions.width) * leftPanelWidthPercentage))).
-	// 	Height(m.termDimensions.height - m.currentHelpHeight - currentNotificationHeight)
-	// m.panelsStyle.rightPanelStyle = m.panelsStyle.rightPanelStyle.
-	// 	Width(m.termDimensions.width - m.panelsStyle.leftPanelStyle.GetWidth() - 4).
-	// 	Height(m.termDimensions.height - m.currentHelpHeight - currentNotificationHeight)
-	// m.panelsStyle.helpPanelStyle = m.panelsStyle.helpPanelStyle.
-	// 	Width(m.termDimensions.width).
-	// 	Height(m.currentHelpHeight)
-
-	// leftWidthFrameSize, leftHeightFrameSize := m.panelsStyle.leftPanelStyle.GetFrameSize()
-	// rightWidthFrameSize, rightHeightFrameSize := m.panelsStyle.rightPanelStyle.GetFrameSize()
-
-	// leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
-	// rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
-
-	// m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
-	// m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
 	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2 - (m.currentHelpHeight + currentNotificationHeight))
 	m.listScreen.SetSize(m.termDimensions.width, m.termDimensions.height - (m.currentHelpHeight + currentNotificationHeight))
 }
@@ -144,13 +116,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.ErrorMsg:
 		return m, notification.ShowNotificationCmd(msg.Err.Error())
 	case shared.DidCloseAddNewScreenMsg:
-		m.screen = newList
+		m.screenState = newList
 		// return m, nil
-	// case shared.DidAddNewItemMsg:
-	// 	m.screen = listScreen
-	// 	updatedListModel, _ := m.list.Update(msg)
-	// 	m.listScreen.list = updatedListModel.(list.Model)
-	// 	return m, m.persistItems()
+	case shared.DidAddNewItemMsg:
+		m.screenState = newList
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, m.persistItems()
 	// case shared.DidCloseConfirmationModalMsg:
 	// 	m.changeFocus(listView)
 	// case shared.DidDeleteItemMsg:
@@ -168,18 +140,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case persist.InitiatedPersistion:
 		m.persistPath = msg.DataFile
 		return m, persist.LoadDataFileCmd(msg.DataFile)
-	// case persist.LoadedDataFileMsg:
-	// 	m.list.Update(msg)
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
 		m.updatePanelSizes()
-	// case shared.DidUpdateItemMsg:
-	// 	m.list.Update(msg)
-	// 	return m, m.persistItems()
+	case shared.DidUpdateItemMsg:
+		return m, m.persistItems()
 
 	case tea.KeyMsg:
-		if m.screen == addNew {
+		if m.screenState == addNew {
 			switch {
 			case key.Matches(msg, helpkeys.LisKeys.Help):
 				m.toggleHelpShowAll()
@@ -192,10 +161,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		if m.screen == newList {
+		if m.screenState == newList {
 			switch {
 			case key.Matches(msg, helpkeys.LisKeys.AddNewWorkflow):
-				m.screen = addNew
+				m.screenState = addNew
 				return m, nil
 			// case key.Matches(msg, helpkeys.LisKeys.Delete):
 			// 	m.rebuildConfirmationModel("Are you sure you want to delete this workflow?",
@@ -227,7 +196,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, notfyCmd)
 	m.notification = notfyModel
 
-	if m.screen == addNew {
+	if m.screenState == addNew {
 		addNewScreenModel, addNewScreenCmd := m.addNewScreen.Update(msg)
 		cmds = append(cmds, addNewScreenCmd)
 		m.addNewScreen = addNewScreenModel
@@ -260,7 +229,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// 	}
 	// }
 
-	if m.screen == newList {
+	if m.screenState == newList {
 		var cmd tea.Cmd
 		updatedListScreenModel, cmd := m.listScreen.Update(msg)
 		m.listScreen = updatedListScreenModel.(commandlist.Model)
@@ -274,14 +243,14 @@ func (m model) View() string {
 	notificationView := m.panelsStyle.notificationPanelStyle.Render(m.notification.View())
 	helpView := m.panelsStyle.helpPanelStyle.Render(m.help.View(m.getHelpKeys()))
 
-	if m.screen == newList { 
+	if m.screenState == newList { 
 		return lipgloss.JoinVertical(lipgloss.Left,
 			notificationView,
 			m.listScreen.View(),
 			helpView)
 	}
 
-	if m.screen == addNew {
+	if m.screenState == addNew {
 		return lipgloss.JoinVertical(lipgloss.Left,
 			notificationView,
 			lipgloss.Place(m.termDimensions.width,
@@ -319,14 +288,12 @@ func new() model {
 		addNewScreen:      addnew.New(),
 		listScreen:        commandlist.New(),
 		notification:      notification.New("Workflows"),
-		panelsStyle: panelsStyle{
-			leftPanelStyle:         leftPanelStyle,
-			rightPanelStyle:        rightPanelStyle,
-			helpPanelStyle:         helpPanelStyle,
-			notificationPanelStyle: notificationPanelStyle,
-		},
-		currentHelpHeight: 0,
-		screen:            newList,
+		panelsStyle:       panelsStyle{
+								helpPanelStyle:         helpPanelStyle,
+								notificationPanelStyle: notificationPanelStyle,
+							},
+		currentHelpHeight:  0,
+		screenState:        newList,
 	}
 }
 

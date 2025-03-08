@@ -12,10 +12,8 @@ import (
 var (
 	leftPanelWidthPercentage = 0.5
 	leftPanelStyle           = lipgloss.NewStyle().
-	Background(lipgloss.Color("20")).
 					AlignHorizontal(lipgloss.Left)
 	rightPanelStyle = lipgloss.NewStyle().
-	Background(lipgloss.Color("20")).
 			AlignHorizontal(lipgloss.Left).
 			PaddingTop(2).
 			Width(15).
