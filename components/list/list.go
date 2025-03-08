@@ -13,7 +13,7 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-type myItem struct {
+type MyItem struct {
 	title, desc, command string
 	dateAdded            time.Time
 	dateUpdated          time.Time
@@ -21,12 +21,12 @@ type myItem struct {
 
 var docStyle = lipgloss.NewStyle()
 
-func (i myItem) Title() string          { return i.title }
-func (i myItem) Description() string    { return i.desc }
-func (i myItem) Command() string        { return i.command }
-func (i myItem) DateAdded() time.Time   { return i.dateAdded }
-func (i myItem) DateUpdated() time.Time { return i.dateUpdated }
-func (i myItem) FilterValue() string    { return i.title }
+func (i MyItem) Title() string          { return i.title }
+func (i MyItem) Description() string    { return i.desc }
+func (i MyItem) Command() string        { return i.command }
+func (i MyItem) DateAdded() time.Time   { return i.dateAdded }
+func (i MyItem) DateUpdated() time.Time { return i.dateUpdated }
+func (i MyItem) FilterValue() string    { return i.title }
 
 type Model struct {
 	inputs          inputsModel
@@ -34,18 +34,18 @@ type Model struct {
 	lastSelectedIdx int
 }
 
-func (m Model) CurentItem() myItem {
-	return m.list.SelectedItem().(myItem)
+func (m Model) CurentItem() MyItem {
+	return m.list.SelectedItem().(MyItem)
 }
 
 func (m Model) CurrentItemIndex() int {
 	return m.list.Index()
 }
 
-func (m Model) AllItems() []myItem {
-	var items []myItem
+func (m Model) AllItems() []MyItem {
+	var items []MyItem
 	for _, i := range m.list.Items() {
-		items = append(items, i.(myItem))
+		items = append(items, i.(MyItem))
 	}
 	return items
 }
@@ -74,7 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case shared.DidAddNewItemMsg:
-		newItem := myItem{
+		newItem := MyItem{
 			title:       msg.Title,
 			desc:        msg.Description,
 			command:     msg.CommandText,
@@ -96,8 +96,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case shared.DidUpdateItemMsg:
 		for i, item := range m.list.Items() {
-			if item.(myItem).title == msg.Item.Title {
-				m.list.SetItem(i, myItem{
+			if item.(MyItem).title == msg.Item.Title {
+				m.list.SetItem(i, MyItem{
 					title:       msg.Item.Title,
 					desc:        msg.Item.Desc,
 					command:     msg.Item.Command,
@@ -110,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case persist.LoadedDataFileMsg:
 		var data []list.Item
 		for _, i := range msg.Items.Items {
-			data = append(data, list.Item(myItem{
+			data = append(data, list.Item(MyItem{
 				title:       i.Title,
 				desc:        i.Desc,
 				command:     i.Command,
@@ -124,7 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, helpkeys.LisKeys.CopyWorkflow):
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
-				if selected, ok := selectedItem.(myItem); ok {
+				if selected, ok := selectedItem.(MyItem); ok {
 					return m, shared.CopyToClipboardCmd(selected.command)
 				}
 			}
