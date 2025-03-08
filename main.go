@@ -63,7 +63,6 @@ func (m model) Init() tea.Cmd {
 	return persist.InitPersistionManagerCmd("go-workflows")
 }
 
-
 func (m model) getHelpKeys() help.KeyMap {
 	if m.screenState == addNew {
 		return helpkeys.AddNewKeys
@@ -202,33 +201,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.addNewScreen = addNewScreenModel
 	}
 
-	// if m.screen == listScreen {
-	// 	switch m.focused() {
-	// 	case listView:
-	// 		var c tea.Cmd
-	// 		var updatedListAreaModel tea.Model
-	// 		var updatedTextAreaModel tea.Model
-	// 		updatedListAreaModel, c = m.list.Update(msg)
-	// 		m.list = updatedListAreaModel.(list.Model)
-	// 		cmds = append(cmds, c)
-	// 		updatedTextAreaModel, c = m.textArea.Update(msg)
-	// 		m.textArea = updatedTextAreaModel.(textarea.Model)
-	// 		cmds = append(cmds, c)
-	// 	case editView:
-	// 		var c tea.Cmd
-	// 		var updatedTextAreaModel tea.Model
-	// 		updatedTextAreaModel, c = m.textArea.Update(msg)
-	// 		m.textArea = updatedTextAreaModel.(textarea.Model)
-	// 		cmds = append(cmds, c)
-	// 	case confirmationModalView:
-	// 		var c tea.Cmd
-	// 		var updatedConfirmationModalModel tea.Model
-	// 		updatedConfirmationModalModel, c = m.confirmationModal.Update(msg)
-	// 		m.confirmationModal = updatedConfirmationModalModel.(confirmationmodal.Model)
-	// 		cmds = append(cmds, c)
-	// 	}
-	// }
-
 	if m.screenState == newList {
 		var cmd tea.Cmd
 		updatedListScreenModel, cmd := m.listScreen.Update(msg)
@@ -243,14 +215,8 @@ func (m model) View() string {
 	notificationView := m.panelsStyle.notificationPanelStyle.Render(m.notification.View())
 	helpView := m.panelsStyle.helpPanelStyle.Render(m.help.View(m.getHelpKeys()))
 
-	if m.screenState == newList { 
-		return lipgloss.JoinVertical(lipgloss.Left,
-			notificationView,
-			m.listScreen.View(),
-			helpView)
-	}
-
-	if m.screenState == addNew {
+	switch m.screenState {
+	case addNew:
 		return lipgloss.JoinVertical(lipgloss.Left,
 			notificationView,
 			lipgloss.Place(m.termDimensions.width,
@@ -259,27 +225,14 @@ func (m model) View() string {
 				lipgloss.Center,
 				m.addNewScreen.View()),
 			helpView)
-	}
-
-	// if m.focused() == listView {
-	// 	mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
-	// 		m.panelsStyle.leftPanelStyle.Render(m.list.View()),
-	// 		m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
-	// } else if m.focused() == editView {
-	// 	mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
-	// 		m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
-	// 		m.panelsStyle.rightPanelStyle.Render(m.textArea.View()))
-	// } else if m.focused() == confirmationModalView {
-	// 	mainContent = lipgloss.JoinHorizontal(lipgloss.Bottom,
-	// 		m.panelsStyle.leftPanelStyle.Faint(true).Render(m.list.View()),
-	// 		m.panelsStyle.rightPanelStyle.Render(m.confirmationModal.View()))
-	// }
-	// return lipgloss.JoinVertical(lipgloss.Left,
-	// 	m.panelsStyle.notificationPanelStyle.Render(m.notification.View()),
-	// 	mainContent,
-	// 	m.panelsStyle.helpPanelStyle.Render(m.help.View(m.getHelpKeys())))
-	return ""
-}
+	case newList:
+		return lipgloss.JoinVertical(lipgloss.Left,
+			notificationView,
+			m.listScreen.View(),
+			helpView)
+	default:
+		return ""
+}}
 
 func new() model {
 	return model{
