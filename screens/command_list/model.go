@@ -14,7 +14,7 @@ var (
 					AlignHorizontal(lipgloss.Left)
 	rightPanelStyle = lipgloss.NewStyle().
 			AlignHorizontal(lipgloss.Left).
-			PaddingTop(2).
+			PaddingTop(1).
 			Width(15).
 			Height(5)
 )

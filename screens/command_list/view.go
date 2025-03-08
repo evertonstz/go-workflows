@@ -14,7 +14,7 @@ func (m Model) View() string {
 		rightPanel = ""
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Bottom,
+	return lipgloss.JoinHorizontal(lipgloss.Top,
 		m.panelsStyle.leftPanelStyle.Render(m.list.View()),
 		m.panelsStyle.rightPanelStyle.Render(rightPanel))
 }
