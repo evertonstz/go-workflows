@@ -83,16 +83,6 @@ func (m *model) toggleHelpShowAll() {
 	m.updatePanelSizes()
 }
 
-// func (m *model) rebuildConfirmationModel(title string, confirm string, cancel string, confirmCmd tea.Cmd, cancelCmd tea.Cmd) {
-// 	m.confirmationModal = confirmationmodal.NewConfirmationModal(
-// 		title,
-// 		confirm,
-// 		cancel,
-// 		confirmCmd,
-// 		cancelCmd,
-// 	)
-// }
-
 func (m model) persistItems() tea.Cmd {
 	var items []models.Item
 	for _, i := range m.listScreen.GetAllItems() {
@@ -122,8 +112,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItems()
-	// case shared.DidCloseConfirmationModalMsg:
-	// 	m.changeFocus(listView)
 	// case shared.DidDeleteItemMsg:
 	// 	updatedListModel, cmd := m.list.Update(msg)
 	// 	m.list = updatedListModel.(list.Model)

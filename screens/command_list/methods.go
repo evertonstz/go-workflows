@@ -3,6 +3,8 @@ package commandlist
 import (
 	"math"
 
+	tea "github.com/charmbracelet/bubbletea"
+	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 )
 
@@ -27,4 +29,14 @@ func (m *Model) SetSize(width, height int) {
 
 	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
+}
+
+func (m *Model) rebuildConfirmationModel(title string, confirm string, cancel string, confirmCmd tea.Cmd, cancelCmd tea.Cmd) {
+	m.confirmationModal = confirmationmodal.NewConfirmationModal(
+		title,
+		confirm,
+		cancel,
+		confirmCmd,
+		cancelCmd,
+	)
 }

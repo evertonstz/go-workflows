@@ -3,6 +3,7 @@ package commandlist
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 )
@@ -26,9 +27,18 @@ type (
 
  Model struct {
 	list              list.Model
+	confirmationModal confirmationmodal.Model
 	textArea          textarea.Model
 	panelsStyle	      panelsStyle
-})
+	currentRightPanel  currentRightPanel
+}
+currentRightPanel  uint
+)
+
+const (
+	textArea currentRightPanel = iota
+	modal
+)
 	
 func (m Model) Init() tea.Cmd {
 	return nil
@@ -37,13 +47,16 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	listModel := list.New()
 	textAreaModel := textarea.New()
+	confirmationmodal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
 
 	return Model{
 		list:     listModel,
+		confirmationModal: confirmationmodal,
 		textArea: textAreaModel,
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
 			rightPanelStyle: rightPanelStyle,
 		},
+		currentRightPanel: textArea,
 	}
 }
