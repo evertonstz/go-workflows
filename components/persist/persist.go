@@ -45,7 +45,17 @@ func LoadDataFileCmd(path string) tea.Cmd {
 	return func() tea.Msg {
 		data, err := os.ReadFile(path)
 		if err != nil {
-			panic(err)
+			if os.IsNotExist(err) {
+				if _, createErr := os.Create(path); createErr != nil {
+					panic(createErr)
+				}
+			} else {
+				panic(err)
+			}
+		}
+
+		if len(data) == 0 {
+			return LoadedDataFileMsg{Items: models.Items{}}
 		}
 
 		var config models.Items

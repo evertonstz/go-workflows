@@ -35,7 +35,17 @@ type Model struct {
 }
 
 func (m Model) CurentItem() MyItem {
-	return m.list.SelectedItem().(MyItem)
+	selectedItem := m.list.SelectedItem()
+	if selectedItem == nil {
+		return MyItem{}
+	}
+
+	item, ok := selectedItem.(MyItem)
+	if !ok {
+		return MyItem{}
+	}
+
+	return item
 }
 
 func (m Model) CurrentItemIndex() int {
