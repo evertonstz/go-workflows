@@ -18,7 +18,8 @@ func (m model) getHelpKeys() help.KeyMap {
 }
 
 func (m model) isSmallWidth() bool {
-	return m.termDimensions.width < 100}
+	return m.termDimensions.width < 100
+}
 
 func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
