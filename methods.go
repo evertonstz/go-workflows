@@ -17,12 +17,15 @@ func (m model) getHelpKeys() help.KeyMap {
 	return helpkeys.LisKeys
 }
 
+func (m model) isSmallWidth() bool {
+	return m.termDimensions.width < 100}
+
 func (m *model) updatePanelSizes() {
 	currentNotificationHeight := m.panelsStyle.notificationPanelStyle.GetHeight()
 	m.currentHelpHeight = strings.Count(m.help.View(m.getHelpKeys()), "\n") + 1
 
 	m.addNewScreen.SetSize(m.termDimensions.width/2, m.termDimensions.height/2-(m.currentHelpHeight+currentNotificationHeight))
-	m.listScreen.SetSize(m.termDimensions.width, m.termDimensions.height-(m.currentHelpHeight+currentNotificationHeight+1))
+	m.listScreen.SetSize(m.termDimensions.width, m.termDimensions.height-(m.currentHelpHeight+currentNotificationHeight+1), m.isSmallWidth())
 }
 
 func (m *model) toggleHelpShowAll() {

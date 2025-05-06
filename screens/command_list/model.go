@@ -31,6 +31,7 @@ type (
 		textArea          textarea.Model
 		panelsStyle       panelsStyle
 		currentRightPanel currentRightPanel
+		isSmallWidth      bool
 	}
 	currentRightPanel uint
 )
@@ -58,5 +59,6 @@ func New() Model {
 			rightPanelStyle: rightPanelStyle,
 		},
 		currentRightPanel: textArea,
+		isSmallWidth:      false,
 	}
 }

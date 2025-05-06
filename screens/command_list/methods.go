@@ -12,7 +12,8 @@ func (m Model) GetAllItems() []list.MyItem {
 	return m.list.AllItems()
 }
 
-func (m *Model) SetSize(width, height int) {
+func (m *Model) SetSize(width, height int, smallWidth bool) {
+	m.isSmallWidth = smallWidth
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.
 		Width(int(math.Floor(float64(width) * leftPanelWidthPercentage))).
 		Height(height)
