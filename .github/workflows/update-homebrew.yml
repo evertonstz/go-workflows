@@ -75,3 +75,13 @@ jobs:
           git add Formula/go-workflows.rb
           git commit -m "Update Homebrew formula to ${{ env.TAG_NAME }}"
           git push
+
+      - name: Notify Success or Error
+        if: always()
+        run: |
+          CHANNEL="${{ secrets.NTFY_CHANNEL }}"
+          if [ "${{ job.status }}" == "success" ]; then
+            curl -H "Title: Homebrew Update Success" -d "Homebrew formula update succeeded for tag ${{ env.TAG_NAME }}" ntfy.sh/$CHANNEL
+          else
+            curl -H "Title: Homebrew Update Failure" -d "Homebrew formula update failed for tag ${{ env.TAG_NAME }}" ntfy.sh/$CHANNEL
+          fi
