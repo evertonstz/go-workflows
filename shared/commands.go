@@ -9,9 +9,12 @@ import (
 	"github.com/atotto/clipboard"
 )
 
+// ClipboardWriteAll allows mocking clipboard.WriteAll for tests.
+var ClipboardWriteAll = clipboard.WriteAll
+
 func CopyToClipboardCmd(t string) tea.Cmd {
 	return func() tea.Msg {
-		err := clipboard.WriteAll(t)
+		err := ClipboardWriteAll(t)
 		if err != nil {
 			// TODO: Emit an error message to the future notification system
 			return ErrorMsg{Err: err}

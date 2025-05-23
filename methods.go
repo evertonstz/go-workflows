@@ -34,7 +34,7 @@ func (m *model) toggleHelpShowAll() {
 	m.updatePanelSizes()
 }
 
-func (m model) persistItems() tea.Cmd {
+func (m *model) persistItems() tea.Cmd {
 	var items []models.Item
 	for _, i := range m.listScreen.GetAllItems() {
 		items = append(items, models.Item{
@@ -46,5 +46,5 @@ func (m model) persistItems() tea.Cmd {
 	}
 	data := models.Items{Items: items}
 
-	return persist.PersistListData(m.persistPath, data)
+	return persist.PersistDataFunc(m.persistPath, data)
 }

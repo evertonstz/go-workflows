@@ -28,7 +28,7 @@ const (
 	cancel
 )
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
@@ -44,7 +44,7 @@ func (m *Model) SetCancelButtonLabel(cancelButton string) {
 	m.CancelButton = cancelButton
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) { // Changed return type to (tea.Model, tea.Cmd)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -69,7 +69,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) View() string {
+func (m Model) View() string { 
 	var confirmButton, cancelButton string
 
 	if m.selectedInput == confirm {
@@ -87,8 +87,8 @@ func (m Model) View() string {
 	)
 }
 
-func NewConfirmationModal(message, confirmButton, cancelButton string, confirmCmd, cancelCmd tea.Cmd) Model {
-	return Model{
+func NewConfirmationModal(message, confirmButton, cancelButton string, confirmCmd, cancelCmd tea.Cmd) *Model {
+	return &Model{ 
 		Message:       message,
 		ConfirmButton: confirmButton,
 		CancelButton:  cancelButton,

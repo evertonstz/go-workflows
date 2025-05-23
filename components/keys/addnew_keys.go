@@ -19,7 +19,7 @@ func (k AddNewKeyMap) ShortHelp() []key.Binding {
 func (k AddNewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Left, k.Right},
-		{k.Help, k.Close},
+		{k.Help, k.Close, k.Submit}, // Corrected: Submit should be in FullHelp
 	}
 }
 

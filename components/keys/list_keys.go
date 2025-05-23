@@ -5,8 +5,8 @@ import "github.com/charmbracelet/bubbles/key"
 type ListKeyMap struct {
 	Up             key.Binding
 	Down           key.Binding
-	Left           key.Binding
-	Right          key.Binding
+	Left           key.Binding // Added for completeness
+	Right          key.Binding // Added for completeness
 	Help           key.Binding
 	Quit           key.Binding
 	CopyWorkflow   key.Binding
@@ -21,12 +21,12 @@ func (k ListKeyMap) ShortHelp() []key.Binding {
 
 func (k ListKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.AddNewWorkflow, k.Delete, k.CopyWorkflow},
-		{k.Up, k.Down, k.Help, k.Quit},
+		{k.AddNewWorkflow, k.Delete, k.CopyWorkflow}, 
+		{k.Up, k.Down, k.Help, k.Quit, k.Esc},        // Corrected: Esc should be in FullHelp
 	}
 }
 
-var LisKeys = ListKeyMap{
+var LisKeys = ListKeyMap{ 
 	Delete: key.NewBinding(
 		key.WithKeys("d"),
 		key.WithHelp("d", "delete workflow"),
@@ -46,6 +46,14 @@ var LisKeys = ListKeyMap{
 	Down: key.NewBinding(
 		key.WithKeys("down"),
 		key.WithHelp("↓", "move down"),
+	),
+	Left: key.NewBinding( // Added
+		key.WithKeys("left"),
+		key.WithHelp("←", "move left"),
+	),
+	Right: key.NewBinding( // Added
+		key.WithKeys("right"),
+		key.WithHelp("→", "move right"),
 	),
 	Help: key.NewBinding(
 		key.WithKeys("ctrl+h"),
