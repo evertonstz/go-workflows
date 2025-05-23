@@ -5,12 +5,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
-	"github.com/evertonstz/go-workflows/components/list"
+	// "github.com/evertonstz/go-workflows/components/list" // Unused import
 )
-
-func (m Model) GetAllItems() []list.MyItem {
-	return m.list.AllItems()
-}
 
 func (m *Model) setSizeForBigWidth(width, height int) {
 	m.panelsStyle.leftPanelStyle = m.panelsStyle.leftPanelStyle.

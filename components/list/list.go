@@ -28,6 +28,17 @@ func (i MyItem) DateAdded() time.Time   { return i.dateAdded }
 func (i MyItem) DateUpdated() time.Time { return i.dateUpdated }
 func (i MyItem) FilterValue() string    { return i.title }
 
+// NewMyItem is a constructor for MyItem, allowing creation with unexported fields.
+func NewMyItem(title, desc, command string, dateAdded, dateUpdated time.Time) MyItem {
+	return MyItem{
+		title:       title,
+		desc:        desc,
+		command:     command,
+		dateAdded:   dateAdded,
+		dateUpdated: dateUpdated,
+	}
+}
+
 type Model struct {
 	inputs          inputsModel
 	list            list.Model
@@ -116,6 +127,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				})
 			}
 		}
+		// After updating the item, we can return, no need to fall through to bubble list's Update for this specific message.
+		// However, if other key messages or events need to be processed by bubble list, this might need adjustment.
+		// For now, assuming DidUpdateItemMsg is fully handled here.
+		return m, tea.Batch(cmds...) // Return early after handling
 
 	case persist.LoadedDataFileMsg:
 		var data []list.Item
@@ -129,6 +144,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.list.SetItems(data)
 		cmds = m.setCurrentItemCmd(cmds)
+		return m, tea.Batch(cmds...) // Return early after handling LoadedDataFileMsg
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, helpkeys.LisKeys.CopyWorkflow):

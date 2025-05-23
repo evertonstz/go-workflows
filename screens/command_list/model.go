@@ -36,6 +36,11 @@ type (
 	currentRightPanel uint
 )
 
+// GetAllItems retrieves all items from the underlying list.Model.
+func (m Model) GetAllItems() []list.MyItem {
+	return m.list.AllItems()
+}
+
 const (
 	textArea currentRightPanel = iota
 	modal
