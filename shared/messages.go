@@ -1,6 +1,10 @@
 package shared
 
-import "github.com/evertonstz/go-workflows/models"
+import (
+	"github.com/evertonstz/go-workflows/components/persist"
+	"github.com/evertonstz/go-workflows/models"
+	"github.com/samber/mo"
+)
 
 type (
 	DidSetCurrentItemMsg struct {
@@ -29,5 +33,16 @@ type (
 
 	ErrorMsg struct {
 		Err error
+	}
+
+	// New Result-based messages for persistence operations
+	InitiatedPersistionResultMsg struct {
+		Result mo.Result[persist.InitiatedPersistion]
+	}
+	LoadedDataFileResultMsg struct {
+		Result mo.Result[models.Items]
+	}
+	PersistedFileResultMsg struct {
+		Result mo.Result[struct{}]
 	}
 )

@@ -11,6 +11,8 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 )
 
+require github.com/samber/mo v1.14.0 // indirect
+
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
