@@ -10,8 +10,6 @@ import (
 )
 
 var (
-	localizer *i18n.Localizer
-
 	leftPanelWidthPercentage = 0.5
 	leftPanelStyle           = lipgloss.NewStyle().
 					AlignHorizontal(lipgloss.Left)
@@ -35,7 +33,7 @@ type (
 		panelsStyle       panelsStyle
 		currentRightPanel currentRightPanel
 		isSmallWidth      bool
-		localizer         *i18n.Localizer // Add localizer to the model struct
+		localizer         *i18n.Localizer
 	}
 	currentRightPanel uint
 )
@@ -50,9 +48,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func New(loc *i18n.Localizer) Model {
-	localizer = loc // Keep for package-level access if still needed by some functions directly
-	// It's generally better to pass localizer explicitly or via struct fields.
-
 	listModel := list.New(loc)
 	textAreaModel := textarea.New()
 	confirmModal := confirmationmodal.NewConfirmationModal(
@@ -61,7 +56,7 @@ func New(loc *i18n.Localizer) Model {
 		"cancel_button_label",
 		nil,
 		nil,
-		loc, // Pass the received localizer
+		loc,
 	)
 
 	return Model{
@@ -74,6 +69,6 @@ func New(loc *i18n.Localizer) Model {
 		},
 		currentRightPanel: textArea,
 		isSmallWidth:      false,
-		localizer:         loc, // Store the localizer in the model instance
+		localizer:         loc,
 	}
 }
