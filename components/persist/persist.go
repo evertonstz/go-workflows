@@ -9,7 +9,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
+
+var localizer *i18n.Localizer
+
+func SetLocalizer(loc *i18n.Localizer) {
+	localizer = loc
+}
 
 type (
 	InitiatedPersistion struct {
@@ -71,11 +78,23 @@ func PersistListData(path string, data models.Items) tea.Cmd {
 	return func() tea.Msg {
 		config, err := json.Marshal(data)
 		if err != nil {
-			return shared.ErrorMsg{Err: fmt.Errorf("failed to analyze JSON: %w", err)}
+			localizedErr := localizer.MustLocalize(&i18n.LocalizeConfig{
+				MessageID: "error_failed_to_analyze_json",
+				TemplateData: map[string]interface{}{
+					"Error": err.Error(),
+				},
+			})
+			return shared.ErrorMsg{Err: fmt.Errorf(localizedErr)}
 		}
 
 		if err := os.WriteFile(path, config, 0644); err != nil {
-			return shared.ErrorMsg{Err: fmt.Errorf("failed saving file: %w", err)}
+			localizedErr := localizer.MustLocalize(&i18n.LocalizeConfig{
+				MessageID: "error_failed_saving_file",
+				TemplateData: map[string]interface{}{
+					"Error": err.Error(),
+				},
+			})
+			return shared.ErrorMsg{Err: fmt.Errorf(localizedErr)}
 		}
 
 		return PersistedFileMsg{}

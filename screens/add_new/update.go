@@ -7,15 +7,27 @@ import (
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 )
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	if m.localizer == nil {
+		// This should not happen if New() is always used to create the model.
+		// Consider logging an error or returning a specific error message.
+		// For now, let's try to proceed with a default localizer to avoid a panic.
+		// This is a temporary safeguard.
+		bund := i18n.NewBundle(language.English)
+		m.localizer = i18n.NewLocalizer(bund, language.English.String())
+	}
+	addNewKeyMap := helpkeys.AddNewKeys(m.localizer)
+
 	titleModel, titleCmd := m.Title.Update(msg)
 	descModel, descCmd := m.Description.Update(msg)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, helpkeys.AddNewKeys.Down):
+		case key.Matches(msg, addNewKeyMap.Down):
 			switch m.selectedInput {
 			case title:
 				return m.focusInput(description)
@@ -26,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m, nil
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Up):
+		case key.Matches(msg, addNewKeyMap.Up):
 			switch m.selectedInput {
 			case title:
 				return m, nil
@@ -37,18 +49,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m.focusInput(textArea)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Right):
+		case key.Matches(msg, addNewKeyMap.Right):
 			if m.selectedInput == submit {
 				return m.focusInput(close)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Left):
+		case key.Matches(msg, addNewKeyMap.Left):
 			if m.selectedInput == close {
 				return m.focusInput(submit)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Close):
+		case key.Matches(msg, addNewKeyMap.Close):
 			m.ResetForm()
 			return m, shared.CloseAddNewScreenCmd()
-		case key.Matches(msg, helpkeys.AddNewKeys.Submit):
+		case key.Matches(msg, addNewKeyMap.Submit):
 			switch m.selectedInput {
 			case submit:
 				if m.isFormValid() {
@@ -60,7 +72,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.ResetForm()
 					return m, shared.AddNewItemCmd(title, description, command)
 				}
-				return m, notification.ShowNotificationCmd("Please fill all fields!")
+				// TODO: Add "error_fill_all_fields" to en.json
+				return m, notification.ShowNotificationCmd("error_fill_all_fields", false, nil)
 			case close:
 				m.ResetForm()
 				return m, shared.CloseAddNewScreenCmd()
@@ -74,5 +87,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		TextArea:      textModel,
 		selectedInput: m.selectedInput,
 		styles:        m.styles,
+		localizer:     m.localizer, // Persist localizer
 	}, tea.Batch(titleCmd, descCmd, textCmd)
 }

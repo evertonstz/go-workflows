@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 var (
@@ -16,9 +17,16 @@ var (
 	// helpStyle           = blurredStyle
 	// cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 
-	focusedButton = focusedStyle.Render("[ Submit ]")
-	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
+	// localizer     *i18n.Localizer // Removed package-level var here
+	focusedButton string
+	blurredButton string
 )
+
+func setButtons(l *i18n.Localizer) { // Accept localizer as a parameter
+	submitLabel := l.MustLocalize(&i18n.LocalizeConfig{MessageID: "submit_button_label"})
+	focusedButton = focusedStyle.Render("[ " + submitLabel + " ]")
+	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render(submitLabel))
+}
 
 type (
 	inputs uint
@@ -41,12 +49,15 @@ const (
 	submit
 )
 
-func newInputsModel() inputsModel {
+func newInputsModel(loc *i18n.Localizer) inputsModel {
+	// localizer = loc // No longer setting package-level var
+	setButtons(loc) // Pass localizer to setButtons
+
 	titleModel := textinput.New()
-	titleModel.Placeholder = "Title"
+	titleModel.Placeholder = loc.MustLocalize(&i18n.LocalizeConfig{MessageID: "title_placeholder"})
 	titleModel.Focus()
 	descModel := textinput.New()
-	descModel.Placeholder = "Description"
+	descModel.Placeholder = loc.MustLocalize(&i18n.LocalizeConfig{MessageID: "description_placeholder"})
 
 	return inputsModel{
 		Title:         titleModel,

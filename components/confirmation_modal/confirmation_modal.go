@@ -3,11 +3,13 @@ package confirmationmodal
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 var (
 	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	localizer    *i18n.Localizer
 )
 
 type (
@@ -32,16 +34,23 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) SetMessage(message string) {
-	m.Message = message
+func (m *Model) SetMessage(messageID string, templateData ...map[string]interface{}) {
+	data := make(map[string]interface{})
+	if len(templateData) > 0 {
+		data = templateData[0]
+	}
+	m.Message = localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    messageID,
+		TemplateData: data,
+	})
 }
 
-func (m *Model) SetConfirmButtonLabel(confirmButton string) {
-	m.ConfirmButton = confirmButton
+func (m *Model) SetConfirmButtonLabel(labelID string) {
+	m.ConfirmButton = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: labelID})
 }
 
-func (m *Model) SetCancelButtonLabel(cancelButton string) {
-	m.CancelButton = cancelButton
+func (m *Model) SetCancelButtonLabel(labelID string) {
+	m.CancelButton = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: labelID})
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -87,11 +96,12 @@ func (m Model) View() string {
 	)
 }
 
-func NewConfirmationModal(message, confirmButton, cancelButton string, confirmCmd, cancelCmd tea.Cmd) Model {
+func NewConfirmationModal(messageID, confirmButtonID, cancelButtonID string, confirmCmd, cancelCmd tea.Cmd, loc *i18n.Localizer) Model {
+	localizer = loc
 	return Model{
-		Message:       message,
-		ConfirmButton: confirmButton,
-		CancelButton:  cancelButton,
+		Message:       localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID}),
+		ConfirmButton: localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: confirmButtonID}),
+		CancelButton:  localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: cancelButtonID}),
 		ConfirmCmd:    confirmCmd,
 		CancelCmd:     cancelCmd,
 		selectedInput: confirm,

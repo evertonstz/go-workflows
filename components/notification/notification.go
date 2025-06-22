@@ -5,25 +5,37 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+var localizer *i18n.Localizer
+
 type Msg struct {
-	Text string
+	Text    string
+	IsRaw   bool // Indicates if Text is a raw string or a message ID
+	DataMap map[string]interface{}
 }
 
 type Model struct {
-	Text        string
-	defaultText string
-	visible     bool
-	timerDone   chan struct{}
+	Text         string
+	defaultText  string // This could also be a message ID
+	visible      bool
+	timerDone    chan struct{}
+	isDefaultRaw bool
 }
 
-func New(defaultText string) Model {
+func New(defaultTextOrID string, isRaw bool, loc *i18n.Localizer) Model {
+	localizer = loc
+	actualDefaultText := defaultTextOrID
+	if !isRaw && defaultTextOrID != "" {
+		actualDefaultText = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: defaultTextOrID})
+	}
 	return Model{
-		Text:        "",
-		defaultText: defaultText,
-		visible:     false,
-		timerDone:   nil,
+		Text:         "",
+		defaultText:  actualDefaultText,
+		visible:      false,
+		timerDone:    nil,
+		isDefaultRaw: isRaw,
 	}
 }
 
@@ -40,7 +52,11 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case Msg:
-		m.Text = msg.Text
+		if msg.IsRaw {
+			m.Text = msg.Text
+		} else {
+			m.Text = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: msg.Text, TemplateData: msg.DataMap})
+		}
 		m.visible = true
 		m.timerDone = make(chan struct{})
 		return m, startTimer(2*time.Second, m.timerDone)
@@ -80,8 +96,8 @@ func startTimer(duration time.Duration, done chan struct{}) tea.Cmd {
 	}
 }
 
-func ShowNotificationCmd(text string) tea.Cmd {
+func ShowNotificationCmd(textOrID string, isRaw bool, dataMap map[string]interface{}) tea.Cmd {
 	return func() tea.Msg {
-		return Msg{Text: text}
+		return Msg{Text: textOrID, IsRaw: isRaw, DataMap: dataMap}
 	}
 }

@@ -11,7 +11,10 @@ import (
 	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
+
+var localizer *i18n.Localizer
 
 type MyItem struct {
 	title, desc, command string
@@ -130,8 +133,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetItems(data)
 		cmds = m.setCurrentItemCmd(cmds)
 	case tea.KeyMsg:
+		// Use FullHelpKeys for matching custom actions not part of list.KeyMap
+		customListKeys := helpkeys.FullHelpKeys(localizer)
 		switch {
-		case key.Matches(msg, helpkeys.LisKeys.CopyWorkflow):
+		case key.Matches(msg, customListKeys.CopyWorkflow):
 			selectedItem := m.list.SelectedItem()
 			if selectedItem != nil {
 				if selected, ok := selectedItem.(MyItem); ok {
@@ -156,10 +161,12 @@ func (m Model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func New() Model {
-	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel()}
+func New(loc *i18n.Localizer) Model {
+	localizer = loc
+	m := Model{list: list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0), inputs: newInputsModel(localizer)}
 	m.list.SetShowTitle(false)
 	m.list.SetShowHelp(false)
+	m.list.KeyMap = helpkeys.ListKeys(localizer)
 	m.Init()
 	return m
 }

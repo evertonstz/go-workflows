@@ -8,6 +8,8 @@ import (
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -15,21 +17,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var listModel tea.Model
 
+	// Ensure m.localizer is not nil
+	// This is a safeguard; New() should always set it.
+	if m.localizer == nil {
+		bund := i18n.NewBundle(language.English)
+		m.localizer = i18n.NewLocalizer(bund, language.English.String())
+	}
+	commandListKeys := helpkeys.FullHelpKeys(m.localizer)
+
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, helpkeys.LisKeys.Esc):
+		case key.Matches(msg, commandListKeys.Esc):
 			if m.currentRightPanel == modal {
 				m.currentRightPanel = textArea
 				return m, nil
 			}
-		case key.Matches(msg, helpkeys.LisKeys.Delete):
+		case key.Matches(msg, commandListKeys.Delete):
+			// These strings should be message IDs
 			m.rebuildConfirmationModel(
-				"Are you sure you want to delete this workflow?",
-				"Yes",
-				"No",
+				"confirm_delete_workflow_message", // New message ID
+				"confirm_button_label",            // Re-use existing
+				"cancel_button_label",             // Re-use existing
 				tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
 				shared.CloseConfirmationModalCmd())
 			m.currentRightPanel = modal

@@ -15,7 +15,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case shared.ErrorMsg:
-		return m, notification.ShowNotificationCmd(msg.Err.Error())
+		return m, notification.ShowNotificationCmd(msg.Err.Error(), true, nil)
 	case shared.DidCloseAddNewScreenMsg:
 		m.screenState = newList
 	case shared.DidAddNewItemMsg:
@@ -26,9 +26,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidDeleteItemMsg:
 		cmds = append(cmds, m.persistItems())
 	case shared.CopiedToClipboardMsg:
-		return m, notification.ShowNotificationCmd("Copied to clipboard!")
+		// TODO: Add "notification_copied_to_clipboard" to en.json
+		return m, notification.ShowNotificationCmd("notification_copied_to_clipboard", false, nil)
 	case persist.PersistedFileMsg:
-		return m, notification.ShowNotificationCmd("Saved!")
+		// TODO: Add "notification_saved" to en.json
+		return m, notification.ShowNotificationCmd("notification_saved", false, nil)
 	case persist.InitiatedPersistion:
 		m.persistPath = msg.DataFile
 		return m, persist.LoadDataFileCmd(msg.DataFile)
@@ -40,13 +42,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.persistItems()
 
 	case tea.KeyMsg:
+		listHelpKeys := helpkeys.FullHelpKeys(localizer)
+		addNewHelpKeys := helpkeys.AddNewKeys(localizer)
+
 		switch m.screenState {
 		case addNew:
 			switch {
-			case key.Matches(msg, helpkeys.LisKeys.Help):
+			case key.Matches(msg, addNewHelpKeys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, helpkeys.LisKeys.Quit):
-				return m, tea.Quit
+			case key.Matches(msg, addNewHelpKeys.Close): // Assuming close is used to quit from add new screen
+				m.screenState = newList // or handle as quit if that's the intent
+				return m, nil
 			default:
 				if m.help.ShowAll {
 					m.toggleHelpShowAll()
@@ -54,15 +60,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case newList:
 			switch {
-			case key.Matches(msg, helpkeys.LisKeys.AddNewWorkflow):
+			case key.Matches(msg, listHelpKeys.AddNewWorkflow):
 				m.screenState = addNew
 				return m, nil
-			case key.Matches(msg, helpkeys.LisKeys.Help):
+			case key.Matches(msg, listHelpKeys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, helpkeys.LisKeys.Quit):
+			case key.Matches(msg, listHelpKeys.Quit):
 				return m, tea.Quit
 			// TODO add edition function
-			// case key.Matches(msg, m.keys.listKeys.Enter):
+			// case key.Matches(msg, listHelpKeys.Enter): // If 'Enter' is part of ListKeyMap for an action
 			// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),
 			// 								m.list.CurentItem().Description(),
 			// 								m.list.CurentItem().Command())

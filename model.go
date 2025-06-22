@@ -9,6 +9,7 @@ import (
 	"github.com/evertonstz/go-workflows/components/persist"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
 	commandlist "github.com/evertonstz/go-workflows/screens/command_list"
+	// "github.com/nicksnyder/go-i18n/v2/i18n" // No longer directly used here
 )
 
 var (
@@ -55,12 +56,29 @@ func (m model) Init() tea.Cmd {
 }
 
 func new() model {
+	// Ensure localizer is available. It's initialized in main.go
+	if localizer == nil {
+		// This is a fallback, should not happen in normal execution
+		localizer = GetLocalizer("en")
+	}
+
+	persist.SetLocalizer(localizer)
+
 	return model{
-		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
-		help:              help.New(),
-		addNewScreen:      addnew.New(),
-		listScreen:        commandlist.New(),
-		notification:      notification.New("Workflows"),
+		confirmationModal: confirmationmodal.NewConfirmationModal(
+			"confirmation_modal_default_message",
+			"confirm_button_label",
+			"cancel_button_label",
+			nil, nil, localizer,
+		),
+		help:         help.New(),
+		addNewScreen: addnew.New(localizer),
+		listScreen:   commandlist.New(localizer),
+		notification: notification.New(
+			"app_title", // Using app_title as a default notification message for now
+			false,       // false means app_title is a message ID
+			localizer,
+		),
 		panelsStyle: panelsStyle{
 			helpPanelStyle:         helpPanelStyle,
 			notificationPanelStyle: notificationPanelStyle,

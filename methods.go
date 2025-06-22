@@ -12,9 +12,9 @@ import (
 
 func (m model) getHelpKeys() help.KeyMap {
 	if m.screenState == addNew {
-		return helpkeys.AddNewKeys
+		return helpkeys.AddNewKeys(localizer)
 	}
-	return helpkeys.LisKeys
+	return helpkeys.FullHelpKeys(localizer)
 }
 
 func (m model) isSmallWidth() bool {

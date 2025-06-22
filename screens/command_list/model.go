@@ -6,9 +6,12 @@ import (
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 var (
+	localizer *i18n.Localizer
+
 	leftPanelWidthPercentage = 0.5
 	leftPanelStyle           = lipgloss.NewStyle().
 					AlignHorizontal(lipgloss.Left)
@@ -32,6 +35,7 @@ type (
 		panelsStyle       panelsStyle
 		currentRightPanel currentRightPanel
 		isSmallWidth      bool
+		localizer         *i18n.Localizer // Add localizer to the model struct
 	}
 	currentRightPanel uint
 )
@@ -45,14 +49,24 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func New() Model {
-	listModel := list.New()
+func New(loc *i18n.Localizer) Model {
+	localizer = loc // Keep for package-level access if still needed by some functions directly
+	// It's generally better to pass localizer explicitly or via struct fields.
+
+	listModel := list.New(loc)
 	textAreaModel := textarea.New()
-	confirmationmodal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
+	confirmModal := confirmationmodal.NewConfirmationModal(
+		"confirmation_modal_default_message",
+		"confirm_button_label",
+		"cancel_button_label",
+		nil,
+		nil,
+		loc,                            // Pass the received localizer
+	)
 
 	return Model{
 		list:              listModel,
-		confirmationModal: confirmationmodal,
+		confirmationModal: confirmModal,
 		textArea:          textAreaModel,
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
@@ -60,5 +74,6 @@ func New() Model {
 		},
 		currentRightPanel: textArea,
 		isSmallWidth:      false,
+		localizer:         loc, // Store the localizer in the model instance
 	}
 }
