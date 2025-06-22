@@ -37,18 +37,18 @@ var defaultKeys = list.DefaultKeyMap()
 var ListKeys = func(localizer *i18n.Localizer) list.KeyMap { // Return the original list.KeyMap
 	return list.KeyMap{ // Use the original list.KeyMap
 		// Default list navigation
-		CursorUp:   defaultKeys.CursorUp,
-		CursorDown: defaultKeys.CursorDown,
-		NextPage:   defaultKeys.NextPage,
-		PrevPage:   defaultKeys.PrevPage,
-		GoToStart:  defaultKeys.GoToStart,
-		GoToEnd:    defaultKeys.GoToEnd,
-		Filter:     defaultKeys.Filter,
-		ClearFilter: defaultKeys.ClearFilter,
+		CursorUp:             defaultKeys.CursorUp,
+		CursorDown:           defaultKeys.CursorDown,
+		NextPage:             defaultKeys.NextPage,
+		PrevPage:             defaultKeys.PrevPage,
+		GoToStart:            defaultKeys.GoToStart,
+		GoToEnd:              defaultKeys.GoToEnd,
+		Filter:               defaultKeys.Filter,
+		ClearFilter:          defaultKeys.ClearFilter,
 		CancelWhileFiltering: defaultKeys.CancelWhileFiltering,
 		AcceptWhileFiltering: defaultKeys.AcceptWhileFiltering,
-		ShowFullHelp: defaultKeys.ShowFullHelp,
-		CloseFullHelp: defaultKeys.CloseFullHelp,
+		ShowFullHelp:         defaultKeys.ShowFullHelp,
+		CloseFullHelp:        defaultKeys.CloseFullHelp,
 
 		// Customizing help text for existing actions
 		// RemoveItem: key.NewBinding( // Commenting out due to persistent "unknown field" error

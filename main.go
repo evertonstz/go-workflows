@@ -1,15 +1,11 @@
 package main
 
 import (
-
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-)
-
-import "github.com/jeandeaual/go-locale"
-import (
 	"log"
 
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/jeandeaual/go-locale"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
 

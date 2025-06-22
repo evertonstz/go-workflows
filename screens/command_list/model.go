@@ -61,7 +61,7 @@ func New(loc *i18n.Localizer) Model {
 		"cancel_button_label",
 		nil,
 		nil,
-		loc,                            // Pass the received localizer
+		loc, // Pass the received localizer
 	)
 
 	return Model{
