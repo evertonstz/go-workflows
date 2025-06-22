@@ -77,15 +77,19 @@ func LoadDataFileCmd(path string) tea.Cmd {
 
 func PersistListData(path string, data models.Items) tea.Cmd {
 	return func() tea.Msg {
-		configBytes, err := json.Marshal(data)
-		if err != nil {
-			return shared.PersistedFileResultMsg{Result: mo.Err[struct{}](fmt.Errorf("failed to marshal data for persistence: %w", err))}
-		}
+		result := mo.Try(func() (struct{}, error) {
+			configBytes, err := json.Marshal(data)
+			if err != nil {
+				return struct{}{}, fmt.Errorf("failed to marshal data for persistence: %w", err)
+			}
 
-		if err := os.WriteFile(path, configBytes, 0644); err != nil {
-			return shared.PersistedFileResultMsg{Result: mo.Err[struct{}](fmt.Errorf("failed to write data to file: %w", err))}
-		}
+			if err := os.WriteFile(path, configBytes, 0644); err != nil {
+				return struct{}{}, fmt.Errorf("failed to write data to file: %w", err)
+			}
 
-		return shared.PersistedFileResultMsg{Result: mo.Ok(struct{}{})}
+			return struct{}{}, nil
+		})
+
+		return shared.PersistedFileResultMsg{Result: result}
 	}
 }

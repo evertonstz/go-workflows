@@ -8,10 +8,8 @@ import (
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/components/persist"
-	"github.com/evertonstz/go-workflows/models"
 	commandlist "github.com/evertonstz/go-workflows/screens/command_list"
 	"github.com/evertonstz/go-workflows/shared"
-	"github.com/samber/mo"
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -22,17 +20,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.ErrorMsg:
 		return m, notification.ShowNotificationCmd(msg.Err.Error())
 
-	// Handle new Result-based messages
 	case shared.InitiatedPersistionResultMsg:
 		if msg.Result.IsOk() {
 			m.persistPath = msg.Result.MustGet().DataFile
 			cmds = append(cmds, persist.LoadDataFileCmd(m.persistPath))
 		} else {
-			// This is a critical error, perhaps log and set a persistent error state
-			// For now, show a notification. Consider tea.Quit if unrecoverable.
-			errMsg := fmt.Sprintf("Error initializing persistence: %s", msg.Result.Error().Error())
-			m.notification.SetNotification(errMsg, notification.Error)
-			// return m, tea.Quit // Example: quit on critical init error
+			// This is a critical error
+			return m, tea.Quit
 		}
 	case shared.LoadedDataFileResultMsg:
 		if msg.Result.IsOk() {
@@ -64,16 +58,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		} else {
 			errMsg := fmt.Sprintf("Error loading data file: %s", msg.Result.Error().Error())
-			m.notification.SetNotification(errMsg, notification.Error)
+			return m, notification.ShowNotificationCmd(errMsg)
 		}
 	case shared.PersistedFileResultMsg:
 		if msg.Result.IsOk() {
-			m.notification.SetNotification("Saved!", notification.Info)
+			return m, notification.ShowNotificationCmd("Saved!")
 		} else {
 			errMsg := fmt.Sprintf("Error persisting data: %s", msg.Result.Error().Error())
-			m.notification.SetNotification(errMsg, notification.Error)
+			return m, notification.ShowNotificationCmd(errMsg)
 		}
-
 	case shared.DidCloseAddNewScreenMsg:
 		m.screenState = newList
 	case shared.DidAddNewItemMsg:
