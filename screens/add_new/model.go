@@ -9,8 +9,6 @@ import (
 )
 
 var (
-	// localizer *i18n.Localizer // Removed package-level variable
-
 	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 
@@ -25,7 +23,7 @@ var (
 	mainStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("240"))
 )
 
-func setButtons(loc *i18n.Localizer) { // Accept localizer as parameter
+func setButtons(loc *i18n.Localizer) {
 	saveLabel := loc.MustLocalize(&i18n.LocalizeConfig{MessageID: "save_button_label"})
 	cancelLabel := loc.MustLocalize(&i18n.LocalizeConfig{MessageID: "cancel_button_label"})
 
@@ -68,7 +66,7 @@ const (
 )
 
 func New(loc *i18n.Localizer) Model {
-	setButtons(loc) // Call with the passed localizer
+	setButtons(loc)
 
 	titleModel := textinput.New()
 	titleModel.Placeholder = loc.MustLocalize(&i18n.LocalizeConfig{MessageID: "title_placeholder"})
@@ -95,7 +93,7 @@ func New(loc *i18n.Localizer) Model {
 			blurredCloseButton: blurredCloseButton,
 			focusedCloseButton: focusedCloseButton,
 		},
-		localizer: loc, // Store the localizer in the model instance
+		localizer: loc,
 	}
 }
 

@@ -68,6 +68,6 @@ func (m *Model) rebuildConfirmationModel(title string, confirm string, cancel st
 		cancel,
 		confirmCmd,
 		cancelCmd,
-		m.localizer, // Pass the localizer
+		m.localizer,
 	)
 }
