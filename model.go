@@ -56,7 +56,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func new() model {
-	// Ensure localizer is available. It's initialized in main.go
 	if localizer == nil {
 		// This is a fallback, should not happen in normal execution
 		localizer = GetLocalizer("en")
@@ -75,8 +74,8 @@ func new() model {
 		addNewScreen: addnew.New(localizer),
 		listScreen:   commandlist.New(localizer),
 		notification: notification.New(
-			"app_title", // Using app_title as a default notification message for now
-			false,       // false means app_title is a message ID
+			"app_title",
+			false,
 			localizer,
 		),
 		panelsStyle: panelsStyle{

@@ -15,14 +15,9 @@ func init() {
 
 	// Load English translations
 	bundle.LoadMessageFile("locales/en.json")
-	// bundle.LoadMessageFile("locales/active.en.toml") // TOML files are for message descriptions, not direct translations in this setup
 
 	// Load Brazilian Portuguese translations
 	bundle.MustLoadMessageFile("locales/pt-BR.json")
-	// bundle.MustLoadMessageFile("locales/active.pt-BR.toml")
-
-	// Add Brazilian Portuguese to supported languages (optional, but good practice)
-	// bundle.AddMessages(language.BrazilianPortuguese) // This is not how you add languages, loading message files does it.
 }
 
 func GetLocalizer(lang string) *i18n.Localizer {
