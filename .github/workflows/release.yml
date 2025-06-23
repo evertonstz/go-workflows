@@ -21,34 +21,37 @@ jobs:
         run: |
           mkdir -p bin
 
+          TAG_NAME="${{ github.ref_name }}"
+
           # Linux binaries
-          GOOS=linux GOARCH=amd64 go build -o bin/go-workflows .
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=$TAG_NAME" -o bin/go-workflows .
           tar -czvf bin/go-workflows-linux-amd64.tar.gz -C bin go-workflows
-          GOOS=linux GOARCH=arm64 go build -o bin/go-workflows .
+          GOOS=linux GOARCH=arm64 go build -ldflags "-X main.Version=$TAG_NAME" -o bin/go-workflows .
           tar -czvf bin/go-workflows-linux-arm64.tar.gz -C bin go-workflows
 
           # macOS binaries
-          GOOS=darwin GOARCH=amd64 go build -o bin/go-workflows .
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=$TAG_NAME" -o bin/go-workflows .
           tar -czvf bin/go-workflows-darwin-amd64.tar.gz -C bin go-workflows
-          GOOS=darwin GOARCH=arm64 go build -o bin/go-workflows .
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.Version=$TAG_NAME" -o bin/go-workflows .
           tar -czvf bin/go-workflows-darwin-arm64.tar.gz -C bin go-workflows
 
           # Windows binaries
-          GOOS=windows GOARCH=amd64 go build -o bin/go-workflows.exe .
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.Version=$TAG_NAME" -o bin/go-workflows.exe .
           zip -j bin/go-workflows-windows-amd64.zip bin/go-workflows.exe
 
       - name: Determine release type
         id: release_type
         run: |
           TAG_NAME="${{ github.ref_name }}"
-          if [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.1$ ]]; then
-            echo "is_prerelease=true" >> $GITHUB_ENV
-          else
+          if [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "is_prerelease=false" >> $GITHUB_ENV
-          fi
+          else
+            echo "is_prerelease=true" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        env:
+          is_prerelease: ${{ env.is_prerelease }}
         with:
           name: Release ${{ github.ref_name }}
           body: |
