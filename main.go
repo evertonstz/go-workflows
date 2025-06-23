@@ -11,7 +11,7 @@ import (
 )
 
 func getSystemLanguage() string {
-	return "pt-BR" // TODO: remove
+	// return "pt-BR" // TODO: remove
 	userLocale, err := locale.GetLocale()
 	if err == nil {
 		return userLocale
