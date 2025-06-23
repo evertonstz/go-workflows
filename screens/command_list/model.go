@@ -6,6 +6,8 @@ import (
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
+	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
 )
 
 var (
@@ -25,13 +27,16 @@ type (
 		rightPanelStyle lipgloss.Style
 	}
 
+	confirmationModalBuilder func(confirmCmd, cancelCmd tea.Cmd) confirmationmodal.Model
+
 	Model struct {
-		list              list.Model
-		confirmationModal confirmationmodal.Model
-		textArea          textarea.Model
-		panelsStyle       panelsStyle
-		currentRightPanel currentRightPanel
-		isSmallWidth      bool
+		list                           list.Model
+		confirmationModal              confirmationmodal.Model
+		deleteConfirmationModalBuilder confirmationModalBuilder
+		textArea                       textarea.Model
+		panelsStyle                    panelsStyle
+		currentRightPanel              currentRightPanel
+		isSmallWidth                   bool
 	}
 	currentRightPanel uint
 )
@@ -46,14 +51,27 @@ func (m Model) Init() tea.Cmd {
 }
 
 func New() Model {
+	i18n := di.GetService(di.I18nServiceKey).(*shared.I18nService)
+
 	listModel := list.New()
 	textAreaModel := textarea.New()
-	confirmationmodal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
+	intialModal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
+	deleteConfirmationModalBuilder := func(confirmCmd, cancelCmd tea.Cmd) confirmationmodal.Model {
+		modal := confirmationmodal.NewConfirmationModal(
+			i18n.Translate("confirm_delete_workflow_message"),
+			i18n.Translate("yes"),
+			i18n.Translate("no"),
+			confirmCmd,
+			cancelCmd,
+		)
+		return modal
+	}
 
 	return Model{
-		list:              listModel,
-		confirmationModal: confirmationmodal,
-		textArea:          textAreaModel,
+		list:                           listModel,
+		confirmationModal:              intialModal,
+		deleteConfirmationModalBuilder: deleteConfirmationModalBuilder,
+		textArea:                       textAreaModel,
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
 			rightPanelStyle: rightPanelStyle,

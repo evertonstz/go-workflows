@@ -26,13 +26,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		case key.Matches(msg, helpkeys.LisKeys.Delete):
-			m.rebuildConfirmationModel(
-				"Are you sure you want to delete this workflow?",
-				"Yes",
-				"No",
-				tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
-				shared.CloseConfirmationModalCmd())
-			m.currentRightPanel = modal
+			m.showDeleteModal()
 		}
 	}
 

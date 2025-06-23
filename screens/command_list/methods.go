@@ -4,8 +4,8 @@ import (
 	"math"
 
 	tea "github.com/charmbracelet/bubbletea"
-	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 func (m Model) GetAllItems() []list.MyItem {
@@ -61,12 +61,10 @@ func (m *Model) SetSize(width, height int, smallWidth bool) {
 	}
 }
 
-func (m *Model) rebuildConfirmationModel(title string, confirm string, cancel string, confirmCmd tea.Cmd, cancelCmd tea.Cmd) {
-	m.confirmationModal = confirmationmodal.NewConfirmationModal(
-		title,
-		confirm,
-		cancel,
-		confirmCmd,
-		cancelCmd,
-	)
+func (m *Model) showDeleteModal() {
+	m.confirmationModal =
+		m.deleteConfirmationModalBuilder(
+			tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
+			shared.CloseConfirmationModalCmd())
+	m.currentRightPanel = modal
 }

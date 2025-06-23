@@ -76,6 +76,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
+// TODO: remove legacy code
 func (m Model) View() string {
 	var lastUpdated string
 	if m.currentItem.DateAdded == m.currentItem.DateUpdated {
