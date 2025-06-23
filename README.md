@@ -1,4 +1,6 @@
-# go-workflows
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/0fd7db7d-b134-4846-9642-24ad69cf70eb" alt="gopher-workflows" width="400" />
+</div>
 
 ## Overview
 
