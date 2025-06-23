@@ -10,6 +10,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+var (
+	Version string
+)
+
 func getSystemLanguage() string {
 	// return "pt-BR" // TODO: remove
 	userLocale, err := locale.GetLocale()
@@ -46,6 +50,9 @@ func main() {
 	}
 
 	di.RegisterService(di.I18nServiceKey, i18nService)
+
+	showVersion, showHelp := ParseFlags()
+	HandleFlags(showVersion, showHelp)
 
 	p := tea.NewProgram(new(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
