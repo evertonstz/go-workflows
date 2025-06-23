@@ -9,7 +9,7 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	titleModel, titleCmd := m.Title.Update(msg)
 	descModel, descCmd := m.Description.Update(msg)
 	switch msg := msg.(type) {

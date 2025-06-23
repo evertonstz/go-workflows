@@ -7,7 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
 	"github.com/evertonstz/go-workflows/shared"
-	"github.com/evertonstz/go-workflows/shared/loc"
 	"github.com/jeandeaual/go-locale"
 	"golang.org/x/text/language"
 
@@ -18,23 +17,26 @@ import (
 )
 
 func getSystemLanguage() string {
+	return "pt-BR" // TODO: remove
 	userLocale, err := locale.GetLocale()
 	if err == nil {
 		return userLocale
 	}
-	return loc.DefaultLang
+	return shared.DefaultLang
 }
 
-// Fixed reference to bundle by using loc.GetBundle()
 func determineLanguage() string {
 	userLocaleStr := getSystemLanguage()
 
-	supportedLangs := loc.GetBundle().LanguageTags()
+	supportedLangs := []language.Tag{
+		language.English,
+		language.Portuguese,
+	}
 	matcher := language.NewMatcher(supportedLangs)
 
 	userLangTag, err := language.Parse(userLocaleStr)
 	if err != nil {
-		return loc.DefaultLang
+		return shared.DefaultLang
 	}
 
 	tag, _, _ := matcher.Match(userLangTag)
@@ -59,11 +61,8 @@ func newWithContext(ctx context.Context) tea.Model {
 
 func main() {
 	lang := determineLanguage()
-	paths := map[string]string{
-		"en":     "locales/en.json",
-		"pt-BR": "locales/pt-BR.json",
-	}
-	i18nService, err := shared.NewI18nService(lang, paths)
+	localesDir := "locales"
+	i18nService, err := shared.NewI18nService(lang, localesDir)
 	if err != nil {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}

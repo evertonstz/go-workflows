@@ -89,12 +89,12 @@ func New() Model {
 func NewWithContext(ctx context.Context) Model {
 	service := shared.GetI18n(ctx)
 	titleModel := textinput.New()
-	titleModel.Placeholder = service.Translate("en", "Title")
+	titleModel.Placeholder = service.Translate("title_placeholder")
 	titleModel.Focus()
 	descModel := textinput.New()
-	descModel.Placeholder = service.Translate("en", "Description")
+	descModel.Placeholder = service.Translate("description_placeholder")
 	textareaModel := textarea.New()
-	textareaModel.Placeholder = service.Translate("en", "Paste or type your command here...")
+	textareaModel.Placeholder = service.Translate("command_placeholder")
 	textareaModel.Prompt = ""
 	textareaModel.ShowLineNumbers = false
 

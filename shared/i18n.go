@@ -3,43 +3,56 @@ package shared
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
+	"path/filepath"
+
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 )
 
 type I18nService struct {
-	translations map[string]map[string]string
-	defaultLang  string
+	defaultLang string
 }
 
-func NewI18nService(defaultLang string, paths map[string]string) (*I18nService, error) {
-	translations := make(map[string]map[string]string)
-	for lang, path := range paths {
-		file, err := os.Open(path)
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
+var (
+	bundle          *i18n.Bundle
+	localizerInstance *i18n.Localizer
+	DefaultLang      = "en" // Default language if none is specified
+)
 
-		var data map[string]string
-		if err := json.NewDecoder(file).Decode(&data); err != nil {
-			return nil, err
+func NewI18nService(defaultLang string, localesDir string) (*I18nService, error) {
+	bundle = i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
+
+	err := filepath.Walk(localesDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-		translations[lang] = data
+
+		if !info.IsDir() && filepath.Ext(path) == ".json" {
+			if _, err := bundle.LoadMessageFile(path); err != nil {
+				log.Fatalf("Failed to load translation file %s: %v", path, err)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		log.Fatalf("Error loading translation files: %v", err)
 	}
 
+	localizerInstance = i18n.NewLocalizer(bundle, defaultLang)
+
 	return &I18nService{
-		translations: translations,
 		defaultLang: defaultLang,
 	}, nil
 }
 
-func (i *I18nService) Translate(lang, key string) string {
-	if langTranslations, ok := i.translations[lang]; ok {
-		if value, ok := langTranslations[key]; ok {
-			return value
-		}
-	}
-	return key // Fallback to key if translation is missing
+func (i *I18nService) Translate(key string) string {
+	return localizerInstance.MustLocalize(&i18n.LocalizeConfig{
+		MessageID: key,
+	})
 }
 
 var i18nContextKey = &struct{}{}
