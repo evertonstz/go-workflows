@@ -55,7 +55,7 @@ func New() Model {
 
 	listModel := list.New()
 	textAreaModel := textarea.New()
-	intialModal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
+	initialModal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
 	deleteConfirmationModalBuilder := func(confirmCmd, cancelCmd tea.Cmd) confirmationmodal.Model {
 		modal := confirmationmodal.NewConfirmationModal(
 			i18n.Translate("confirm_delete_workflow_message"),
@@ -69,7 +69,7 @@ func New() Model {
 
 	return Model{
 		list:                           listModel,
-		confirmationModal:              intialModal,
+		confirmationModal:              initialModal,
 		deleteConfirmationModalBuilder: deleteConfirmationModalBuilder,
 		textArea:                       textAreaModel,
 		panelsStyle: panelsStyle{
