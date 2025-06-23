@@ -5,6 +5,8 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
 )
 
 var (
@@ -54,14 +56,45 @@ const (
 	submit
 )
 
+// func New() Model {
+// 	titleModel := textinput.New()
+// 	titleModel.Placeholder = "Title"
+// 	titleModel.Focus()
+// 	descModel := textinput.New()
+// 	descModel.Placeholder = "Description"
+// 	textareaModel := textarea.New()
+// 	textareaModel.Placeholder = "Paste or type your command here..."
+// 	textareaModel.Prompt = ""
+// 	textareaModel.ShowLineNumbers = false
+
+// 	return Model{
+// 		Title:         titleModel,
+// 		Description:   descModel,
+// 		TextArea:      textareaModel,
+// 		selectedInput: title,
+// 		styles: Styles{
+// 			focusedInput:       focusedStyle,
+// 			blurredInput:       blurredStyle,
+// 			focusedTextArea:    focusedTextAreaStyle,
+// 			blurredTextArea:    blurredTextAreaStyle,
+// 			focusedButton:      focusedButton,
+// 			blurredButton:      blurredButton,
+// 			blurredCloseButton: blurredCloseButton,
+// 			focusedCloseButton: focusedCloseButton,
+// 		},
+// 	}
+// }
+
 func New() Model {
+	i18n := di.GetService(di.I18nServiceKey).(*shared.I18nService)
+
 	titleModel := textinput.New()
-	titleModel.Placeholder = "Title"
+	titleModel.Placeholder = i18n.Translate("title_placeholder")
 	titleModel.Focus()
 	descModel := textinput.New()
-	descModel.Placeholder = "Description"
+	descModel.Placeholder = i18n.Translate("description_placeholder")
 	textareaModel := textarea.New()
-	textareaModel.Placeholder = "Paste or type your command here..."
+	textareaModel.Placeholder = i18n.Translate("command_placeholder")
 	textareaModel.Prompt = ""
 	textareaModel.ShowLineNumbers = false
 
