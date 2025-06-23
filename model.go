@@ -53,19 +53,3 @@ const (
 func (m model) Init() tea.Cmd {
 	return persist.InitPersistionManagerCmd("go-workflows")
 }
-
-func new() model {
-	return model{
-		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
-		help:              help.New(),
-		addNewScreen:      addnew.New(),
-		listScreen:        commandlist.New(),
-		notification:      notification.New("Workflows"),
-		panelsStyle: panelsStyle{
-			helpPanelStyle:         helpPanelStyle,
-			notificationPanelStyle: notificationPanelStyle,
-		},
-		currentHelpHeight: 0,
-		screenState:       newList,
-	}
-}

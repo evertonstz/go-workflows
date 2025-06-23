@@ -1,10 +1,13 @@
 package addnew
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/evertonstz/go-workflows/shared"
 )
 
 var (
@@ -62,6 +65,36 @@ func New() Model {
 	descModel.Placeholder = "Description"
 	textareaModel := textarea.New()
 	textareaModel.Placeholder = "Paste or type your command here..."
+	textareaModel.Prompt = ""
+	textareaModel.ShowLineNumbers = false
+
+	return Model{
+		Title:         titleModel,
+		Description:   descModel,
+		TextArea:      textareaModel,
+		selectedInput: title,
+		styles: Styles{
+			focusedInput:       focusedStyle,
+			blurredInput:       blurredStyle,
+			focusedTextArea:    focusedTextAreaStyle,
+			blurredTextArea:    blurredTextAreaStyle,
+			focusedButton:      focusedButton,
+			blurredButton:      blurredButton,
+			blurredCloseButton: blurredCloseButton,
+			focusedCloseButton: focusedCloseButton,
+		},
+	}
+}
+
+func NewWithContext(ctx context.Context) Model {
+	service := shared.GetI18n(ctx)
+	titleModel := textinput.New()
+	titleModel.Placeholder = service.Translate("en", "Title")
+	titleModel.Focus()
+	descModel := textinput.New()
+	descModel.Placeholder = service.Translate("en", "Description")
+	textareaModel := textarea.New()
+	textareaModel.Placeholder = service.Translate("en", "Paste or type your command here...")
 	textareaModel.Prompt = ""
 	textareaModel.ShowLineNumbers = false
 
