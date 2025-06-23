@@ -60,7 +60,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.ResetForm()
 					return m, shared.AddNewItemCmd(title, description, command)
 				}
-				return m, notification.ShowNotificationCmd("Please fill all fields!")
+				return m, notification.ShowNotificationCmd(m.notifications.fillAllFields)
 			case close:
 				m.ResetForm()
 				return m, shared.CloseAddNewScreenCmd()
