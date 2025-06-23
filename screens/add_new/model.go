@@ -38,12 +38,17 @@ type (
 		focusedCloseButton string
 	}
 
+	Notifications struct {
+		fillAllFields string
+	}
+
 	Model struct {
 		Title         textinput.Model
 		Description   textinput.Model
 		TextArea      textarea.Model
 		selectedInput inputs
 		styles        Styles
+		notifications Notifications
 	}
 )
 
@@ -67,17 +72,20 @@ func New() Model {
 	textareaModel.Placeholder = i18n.Translate("command_placeholder")
 	textareaModel.Prompt = ""
 	textareaModel.ShowLineNumbers = false
-	
+
 	focusedSaveButton := focusedButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("save_button_label")))
 	blurredSaveButton := blurredButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("save_button_label")))
 	focusedCloseButton := focusedButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("cancel_button_label")))
-    blurredCloseButton := blurredButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("cancel_button_label")))
+	blurredCloseButton := blurredButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("cancel_button_label")))
 
 	return Model{
 		Title:         titleModel,
 		Description:   descModel,
 		TextArea:      textareaModel,
 		selectedInput: title,
+		notifications: Notifications{
+			fillAllFields: i18n.Translate("error_fill_all_fields"),
+		},
 		styles: Styles{
 			focusedInput:       focusedStyle,
 			blurredInput:       blurredStyle,
