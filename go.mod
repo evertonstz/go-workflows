@@ -9,7 +9,6 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evertonstz/go-workflows v0.0.8
 )
 
 require (
