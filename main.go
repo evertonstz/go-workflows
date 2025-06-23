@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -43,11 +42,11 @@ func determineLanguage() string {
 	return tag.String()
 }
 
-func newWithContext(ctx context.Context) tea.Model {
+func newWithContext() tea.Model {
 	return model{
 		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
 		help:              help.New(),
-		addNewScreen:      addnew.NewWithContext(ctx),
+		addNewScreen:      addnew.New(),
 		listScreen:        commandlist.New(),
 		notification:      notification.New("Workflows"),
 		panelsStyle: panelsStyle{
@@ -67,9 +66,9 @@ func main() {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}
 
-	ctx := shared.WithI18n(context.Background(), i18nService)
+	shared.RegisterService("i18n", i18nService)
 
-	p := tea.NewProgram(newWithContext(ctx), tea.WithAltScreen())
+	p := tea.NewProgram(newWithContext(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("Error starting app: %v", err)
 	}

@@ -16,9 +16,9 @@ type I18nService struct {
 }
 
 var (
-	bundle          *i18n.Bundle
+	bundle            *i18n.Bundle
 	localizerInstance *i18n.Localizer
-	DefaultLang      = "en" // Default language if none is specified
+	DefaultLang       = "en" // Default language if none is specified
 )
 
 func NewI18nService(defaultLang string, localesDir string) (*I18nService, error) {

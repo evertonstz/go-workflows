@@ -13,9 +13,9 @@ import (
 
 var (
 	localizerInstance *i18n.Localizer
-	once sync.Once
-	bundle *i18n.Bundle
-	DefaultLang = "en" // Default language if none is specified
+	once              sync.Once
+	bundle            *i18n.Bundle
+	DefaultLang       = "en" // Default language if none is specified
 )
 
 // InitializeLocalizer initializes the localizer singleton.
