@@ -1,6 +1,8 @@
 package addnew
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,11 +18,8 @@ var (
 	focusedTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205"))
 	blurredTextAreaStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("240"))
 
-	focusedButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("[ Save ]")
-	blurredButton = lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("[ Save ]")
-
-	focusedCloseButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("[ Cancel ]")
-	blurredCloseButton = lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("[ Cancel ]")
+	focusedButton = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	blurredButton = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 
 	mainStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("240"))
 )
@@ -56,35 +55,6 @@ const (
 	submit
 )
 
-// func New() Model {
-// 	titleModel := textinput.New()
-// 	titleModel.Placeholder = "Title"
-// 	titleModel.Focus()
-// 	descModel := textinput.New()
-// 	descModel.Placeholder = "Description"
-// 	textareaModel := textarea.New()
-// 	textareaModel.Placeholder = "Paste or type your command here..."
-// 	textareaModel.Prompt = ""
-// 	textareaModel.ShowLineNumbers = false
-
-// 	return Model{
-// 		Title:         titleModel,
-// 		Description:   descModel,
-// 		TextArea:      textareaModel,
-// 		selectedInput: title,
-// 		styles: Styles{
-// 			focusedInput:       focusedStyle,
-// 			blurredInput:       blurredStyle,
-// 			focusedTextArea:    focusedTextAreaStyle,
-// 			blurredTextArea:    blurredTextAreaStyle,
-// 			focusedButton:      focusedButton,
-// 			blurredButton:      blurredButton,
-// 			blurredCloseButton: blurredCloseButton,
-// 			focusedCloseButton: focusedCloseButton,
-// 		},
-// 	}
-// }
-
 func New() Model {
 	i18n := di.GetService(di.I18nServiceKey).(*shared.I18nService)
 
@@ -97,6 +67,11 @@ func New() Model {
 	textareaModel.Placeholder = i18n.Translate("command_placeholder")
 	textareaModel.Prompt = ""
 	textareaModel.ShowLineNumbers = false
+	
+	focusedSaveButton := focusedButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("save_button_label")))
+	blurredSaveButton := blurredButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("save_button_label")))
+	focusedCloseButton := focusedButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("cancel_button_label")))
+    blurredCloseButton := blurredButton.Render(fmt.Sprintf("[ %s ]", i18n.Translate("cancel_button_label")))
 
 	return Model{
 		Title:         titleModel,
@@ -108,8 +83,8 @@ func New() Model {
 			blurredInput:       blurredStyle,
 			focusedTextArea:    focusedTextAreaStyle,
 			blurredTextArea:    blurredTextAreaStyle,
-			focusedButton:      focusedButton,
-			blurredButton:      blurredButton,
+			focusedButton:      focusedSaveButton,
+			blurredButton:      blurredSaveButton,
 			blurredCloseButton: blurredCloseButton,
 			focusedCloseButton: focusedCloseButton,
 		},
