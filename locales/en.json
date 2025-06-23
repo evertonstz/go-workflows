@@ -1,4 +1,6 @@
 {
+  "yes": "Yes",
+  "no": "No",
   "app_title": "Go Workflows",
   "error_starting_app": "Error starting app: %v",
   "confirm_button_label": "Confirm",
