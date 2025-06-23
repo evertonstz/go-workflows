@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
 )
 
 var (
@@ -85,7 +86,7 @@ const (
 // }
 
 func New() Model {
-	i18n := shared.GetService("i18n").(*shared.I18nService)
+	i18n := di.GetService("i18n").(*shared.I18nService)
 
 	titleModel := textinput.New()
 	titleModel.Placeholder = i18n.Translate("title_placeholder")

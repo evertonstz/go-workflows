@@ -1,4 +1,4 @@
-package loc
+package i18n
 
 import (
 	"encoding/json"

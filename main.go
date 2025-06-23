@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/jeandeaual/go-locale"
 	"golang.org/x/text/language"
 
@@ -66,7 +67,7 @@ func main() {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}
 
-	shared.RegisterService("i18n", i18nService)
+	di.RegisterService("i18n", i18nService)
 
 	p := tea.NewProgram(newWithContext(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
