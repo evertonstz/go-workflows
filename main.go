@@ -45,7 +45,7 @@ func main() {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}
 
-	di.RegisterService("i18n", i18nService)
+	di.RegisterService(di.I18nServiceKey, i18nService)
 
 	p := tea.NewProgram(new(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {

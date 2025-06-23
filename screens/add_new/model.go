@@ -86,7 +86,7 @@ const (
 // }
 
 func New() Model {
-	i18n := di.GetService("i18n").(*shared.I18nService)
+	i18n := di.GetService(di.I18nServiceKey).(*shared.I18nService)
 
 	titleModel := textinput.New()
 	titleModel.Placeholder = i18n.Translate("title_placeholder")

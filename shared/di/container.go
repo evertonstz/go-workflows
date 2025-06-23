@@ -1,6 +1,7 @@
 package di
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -13,14 +14,25 @@ var globalContainer = &Container{
 	services: make(map[string]interface{}),
 }
 
-func RegisterService(name string, service interface{}) {
+type ServiceKey int
+
+const (
+	I18nServiceKey ServiceKey = iota
+	// Add other service keys here as needed
+)
+
+func RegisterService(key ServiceKey, service interface{}) {
 	globalContainer.mutex.Lock()
 	defer globalContainer.mutex.Unlock()
-	globalContainer.services[name] = service
+	globalContainer.services[fmt.Sprintf("%d", key)] = service
 }
 
-func GetService(name string) interface{} {
+func GetService(key ServiceKey) interface{} {
 	globalContainer.mutex.RLock()
 	defer globalContainer.mutex.RUnlock()
-	return globalContainer.services[name]
+	service, exists := globalContainer.services[fmt.Sprintf("%d", key)]
+	if !exists {
+		panic(fmt.Sprintf("service '%d' not found", key))
+	}
+	return service
 }
