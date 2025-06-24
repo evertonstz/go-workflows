@@ -18,10 +18,8 @@ func main() {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}
 
-	// Register the i18n service using the updated generic implementation
 	di.RegisterService(di.I18nServiceKey, i18nService)
 
-	// Initialize and register the persistence service
 	appName := "go-workflows"
 	persistenceService, err := services.NewPersistenceService(appName)
 	if err != nil {

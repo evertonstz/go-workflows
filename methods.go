@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	// UI Layout constants
 	smallWidthThreshold = 100
 )
 

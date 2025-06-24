@@ -19,11 +19,10 @@ type I18nService struct {
 var (
 	bundle            *i18n.Bundle
 	localizerInstance *i18n.Localizer
-	DefaultLang       = "en" // Default language if none is specified
+	DefaultLang       = "en"
 )
 
 func GetSystemLanguage() string {
-	// return "pt-BR" // TODO: remove
 	userLocale, err := locale.GetLocale()
 	if err == nil {
 		return userLocale
@@ -31,7 +30,6 @@ func GetSystemLanguage() string {
 	return DefaultLang
 }
 
-// DetermineLanguage determines the best supported language based on system locale
 func DetermineLanguage() string {
 	userLocaleStr := GetSystemLanguage()
 
@@ -50,7 +48,6 @@ func DetermineLanguage() string {
 	return tag.String()
 }
 
-// NewI18nServiceWithAutoDetection creates a new I18nService with automatic language detection
 func NewI18nServiceWithAutoDetection(localesDir string) (*I18nService, error) {
 	lang := DetermineLanguage()
 	return NewI18nService(lang, localesDir)
@@ -72,7 +69,6 @@ func NewI18nService(defaultLang string, localesDir string) (*I18nService, error)
 		}
 		return nil
 	})
-
 	if err != nil {
 		log.Fatalf("Error loading translation files: %v", err)
 	}
