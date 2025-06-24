@@ -7,8 +7,8 @@ import (
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
-	"github.com/evertonstz/go-workflows/shared"
 	"github.com/evertonstz/go-workflows/shared/di"
+	"github.com/evertonstz/go-workflows/shared/di/services"
 )
 
 var (
@@ -52,7 +52,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func New() Model {
-	i18n := di.GetService(di.I18nServiceKey).(*shared.I18nService)
+	i18n := di.GetService[*services.I18nService](di.I18nServiceKey)
 
 	listModel := list.New()
 	textAreaModel := textarea.New()
