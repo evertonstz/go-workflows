@@ -109,12 +109,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidUpdateItemMsg:
 		for i, item := range m.list.Items() {
 			if item.(MyItem).title == msg.Item.Title {
+				// Business logic: Update timestamp
+				updatedItem := msg.Item
+				updatedItem.DateUpdated = time.Now()
+
 				m.list.SetItem(i, MyItem{
-					title:       msg.Item.Title,
-					desc:        msg.Item.Desc,
-					command:     msg.Item.Command,
-					dateAdded:   msg.Item.DateAdded,
-					dateUpdated: msg.Item.DateUpdated,
+					title:       updatedItem.Title,
+					desc:        updatedItem.Desc,
+					command:     updatedItem.Command,
+					dateAdded:   updatedItem.DateAdded,
+					dateUpdated: updatedItem.DateUpdated,
 				})
 			}
 		}

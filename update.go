@@ -40,6 +40,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termDimensions.height = msg.Height
 		m.updatePanelSizes()
 	case shared.DidUpdateItemMsg:
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItems()
 
 	case tea.KeyMsg:
