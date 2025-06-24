@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/0fd7db7d-b134-4846-9642-24ad69cf70eb" alt="gopher-workflows" width="400" />
+  <img src="https://github.com/user-attachments/assets/e9288a0d-4c15-4543-a745-822fa58f2b13" alt="gopher-workflows" width="400" />
 </div>
 
 ## Overview
