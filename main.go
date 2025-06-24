@@ -9,9 +9,7 @@ import (
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
 
-var (
-	Version string
-)
+var Version string
 
 func main() {
 	localesDir := "locales"
@@ -22,6 +20,14 @@ func main() {
 
 	// Register the i18n service using the updated generic implementation
 	di.RegisterService(di.I18nServiceKey, i18nService)
+
+	// Initialize and register the persistence service
+	appName := "go-workflows"
+	persistenceService, err := services.NewPersistenceService(appName)
+	if err != nil {
+		log.Fatalf("Error initializing persistence service: %v", err)
+	}
+	di.RegisterService(di.PersistenceServiceKey, persistenceService)
 
 	showVersion, showHelp := ParseFlags()
 	HandleFlags(showVersion, showHelp)

@@ -6,9 +6,9 @@ import (
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/notification"
-	"github.com/evertonstz/go-workflows/components/persist"
 	commandlist "github.com/evertonstz/go-workflows/screens/command_list"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -28,11 +28,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.persistItems())
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
-	case persist.PersistedFileMsg:
+	case messages.PersistedFileMsg:
 		return m, notification.ShowNotificationCmd("Saved!")
-	case persist.InitiatedPersistion:
+	case messages.InitiatedPersistionMsg:
 		m.persistPath = msg.DataFile
-		return m, persist.LoadDataFileCmd(msg.DataFile)
+		return m, messages.LoadDataFileCmd()
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height

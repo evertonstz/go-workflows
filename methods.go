@@ -7,8 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
+	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
 func (m model) getHelpKeys() help.KeyMap {
@@ -43,9 +43,10 @@ func (m model) persistItems() tea.Cmd {
 			Desc:        i.Description(),
 			Command:     i.Command(),
 			DateAdded:   i.DateAdded(),
-			DateUpdated: i.DateUpdated()})
+			DateUpdated: i.DateUpdated(),
+		})
 	}
 	data := models.Items{Items: items}
 
-	return persist.PersistListData(m.persistPath, data)
+	return messages.PersistListDataCmd(data)
 }
