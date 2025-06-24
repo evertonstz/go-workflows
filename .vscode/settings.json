@@ -4,7 +4,7 @@
         "--config=.golangci.yml",
         "--fast"
     ],
-    "go.lintOnSave": "workspace",
+    "go.lintOnSave": "off",
     "go.formatTool": "goimports",
     "go.formatFlags": [
         "-local", "github.com/evertonstz/go-workflows"
@@ -15,9 +15,12 @@
         "ui.diagnostic.analyses": {
             "fieldalignment": false,
             "shadow": true,
-            "unusedparams": true
+            "unusedparams": true,
+            "unusedvariable": true,
+            "unusedwrite": true
         },
-        "formatting.gofumpt": true
+        "formatting.gofumpt": true,
+        "staticcheck": true
     },
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
