@@ -48,10 +48,10 @@ func LoadDataFileCmd(path string) tea.Cmd {
 		if err != nil {
 			if os.IsNotExist(err) {
 				if _, createErr := os.Create(path); createErr != nil {
-					panic(createErr)
+					return shared.ErrorMsg{Err: fmt.Errorf("failed to create data file: %w", createErr)}
 				}
 			} else {
-				panic(err)
+				return shared.ErrorMsg{Err: fmt.Errorf("failed to read data file: %w", err)}
 			}
 		}
 
@@ -61,7 +61,7 @@ func LoadDataFileCmd(path string) tea.Cmd {
 
 		var config models.Items
 		if err := json.Unmarshal(data, &config); err != nil {
-			panic(err)
+			return shared.ErrorMsg{Err: fmt.Errorf("failed to parse data file: %w", err)}
 		}
 
 		return LoadedDataFileMsg{Items: config}
@@ -75,7 +75,7 @@ func PersistListData(path string, data models.Items) tea.Cmd {
 			return shared.ErrorMsg{Err: fmt.Errorf("failed to analyze JSON: %w", err)}
 		}
 
-		if err := os.WriteFile(path, config, 0644); err != nil {
+		if err := os.WriteFile(path, config, 0o644); err != nil {
 			return shared.ErrorMsg{Err: fmt.Errorf("failed saving file: %w", err)}
 		}
 
