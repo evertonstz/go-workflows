@@ -4,8 +4,8 @@ import (
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/evertonstz/go-workflows/shared"
 	"github.com/evertonstz/go-workflows/shared/di"
+	"github.com/evertonstz/go-workflows/shared/di/services"
 	"github.com/jeandeaual/go-locale"
 	"golang.org/x/text/language"
 )
@@ -20,7 +20,7 @@ func getSystemLanguage() string {
 	if err == nil {
 		return userLocale
 	}
-	return shared.DefaultLang
+	return services.DefaultLang
 }
 
 func determineLanguage() string {
@@ -34,7 +34,7 @@ func determineLanguage() string {
 
 	userLangTag, err := language.Parse(userLocaleStr)
 	if err != nil {
-		return shared.DefaultLang
+		return services.DefaultLang
 	}
 
 	tag, _, _ := matcher.Match(userLangTag)
@@ -44,11 +44,12 @@ func determineLanguage() string {
 func main() {
 	lang := determineLanguage()
 	localesDir := "locales"
-	i18nService, err := shared.NewI18nService(lang, localesDir)
+	i18nService, err := services.NewI18nService(lang, localesDir)
 	if err != nil {
 		log.Fatalf("Error initializing i18n service: %v", err)
 	}
 
+	// Register the i18n service using the updated generic implementation
 	di.RegisterService(di.I18nServiceKey, i18nService)
 
 	showVersion, showHelp := ParseFlags()
