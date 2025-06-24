@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
