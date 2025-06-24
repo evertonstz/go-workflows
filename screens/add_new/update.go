@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/shared"

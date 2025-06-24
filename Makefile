@@ -1,4 +1,4 @@
-.PHONY: build run format lint
+.PHONY: build run format lint lint-fix
 
 VERSION := $(shell git describe --tags --always)
 
@@ -9,7 +9,10 @@ run:
 	go run -ldflags "-X main.Version=$(VERSION)" . $(ARGS)
 
 format:
-	goimports -w .
+	goimports -local github.com/evertonstz/go-workflows -w .
 
 lint:
-	golangci-lint run ./...
+	golangci-lint run --config=.golangci.yml ./...
+
+lint-fix:
+	golangci-lint run --config=.golangci.yml --fix ./...
