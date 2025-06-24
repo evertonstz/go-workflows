@@ -1,4 +1,4 @@
-.PHONY: build run format lint
+.PHONY: build run format lint lint-fix
 
 VERSION := $(shell git describe --tags --always)
 
@@ -13,3 +13,6 @@ format:
 
 lint:
 	golangci-lint run --config=.golangci.yml ./...
+
+lint-fix:
+	golangci-lint run --config=.golangci.yml --fix ./...
