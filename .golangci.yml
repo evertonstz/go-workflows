@@ -21,6 +21,8 @@ linters:
     - unparam
 
 linters-settings:
+  staticcheck:
+    checks: ["all", "-ST1000"]
   gofmt:
     simplify: true
   goimports:

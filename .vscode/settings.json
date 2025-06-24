@@ -20,7 +20,7 @@
             "unusedwrite": true
         },
         "formatting.gofumpt": true,
-        "staticcheck": true
+        "staticcheck": false
     },
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
