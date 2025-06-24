@@ -9,7 +9,6 @@ import (
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
 
-// Message types for Bubble Tea integration
 type (
 	InitiatedPersistionMsg struct {
 		DataFile string
@@ -22,7 +21,6 @@ type (
 	PersistedFileMsg struct{}
 )
 
-// InitPersistenceManagerCmd returns a command to initialize the persistence manager
 func InitPersistenceManagerCmd() tea.Cmd {
 	return func() tea.Msg {
 		persistenceService := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
@@ -32,7 +30,6 @@ func InitPersistenceManagerCmd() tea.Cmd {
 	}
 }
 
-// LoadDataFileCmd loads data from the JSON file
 func LoadDataFileCmd() tea.Cmd {
 	return func() tea.Msg {
 		persistenceService := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
@@ -46,7 +43,6 @@ func LoadDataFileCmd() tea.Cmd {
 	}
 }
 
-// PersistListDataCmd saves data to the JSON file
 func PersistListDataCmd(data models.Items) tea.Cmd {
 	return func() tea.Msg {
 		persistenceService := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)

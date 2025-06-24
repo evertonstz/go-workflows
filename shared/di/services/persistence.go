@@ -10,20 +10,17 @@ import (
 	"github.com/evertonstz/go-workflows/models"
 )
 
-// PersistenceService handles all data persistence operations
 type PersistenceService struct {
 	dataFilePath string
 	appName      string
 }
 
-// NewPersistenceService creates a new persistence service
 func NewPersistenceService(appName string) (*PersistenceService, error) {
 	dataFile, err := xdg.DataFile(fmt.Sprintf("%s/data.json", appName))
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine data file path: %w", err)
 	}
 
-	// Ensure the directory exists
 	err = os.MkdirAll(xdg.ConfigHome+"/"+appName, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create config directory: %w", err)
@@ -35,17 +32,14 @@ func NewPersistenceService(appName string) (*PersistenceService, error) {
 	}, nil
 }
 
-// GetDataFilePath returns the path to the data file
 func (p *PersistenceService) GetDataFilePath() string {
 	return p.dataFilePath
 }
 
-// LoadData loads data from the JSON file
 func (p *PersistenceService) LoadData() (models.Items, error) {
 	data, err := os.ReadFile(p.dataFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// Create the file if it doesn't exist
 			if _, createErr := os.Create(p.dataFilePath); createErr != nil {
 				return models.Items{}, fmt.Errorf("failed to create data file: %w", createErr)
 			}
@@ -66,7 +60,6 @@ func (p *PersistenceService) LoadData() (models.Items, error) {
 	return items, nil
 }
 
-// SaveData synchronously saves data to the file (for non-Bubble Tea usage)
 func (p *PersistenceService) SaveData(data models.Items) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {

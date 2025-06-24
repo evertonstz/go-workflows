@@ -12,7 +12,6 @@ func CopyToClipboardCmd(t string) tea.Cmd {
 	return func() tea.Msg {
 		err := clipboard.WriteAll(t)
 		if err != nil {
-			// TODO: Emit an error message to the future notification system
 			return ErrorMsg{Err: err}
 		}
 		return CopiedToClipboardMsg{}

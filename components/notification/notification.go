@@ -8,7 +8,6 @@ import (
 )
 
 const (
-	// Notification display duration
 	notificationDuration = 2 * time.Second
 )
 
