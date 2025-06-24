@@ -7,6 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	// Notification display duration
+	notificationDuration = 2 * time.Second
+)
+
 type Msg struct {
 	Text string
 }
@@ -43,7 +48,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		m.Text = msg.Text
 		m.visible = true
 		m.timerDone = make(chan struct{})
-		return m, startTimer(2*time.Second, m.timerDone)
+		return m, startTimer(notificationDuration, m.timerDone)
 
 	case timerMsg:
 		if m.timerDone != nil {

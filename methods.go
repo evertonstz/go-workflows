@@ -11,6 +11,11 @@ import (
 	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
+const (
+	// UI Layout constants
+	smallWidthThreshold = 100
+)
+
 func (m model) getHelpKeys() help.KeyMap {
 	if m.screenState == addNew {
 		return helpkeys.AddNewKeys
@@ -19,7 +24,7 @@ func (m model) getHelpKeys() help.KeyMap {
 }
 
 func (m model) isSmallWidth() bool {
-	return m.termDimensions.width < 100
+	return m.termDimensions.width < smallWidthThreshold
 }
 
 func (m *model) updatePanelSizes() {

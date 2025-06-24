@@ -28,12 +28,12 @@ func InitPersistionManagerCmd(appName string) tea.Cmd {
 	return func() tea.Msg {
 		dataFile, err := xdg.DataFile(fmt.Sprintf("%s/data.json", appName))
 		if err != nil {
-			panic(err)
+			return shared.ErrorMsg{Err: fmt.Errorf("failed to determine data file path: %w", err)}
 		}
 
 		err = os.MkdirAll(xdg.ConfigHome+"/"+appName, os.ModePerm)
 		if err != nil {
-			panic(err)
+			return shared.ErrorMsg{Err: fmt.Errorf("failed to create config directory: %w", err)}
 		}
 
 		return InitiatedPersistion{
