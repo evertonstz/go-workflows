@@ -9,7 +9,7 @@ run:
 	go run -ldflags "-X main.Version=$(VERSION)" . $(ARGS)
 
 format:
-	goimports -w .
+	goimports -local github.com/evertonstz/go-workflows -w .
 
 lint:
-	golangci-lint run ./...
+	golangci-lint run --config=.golangci.yml ./...

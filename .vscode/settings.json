@@ -1,0 +1,39 @@
+{
+    "go.lintTool": "golangci-lint",
+    "go.lintFlags": [
+        "--config=.golangci.yml",
+        "--fast"
+    ],
+    "go.lintOnSave": "workspace",
+    "go.formatTool": "goimports",
+    "go.formatFlags": [
+        "-local", "github.com/evertonstz/go-workflows"
+    ],
+    "go.useLanguageServer": true,
+    "gopls": {
+        "ui.completion.usePlaceholders": true,
+        "ui.diagnostic.analyses": {
+            "fieldalignment": false,
+            "shadow": true,
+            "unusedparams": true
+        },
+        "formatting.gofumpt": true
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "[go]": {
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "[go.mod]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    }
+}

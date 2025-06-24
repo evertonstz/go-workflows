@@ -31,12 +31,11 @@ linters-settings:
       - style
     disabled-checks:
       - unnamedResult
-      - hugeParam
       - singleCaseSwitch
       - builtinShadowDecl
-      - rangeValCopy
       - paramTypeCombine
       - docStub
+      - octalLiteral
   gosec:
     excludes:
       - G104 # Audit errors not checked - we handle this case by case
