@@ -1,0 +1,52 @@
+# golangci-lint configuration
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - goimports
+    - gocritic
+    - gosec
+    - misspell
+    - unconvert
+    - unparam
+
+linters-settings:
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: github.com/evertonstz/go-workflows
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+    disabled-checks:
+      - unnamedResult
+      - singleCaseSwitch
+      - builtinShadowDecl
+      - paramTypeCombine
+      - docStub
+      - octalLiteral
+  gosec:
+    excludes:
+      - G104 # Audit errors not checked - we handle this case by case
+      - G301 # Directory permissions
+      - G304 # File inclusion via variable
+      - G306 # WriteFile permissions
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gosec
