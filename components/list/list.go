@@ -9,9 +9,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
 type MyItem struct {
@@ -76,7 +76,8 @@ func (m Model) setCurrentItemCmd(cmds []tea.Cmd) []tea.Cmd {
 		Desc:        m.CurentItem().Description(),
 		Command:     m.CurentItem().Command(),
 		DateAdded:   m.CurentItem().DateAdded(),
-		DateUpdated: m.CurentItem().DateUpdated()},
+		DateUpdated: m.CurentItem().DateUpdated(),
+	},
 	))
 	return cmds
 }
@@ -108,17 +109,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidUpdateItemMsg:
 		for i, item := range m.list.Items() {
 			if item.(MyItem).title == msg.Item.Title {
+				// Business logic: Update timestamp
+				updatedItem := msg.Item
+				updatedItem.DateUpdated = time.Now()
+
 				m.list.SetItem(i, MyItem{
-					title:       msg.Item.Title,
-					desc:        msg.Item.Desc,
-					command:     msg.Item.Command,
-					dateAdded:   msg.Item.DateAdded,
-					dateUpdated: msg.Item.DateUpdated,
+					title:       updatedItem.Title,
+					desc:        updatedItem.Desc,
+					command:     updatedItem.Command,
+					dateAdded:   updatedItem.DateAdded,
+					dateUpdated: updatedItem.DateUpdated,
 				})
 			}
 		}
 
-	case persist.LoadedDataFileMsg:
+	case messages.LoadedDataFileMsg:
 		var data []list.Item
 		for _, i := range msg.Items.Items {
 			data = append(data, list.Item(MyItem{
@@ -126,7 +131,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				desc:        i.Desc,
 				command:     i.Command,
 				dateAdded:   i.DateAdded,
-				dateUpdated: i.DateUpdated}))
+				dateUpdated: i.DateUpdated,
+			}))
 		}
 		m.list.SetItems(data)
 		cmds = m.setCurrentItemCmd(cmds)

@@ -7,9 +7,9 @@ import (
 
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/notification"
-	"github.com/evertonstz/go-workflows/components/persist"
 	addnew "github.com/evertonstz/go-workflows/screens/add_new"
 	commandlist "github.com/evertonstz/go-workflows/screens/command_list"
+	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
 var (
@@ -52,7 +52,7 @@ const (
 )
 
 func (m model) Init() tea.Cmd {
-	return persist.InitPersistionManagerCmd("go-workflows")
+	return messages.InitPersistenceManagerCmd()
 }
 
 func new() model {

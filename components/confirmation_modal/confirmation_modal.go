@@ -32,16 +32,19 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) SetMessage(message string) {
+func (m Model) SetMessage(message string) Model {
 	m.Message = message
+	return m
 }
 
-func (m *Model) SetConfirmButtonLabel(confirmButton string) {
+func (m Model) SetConfirmButtonLabel(confirmButton string) Model {
 	m.ConfirmButton = confirmButton
+	return m
 }
 
-func (m *Model) SetCancelButtonLabel(cancelButton string) {
+func (m Model) SetCancelButtonLabel(cancelButton string) Model {
 	m.CancelButton = cancelButton
+	return m
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

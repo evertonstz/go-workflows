@@ -7,8 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-	"github.com/evertonstz/go-workflows/components/persist"
 	"github.com/evertonstz/go-workflows/models"
+	"github.com/evertonstz/go-workflows/shared/messages"
+)
+
+const (
+	// UI Layout constants
+	smallWidthThreshold = 100
 )
 
 func (m model) getHelpKeys() help.KeyMap {
@@ -19,7 +24,7 @@ func (m model) getHelpKeys() help.KeyMap {
 }
 
 func (m model) isSmallWidth() bool {
-	return m.termDimensions.width < 100
+	return m.termDimensions.width < smallWidthThreshold
 }
 
 func (m *model) updatePanelSizes() {
@@ -43,9 +48,10 @@ func (m model) persistItems() tea.Cmd {
 			Desc:        i.Description(),
 			Command:     i.Command(),
 			DateAdded:   i.DateAdded(),
-			DateUpdated: i.DateUpdated()})
+			DateUpdated: i.DateUpdated(),
+		})
 	}
 	data := models.Items{Items: items}
 
-	return persist.PersistListData(m.persistPath, data)
+	return messages.PersistListDataCmd(data)
 }
