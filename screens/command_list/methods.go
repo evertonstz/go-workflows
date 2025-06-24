@@ -4,6 +4,7 @@ import (
 	"math"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/shared"
 )

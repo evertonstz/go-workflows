@@ -3,6 +3,7 @@ package commandlist
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/list"

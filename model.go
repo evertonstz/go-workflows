@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/components/persist"

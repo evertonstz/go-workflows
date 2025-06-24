@@ -4,10 +4,11 @@ import (
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/evertonstz/go-workflows/shared"
-	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/jeandeaual/go-locale"
 	"golang.org/x/text/language"
+
+	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
 )
 
 var (
