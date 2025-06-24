@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jeandeaual/go-locale"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
@@ -20,6 +21,40 @@ var (
 	localizerInstance *i18n.Localizer
 	DefaultLang       = "en" // Default language if none is specified
 )
+
+func GetSystemLanguage() string {
+	// return "pt-BR" // TODO: remove
+	userLocale, err := locale.GetLocale()
+	if err == nil {
+		return userLocale
+	}
+	return DefaultLang
+}
+
+// DetermineLanguage determines the best supported language based on system locale
+func DetermineLanguage() string {
+	userLocaleStr := GetSystemLanguage()
+
+	supportedLangs := []language.Tag{
+		language.English,
+		language.Portuguese,
+	}
+	matcher := language.NewMatcher(supportedLangs)
+
+	userLangTag, err := language.Parse(userLocaleStr)
+	if err != nil {
+		return DefaultLang
+	}
+
+	tag, _, _ := matcher.Match(userLangTag)
+	return tag.String()
+}
+
+// NewI18nServiceWithAutoDetection creates a new I18nService with automatic language detection
+func NewI18nServiceWithAutoDetection(localesDir string) (*I18nService, error) {
+	lang := DetermineLanguage()
+	return NewI18nService(lang, localesDir)
+}
 
 func NewI18nService(defaultLang string, localesDir string) (*I18nService, error) {
 	bundle = i18n.NewBundle(language.English)
