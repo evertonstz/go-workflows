@@ -240,18 +240,18 @@ func (db DatabaseV2) Search(criteria SearchCriteria) SearchResult {
 }
 
 func (db DatabaseV2) GetFolderByPath(path string) (*FolderV2, bool) {
-	for _, folder := range db.Folders {
+	for i, folder := range db.Folders {
 		if folder.Path == path {
-			return &folder, true
+			return &db.Folders[i], true
 		}
 	}
 	return nil, false
 }
 
 func (db DatabaseV2) GetItemByID(id string) (*ItemV2, bool) {
-	for _, item := range db.Items {
+	for i, item := range db.Items {
 		if item.ID == id {
-			return &item, true
+			return &db.Items[i], true
 		}
 	}
 	return nil, false
