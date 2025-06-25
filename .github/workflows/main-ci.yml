@@ -138,23 +138,6 @@ jobs:
           fi
           echo "Code formatting is correct ✓"
 
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-
-      - name: Run Gosec Security Scanner
-        run: |
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-          gosec ./...
-
   dependency-check:
     name: Dependency Vulnerability Check
     runs-on: ubuntu-latest

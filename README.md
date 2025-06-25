@@ -117,14 +117,12 @@ The project uses GitHub Actions for continuous integration with **native GitHub 
   - **Coverage artifacts**: Downloadable HTML and profile reports (30-day retention)
 
 - **Main Branch CI**: Runs on main branch pushes and daily
-
   - Comprehensive test suite
   - Code formatting validation with `goimports`
-  - Security scanning with `gosec`
   - Dependency vulnerability checks
   - Multi-version Go compatibility testing
-  - **Coverage summaries**: Integrated into GitHub Actions workflow summaries
-  - **Coverage artifacts**: Long-term storage (90-day retention)
+  - Coverage summaries: Integrated into GitHub Actions workflow summaries
+  - Coverage artifacts: Long-term storage (90-day retention)
 
 - **Release CI**: Runs on version tags
   - Full test suite before release
@@ -145,7 +143,6 @@ The project uses GitHub's built-in features for coverage visualization:
 
 - **Linting**: Uses `golangci-lint` with comprehensive rules
 - **Formatting**: Enforced `goimports` formatting with local package prioritization
-- **Security**: Regular `gosec` security scans
 - **Dependencies**: Vulnerability scanning with `govulncheck`
 
 ### Make Commands
