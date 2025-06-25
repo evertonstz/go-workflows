@@ -69,9 +69,9 @@ func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) 
 		return nil, fmt.Errorf("failed to save after creating folder: %w", err)
 	}
 
-	for _, f := range dm.database.Folders {
+	for i, f := range dm.database.Folders {
 		if f.Path == folderPath {
-			return &f, nil
+			return &dm.database.Folders[i], nil
 		}
 	}
 
@@ -170,9 +170,9 @@ func (dm *DatabaseManagerV2) CreateItem(title, description, command, folderPath 
 		return nil, fmt.Errorf("failed to save after creating item: %w", err)
 	}
 
-	for _, i := range dm.database.Items {
+	for idx, i := range dm.database.Items {
 		if i.Title == title && i.FolderPath == folderPath {
-			return &i, nil
+			return &dm.database.Items[idx], nil
 		}
 	}
 
