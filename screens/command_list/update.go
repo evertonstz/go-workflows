@@ -24,7 +24,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// The text area component will handle this message itself
 		// Just ensure the right panel is shown
 		m.currentRightPanel = textArea
-		return m, nil
+		// Don't return early - let the message flow to the text area component
 	case shared.DidSetCurrentFolderMsg:
 		// Update right panel with folder contents
 		if m.databaseManager != nil {
