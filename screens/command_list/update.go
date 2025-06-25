@@ -17,6 +17,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
+	case shared.DidAddNewItemMsg:
+		// Add new item to the database
+		if m.databaseManager != nil {
+			// Create the new item in the current folder
+			currentPath := m.navigableList.CurrentPath()
+			_, err := m.databaseManager.CreateItem(
+				msg.Title,
+				msg.Description,
+				msg.CommandText,
+				currentPath,
+				[]string{},          // empty tags
+				map[string]string{}, // empty metadata
+			)
+			if err != nil {
+				return m, shared.ErrorCmd(err)
+			}
+
+			// Reload the current folder to show the new item
+			m.navigableList.ReloadCurrentFolder()
+		}
+		return m, nil
 	case shared.DidNavigateToFolderMsg:
 		// Update current folder display
 		return m, nil

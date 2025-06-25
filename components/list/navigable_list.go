@@ -99,6 +99,12 @@ func (m *NavigableModel) SetDatabase(db *services.DatabaseManagerV2) {
 	m.lastSelectedIdx = 0
 }
 
+func (m *NavigableModel) ReloadCurrentFolder() {
+	m.loadFolderContents(m.currentPath)
+	// Reset selection tracking to trigger right panel update
+	m.lastSelectedIdx = -1
+}
+
 func (m *NavigableModel) loadFolderContents(folderPath string) {
 	if m.database == nil {
 		return
