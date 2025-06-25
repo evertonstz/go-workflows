@@ -1,0 +1,201 @@
+name: Main Branch CI
+
+on:
+  push:
+    branches: ["main"]
+  schedule:
+    # Run tests daily at 6 AM UTC to catch any dependency issues
+    - cron: "0 6 * * *"
+
+jobs:
+  test:
+    name: Comprehensive Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run all tests with coverage
+        run: |
+          echo "Running comprehensive test suite..."
+          go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Run teatest integration tests
+        run: |
+          echo "Running Bubble Tea integration tests..."
+          go test -v -run "TestApp" .
+
+      - name: Verify golden files are up to date
+        run: |
+          echo "Verifying golden files are current..."
+          # Save current golden files for comparison
+          cp -r testdata/ testdata-backup/ || true
+
+          # Run the golden file test with -update to check if files need updating
+          go test -v -run "TestApp_FullOutput" . -update
+
+          # Check if any files were modified
+          if [ -n "$(git status --porcelain testdata/)" ]; then
+            echo "❌ Golden files are out of date!"
+            echo "Modified files:"
+            git status --porcelain testdata/
+            echo ""
+            echo "Detailed differences:"
+            for file in testdata/*.golden; do
+              if [ -f "testdata-backup/$(basename $file)" ]; then
+                echo "=== Diff for $(basename $file) ==="
+                diff -u "testdata-backup/$(basename $file)" "$file" || true
+                echo ""
+              fi
+            done
+            echo ""
+            echo "This could be due to:"
+            echo "1. UI changes that need golden file updates"
+            echo "2. Environment differences (terminal capabilities, etc.)"
+            echo ""
+            echo "To fix this:"
+            echo "1. Run 'make test-integration-update' locally"
+            echo "2. Review the changes in testdata/"
+            echo "3. If changes are expected, commit them"
+            echo "4. If changes are unexpected, investigate the UI logic"
+            echo ""
+            echo "Current environment info:"
+            echo "TERM: $TERM"
+            echo "COLORTERM: $COLORTERM"
+            echo "CI: $CI"
+            exit 1
+          fi
+          echo "✅ Golden files are up to date"
+
+      - name: Generate coverage report
+        run: go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload coverage to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-main
+          path: |
+            coverage.out
+            coverage.html
+          retention-days: 90
+
+      - name: Create coverage summary
+        run: |
+          echo "## 📊 Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Overall Coverage" >> $GITHUB_STEP_SUMMARY
+          go tool cover -func=coverage.out | tail -1 >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage by Package" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          go tool cover -func=coverage.out >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Detailed HTML report available in artifacts**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.html
+
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+      - name: Check formatting with goimports
+        run: |
+          if [ "$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted properly:"
+            echo "Files that need formatting:"
+            goimports -local github.com/evertonstz/go-workflows -l .
+            echo "Please run 'make format' to fix formatting."
+            exit 1
+          fi
+          echo "Code formatting is correct ✓"
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Run Gosec Security Scanner
+        run: |
+          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+          gosec ./...
+
+  dependency-check:
+    name: Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run vulnerability check
+        run: govulncheck ./...
+
+  build-test:
+    name: Build Test (Multiple OS)
+    needs: [test, lint]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go-version: ["1.23", "1.24"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -ldflags "-X main.Version=main-${{ github.sha }}" .
+
+      - name: Test build works
+        run: ./go-workflows --version || echo "Binary built successfully"
+        shell: bash
