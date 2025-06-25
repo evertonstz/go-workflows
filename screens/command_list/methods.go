@@ -94,8 +94,9 @@ func (m *Model) loadInitialContent() {
 
 	if currentItem.IsFolder() {
 		folder := currentItem.(list.FolderItem).GetFolder()
-		// We need to send the message through the update system
-		// For now, let's set the content directly
+		// Set the folder in the text area for proper date display
+		m.textArea.SetCurrentFolder(folder)
+
 		if m.databaseManager != nil {
 			subfolders, items, err := m.databaseManager.GetFolderContents(folder.Path)
 			if err != nil {

@@ -27,6 +27,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Don't return early - let the message flow to the text area component
 	case shared.DidSetCurrentFolderMsg:
 		// Update right panel with folder contents
+		// Set the folder in the text area for proper date display
+		m.textArea.SetCurrentFolder(msg.Folder)
+		
 		if m.databaseManager != nil {
 			subfolders, items, err := m.databaseManager.GetFolderContents(msg.Folder.Path)
 			if err != nil {
@@ -40,6 +43,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for _, item := range items {
 					content += "📄 " + item.Title + " - " + item.Desc + "\n"
 				}
+
 				m.textArea.TextArea.SetValue(content)
 			}
 		}
