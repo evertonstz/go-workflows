@@ -19,10 +19,10 @@ import (
 // Force consistent color profile for CI/testing
 func init() {
 	// Set environment variables for consistent terminal behavior
-	os.Setenv("TERM", "xterm")
-	os.Setenv("NO_COLOR", "1")
-	os.Unsetenv("COLORTERM")
-	
+	_ = os.Setenv("TERM", "xterm")
+	_ = os.Setenv("NO_COLOR", "1")
+	_ = os.Unsetenv("COLORTERM")
+
 	// Force ASCII color profile for consistent output
 	lipgloss.SetColorProfile(termenv.Ascii)
 }
@@ -90,27 +90,26 @@ func TestApp_FullOutput(t *testing.T) {
 	if err := setupTestServices("fulloutput"); err != nil {
 		t.Fatalf("Failed to setup test services: %v", err)
 	}
-
 	// Force the most basic terminal environment for golden file testing
 	// This ensures consistent output across local, CI, and act environments
 	originalTerm := os.Getenv("TERM")
 	originalColorTerm := os.Getenv("COLORTERM")
-	
-	os.Setenv("TERM", "dumb")
-	os.Setenv("NO_COLOR", "1")
-	os.Unsetenv("COLORTERM")
-	
+
+	_ = os.Setenv("TERM", "dumb")
+	_ = os.Setenv("NO_COLOR", "1")
+	_ = os.Unsetenv("COLORTERM")
+
 	defer func() {
-		os.Setenv("TERM", originalTerm)
+		_ = os.Setenv("TERM", originalTerm)
 		if originalColorTerm != "" {
-			os.Setenv("COLORTERM", originalColorTerm)
+			_ = os.Setenv("COLORTERM", originalColorTerm)
 		}
-		os.Unsetenv("NO_COLOR")
+		_ = os.Unsetenv("NO_COLOR")
 	}()
-	
+
 	// Force ASCII profile again to be sure
 	lipgloss.SetColorProfile(termenv.Ascii)
-	
+
 	// Create initial model
 	m := new()
 

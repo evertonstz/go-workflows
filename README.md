@@ -62,6 +62,9 @@ make test
 # Run tests with coverage
 make test-cover
 
+# Show coverage summary in terminal
+make test-cover-summary
+
 # Run tests with verbose output
 make test-verbose
 
@@ -102,7 +105,7 @@ go test -v -run "TestApp_FullOutput" ./ -update
 
 ### CI/CD Pipeline
 
-The project uses GitHub Actions for continuous integration:
+The project uses GitHub Actions for continuous integration with **native GitHub coverage reporting** (no external services like Codecov needed):
 
 - **Pull Request CI**: Runs on every PR
 
@@ -110,6 +113,8 @@ The project uses GitHub Actions for continuous integration:
   - Complete test suite with race detection
   - Cross-platform builds (Linux, Windows, macOS)
   - Golden file verification
+  - **Automated coverage reporting**: Creates/updates PR comments with coverage statistics
+  - **Coverage artifacts**: Downloadable HTML and profile reports (30-day retention)
 
 - **Main Branch CI**: Runs on main branch pushes and daily
 
@@ -118,11 +123,23 @@ The project uses GitHub Actions for continuous integration:
   - Security scanning with `gosec`
   - Dependency vulnerability checks
   - Multi-version Go compatibility testing
+  - **Coverage summaries**: Integrated into GitHub Actions workflow summaries
+  - **Coverage artifacts**: Long-term storage (90-day retention)
 
 - **Release CI**: Runs on version tags
   - Full test suite before release
   - Cross-compilation for multiple platforms
   - Automated releases with GoReleaser
+
+#### Coverage Visualization
+
+The project uses GitHub's built-in features for coverage visualization:
+
+- **PR Comments**: Automated coverage reports with package-by-package breakdown
+- **Workflow Summaries**: Coverage statistics in GitHub Actions summary pages
+- **Artifacts**: Downloadable HTML reports and coverage profiles
+- **Security**: All coverage data stays within GitHub's secure infrastructure
+- **Zero Cost**: No external service subscriptions or API limits
 
 ### Code Quality
 

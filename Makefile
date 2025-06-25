@@ -1,4 +1,4 @@
-.PHONY: build run format format-check lint lint-fix test test-verbose test-integration test-integration-update test-cover test-cover-html test-race test-clean help
+.PHONY: build run format format-check lint lint-fix test test-verbose test-integration test-integration-update test-cover test-cover-html test-cover-summary test-race test-clean help
 
 VERSION := $(shell git describe --tags --always)
 
@@ -33,6 +33,11 @@ test-cover-html: ## Generate HTML coverage report
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
+
+test-cover-summary: ## Show coverage summary
+	go test -coverprofile=coverage.out ./...
+	@echo "Coverage Summary:"
+	@go tool cover -func=coverage.out
 
 test-race: ## Run tests with race detection
 	go test -race ./...
