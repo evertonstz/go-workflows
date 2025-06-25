@@ -23,7 +23,7 @@ jobs:
       - name: Run tests before release
         run: |
           echo "Running comprehensive test suite before release..."
-          go test -v -race -coverprofile=coverage.out ./...
+          go test -v -race ./...
           echo "All tests passed! Proceeding with release..."
 
       - name: Cross compile and package

@@ -28,6 +28,7 @@ type Model struct {
 	TextArea        textarea.Model
 	highlightedText string
 	currentItem     models.Item
+	currentFolder   *models.FolderV2
 	editing         bool
 	err             error
 }
@@ -51,6 +52,7 @@ func New() Model {
 	return Model{
 		TextArea:        ti,
 		highlightedText: ti.Placeholder,
+		currentFolder:   nil,
 		editing:         false,
 		err:             nil,
 	}
@@ -65,6 +67,11 @@ func (m *Model) SetSize(width, height int) {
 	m.TextArea.SetHeight(height)
 }
 
+func (m *Model) SetCurrentFolder(folder models.FolderV2) {
+	m.currentFolder = &folder
+	m.currentItem = models.Item{} // Clear item when folder is set
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -72,7 +79,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case shared.DidSetCurrentItemMsg:
 		m.currentItem = msg.Item
+		m.currentFolder = nil // Clear folder when item is set
 		m.TextArea.SetValue(m.currentItem.Command)
+	case shared.DidSetCurrentFolderMsg:
+		m.currentFolder = &msg.Folder
+		m.currentItem = models.Item{}
 	}
 
 	m.TextArea, cmd = m.TextArea.Update(msg)
@@ -83,10 +94,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // TODO: remove legacy code
 func (m Model) View() string {
 	var lastUpdated string
-	if m.currentItem.DateAdded == m.currentItem.DateUpdated {
-		lastUpdated = "Updated: never"
+	var dateAdded string
+
+	if m.currentFolder != nil {
+		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentFolder.DateAdded))
+		if m.currentFolder.DateAdded == m.currentFolder.DateUpdated {
+			lastUpdated = "Updated: never"
+		} else {
+			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentFolder.DateUpdated))
+		}
 	} else {
-		lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentItem.DateUpdated))
+		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentItem.DateAdded))
+		if m.currentItem.DateAdded == m.currentItem.DateUpdated {
+			lastUpdated = "Updated: never"
+		} else {
+			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentItem.DateUpdated))
+		}
 	}
 
 	if m.editing {
@@ -107,7 +130,7 @@ func (m Model) View() string {
 			Height(2).
 			Render(lipgloss.JoinVertical(
 				lipgloss.Right,
-				dateCellStyle.Render(fmt.Sprintf("Added: %s", humanize.Time(m.currentItem.DateAdded))),
+				dateCellStyle.Render(dateAdded),
 				dateCellStyle.Render(lastUpdated))),
 	)
 }

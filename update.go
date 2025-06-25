@@ -23,18 +23,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.screenState = newList
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
-		return m, m.persistItems()
+		return m, m.persistItemsV2()
 	case shared.DidDeleteItemMsg:
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
-		return m, m.persistItems()
+		return m, m.persistItemsV2()
+	case shared.DidNavigateToFolderMsg:
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
 	case shared.CopiedToClipboardMsg:
 		return m, notification.ShowNotificationCmd("Copied to clipboard!")
+	case messages.PersistedFileV2Msg:
+		return m, notification.ShowNotificationCmd("Saved!")
 	case messages.PersistedFileMsg:
 		return m, notification.ShowNotificationCmd("Saved!")
 	case messages.InitiatedPersistionMsg:
 		m.persistPath = msg.DataFile
-		return m, messages.LoadDataFileCmd()
+		return m, messages.LoadDataFileV2Cmd()
+	case messages.LoadedDataFileV2Msg:
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.termDimensions.width = msg.Width
 		m.termDimensions.height = msg.Height
@@ -42,7 +52,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidUpdateItemMsg:
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
-		return m, m.persistItems()
+		return m, m.persistItemsV2()
+	case shared.DidSetCurrentItemMsg:
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
+	case shared.DidSetCurrentFolderMsg:
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
 
 	case tea.KeyMsg:
 		switch m.screenState {
@@ -66,6 +84,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggleHelpShowAll()
 			case key.Matches(msg, helpkeys.LisKeys.Quit):
 				return m, tea.Quit
+			case key.Matches(msg, helpkeys.LisKeys.Esc):
+				if m.listScreen.IsAtRoot() {
+					return m, tea.Quit
+				}
 			// TODO add edition function
 			// case key.Matches(msg, m.keys.listKeys.Enter):
 			// 	m.addNewScreen.SetValues(m.list.CurentItem().Title(),

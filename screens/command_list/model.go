@@ -31,13 +31,14 @@ type (
 	confirmationModalBuilder func(confirmCmd, cancelCmd tea.Cmd) confirmationmodal.Model
 
 	Model struct {
-		list                           list.Model
+		navigableList                  list.NavigableModel
 		confirmationModal              confirmationmodal.Model
 		deleteConfirmationModalBuilder confirmationModalBuilder
 		textArea                       textarea.Model
 		panelsStyle                    panelsStyle
 		currentRightPanel              currentRightPanel
 		isSmallWidth                   bool
+		databaseManager                *services.DatabaseManagerV2
 	}
 	currentRightPanel uint
 )
@@ -54,7 +55,7 @@ func (m Model) Init() tea.Cmd {
 func New() Model {
 	i18n := di.GetService[*services.I18nService](di.I18nServiceKey)
 
-	listModel := list.New()
+	navigableListModel := list.NewNavigable()
 	textAreaModel := textarea.New()
 	initialModal := confirmationmodal.NewConfirmationModal("", "", "", nil, nil)
 	deleteConfirmationModalBuilder := func(confirmCmd, cancelCmd tea.Cmd) confirmationmodal.Model {
@@ -68,8 +69,14 @@ func New() Model {
 		return modal
 	}
 
+	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
+	databaseManager, err := services.NewDatabaseManagerV2(persistence)
+	if err != nil {
+		databaseManager = nil
+	}
+
 	return Model{
-		list:                           listModel,
+		navigableList:                  navigableListModel,
 		confirmationModal:              initialModal,
 		deleteConfirmationModalBuilder: deleteConfirmationModalBuilder,
 		textArea:                       textAreaModel,
@@ -79,5 +86,6 @@ func New() Model {
 		},
 		currentRightPanel: textArea,
 		isSmallWidth:      false,
+		databaseManager:   databaseManager,
 	}
 }

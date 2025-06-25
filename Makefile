@@ -20,12 +20,6 @@ test: ## Run all tests
 test-verbose: ## Run tests with verbose output
 	go test -v ./...
 
-test-integration: ## Run Bubble Tea integration tests with teatest
-	go test -v -run "TestApp" ./
-
-test-integration-update: ## Update golden files for integration tests
-	go test -v -run "TestApp_FullOutput" ./ -update
-
 test-cover: ## Run tests with coverage
 	go test -cover ./...
 

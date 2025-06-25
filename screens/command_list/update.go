@@ -14,11 +14,67 @@ import (
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
-	var listModel tea.Model
 
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
+	case shared.DidDeleteItemMsg:
+		if m.databaseManager != nil {
+			currentItem := m.navigableList.CurrentItem()
+			if currentItem != nil && !currentItem.IsFolder() {
+				workflowItem := currentItem.(list.WorkflowItem).GetItem()
+				err := m.databaseManager.DeleteItem(workflowItem.ID)
+				if err != nil {
+					return m, shared.ErrorCmd(err)
+				}
+				m.navigableList.ReloadCurrentFolder()
+			}
+		}
+		return m, nil
+	case shared.DidAddNewItemMsg:
+		if m.databaseManager != nil {
+			currentPath := m.navigableList.CurrentPath()
+			_, err := m.databaseManager.CreateItem(
+				msg.Title,
+				msg.Description,
+				msg.CommandText,
+				currentPath,
+				[]string{},          // empty tags
+				map[string]string{}, // empty metadata
+			)
+			if err != nil {
+				return m, shared.ErrorCmd(err)
+			}
+
+			m.navigableList.ReloadCurrentFolder()
+		}
+		return m, nil
+	case shared.DidNavigateToFolderMsg:
+		return m, nil
+	case shared.DidSetCurrentItemMsg:
+		m.currentRightPanel = textArea
+	case shared.DidSetCurrentFolderMsg:
+		m.textArea.SetCurrentFolder(msg.Folder)
+
+		if m.databaseManager != nil {
+			subfolders, items, err := m.databaseManager.GetFolderContents(msg.Folder.Path)
+			if err != nil {
+				m.textArea.TextArea.SetValue("Error loading folder contents: " + err.Error())
+			} else {
+				content := "📁 " + msg.Folder.Name + "\n" + msg.Folder.Description + "\n\n"
+				content += "Contents:\n"
+				for _, folder := range subfolders {
+					content += "📁 " + folder.Name + " - " + folder.Description + "\n"
+				}
+				for _, item := range items {
+					content += "📄 " + item.Title + " - " + item.Desc + "\n"
+				}
+
+				m.textArea.TextArea.SetValue(content)
+			}
+		}
+		m.currentRightPanel = textArea
+		return m, nil
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, helpkeys.LisKeys.Esc):
@@ -27,12 +83,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		case key.Matches(msg, helpkeys.LisKeys.Delete):
-			m.showDeleteModal()
+			currentItem := m.navigableList.CurrentItem()
+			if currentItem != nil && !currentItem.IsFolder() {
+				m.showDeleteModal()
+			}
 		}
 	}
 
-	listModel, cmd = m.list.Update(msg)
-	m.list = listModel.(list.Model)
+	m.navigableList, cmd = m.navigableList.Update(msg)
 	cmds = append(cmds, cmd)
 
 	taModel, cmd := m.textArea.Update(msg)
