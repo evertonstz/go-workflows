@@ -56,11 +56,14 @@ func (m model) Init() tea.Cmd {
 }
 
 func new() model {
+	listScreen := commandlist.New()
+	listScreen.InitializeDatabase()
+	
 	return model{
 		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
 		help:              help.New(),
 		addNewScreen:      addnew.New(),
-		listScreen:        commandlist.New(),
+		listScreen:        listScreen,
 		notification:      notification.New("Workflows"),
 		panelsStyle: panelsStyle{
 			helpPanelStyle:         helpPanelStyle,

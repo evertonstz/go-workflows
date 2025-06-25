@@ -7,7 +7,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
+	"github.com/evertonstz/go-workflows/components/list"
 	"github.com/evertonstz/go-workflows/models"
+	"github.com/evertonstz/go-workflows/shared"
+	"github.com/evertonstz/go-workflows/shared/di"
+	"github.com/evertonstz/go-workflows/shared/di/services"
 	"github.com/evertonstz/go-workflows/shared/messages"
 )
 
@@ -42,15 +46,32 @@ func (m *model) toggleHelpShowAll() {
 func (m model) persistItems() tea.Cmd {
 	var items []models.Item
 	for _, i := range m.listScreen.GetAllItems() {
-		items = append(items, models.Item{
-			Title:       i.Title(),
-			Desc:        i.Description(),
-			Command:     i.Command(),
-			DateAdded:   i.DateAdded(),
-			DateUpdated: i.DateUpdated(),
-		})
+		// Only process workflow items, not folders
+		if !i.IsFolder() {
+			workflowItem := i.(list.WorkflowItem)
+			item := workflowItem.GetItem()
+			items = append(items, models.Item{
+				Title:       item.Title,
+				Desc:        item.Desc,
+				Command:     item.Command,
+				DateAdded:   item.DateAdded,
+				DateUpdated: item.DateUpdated,
+			})
+		}
 	}
 	data := models.Items{Items: items}
 
 	return messages.PersistListDataCmd(data)
+}
+
+func (m model) persistItemsV2() tea.Cmd {
+	// Get database manager from DI container
+	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
+	databaseManager, err := services.NewDatabaseManagerV2(persistence)
+	if err != nil {
+		return shared.ErrorCmd(err)
+	}
+
+	database := databaseManager.GetDatabase()
+	return messages.PersistListDataV2Cmd(database)
 }

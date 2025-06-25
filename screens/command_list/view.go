@@ -15,7 +15,7 @@ func (m Model) bigWidthView() string {
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top,
-		m.panelsStyle.leftPanelStyle.Render(m.list.View()),
+		m.panelsStyle.leftPanelStyle.Render(m.navigableList.View()),
 		m.panelsStyle.rightPanelStyle.Render(rightPanel))
 }
 
@@ -32,7 +32,7 @@ func (m Model) smallWidthView() string {
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		m.panelsStyle.leftPanelStyle.Render(m.list.View()),
+		m.panelsStyle.leftPanelStyle.Render(m.navigableList.View()),
 		m.panelsStyle.rightPanelStyle.Render(rightPanel))
 }
 

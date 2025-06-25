@@ -57,3 +57,21 @@ func UpdateItemCmd(i models.Item) tea.Cmd {
 		return DidUpdateItemMsg{Item: i}
 	}
 }
+
+func SetCurrentFolderCmd(f models.FolderV2) tea.Cmd {
+	return func() tea.Msg {
+		return DidSetCurrentFolderMsg{Folder: f}
+	}
+}
+
+func NavigatedToFolderCmd(path string) tea.Cmd {
+	return func() tea.Msg {
+		return DidNavigateToFolderMsg{Path: path}
+	}
+}
+
+func ErrorCmd(err error) tea.Cmd {
+	return func() tea.Msg {
+		return ErrorMsg{Err: err}
+	}
+}

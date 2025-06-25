@@ -6,7 +6,6 @@ import (
 
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared"
 )
@@ -14,11 +13,13 @@ import (
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
-	var listModel tea.Model
 
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
+	case shared.DidNavigateToFolderMsg:
+		// Update current folder display
+		return m, nil
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, helpkeys.LisKeys.Esc):
@@ -26,19 +27,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentRightPanel = textArea
 				return m, nil
 			}
+			// If at root folder, let parent handle ESC (quit app)
+			// If not at root, navigable list will handle going back
 		case key.Matches(msg, helpkeys.LisKeys.Delete):
-			m.showDeleteModal()
+			currentItem := m.navigableList.CurrentItem()
+			if currentItem != nil && !currentItem.IsFolder() {
+				m.showDeleteModal()
+			}
 		}
 	}
 
-	listModel, cmd = m.list.Update(msg)
-	m.list = listModel.(list.Model)
+	// Update navigable list
+	m.navigableList, cmd = m.navigableList.Update(msg)
 	cmds = append(cmds, cmd)
 
+	// Update text area
 	taModel, cmd := m.textArea.Update(msg)
 	m.textArea = taModel.(textarea.Model)
 	cmds = append(cmds, cmd)
 
+	// Update confirmation modal if active
 	if m.currentRightPanel == modal {
 		confirmationModalModel, cmd := m.confirmationModal.Update(msg)
 		m.confirmationModal = confirmationModalModel.(confirmationmodal.Model)

@@ -7,6 +7,14 @@ type (
 		Item models.Item
 	}
 
+	DidSetCurrentFolderMsg struct {
+		Folder models.FolderV2
+	}
+
+	DidNavigateToFolderMsg struct {
+		Path string
+	}
+
 	DidUpdateItemMsg struct {
 		Item models.Item
 	}

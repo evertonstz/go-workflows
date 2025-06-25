@@ -9,8 +9,16 @@ import (
 	"github.com/evertonstz/go-workflows/shared"
 )
 
-func (m Model) GetAllItems() []list.MyItem {
-	return m.list.AllItems()
+func (m Model) GetAllItems() []list.ListItemInterface {
+	return m.navigableList.AllItems()
+}
+
+func (m Model) GetCurrentPath() string {
+	return m.navigableList.CurrentPath()
+}
+
+func (m Model) IsAtRoot() bool {
+	return m.navigableList.IsAtRoot()
 }
 
 func (m *Model) setSizeForBigWidth(width, height int) {
@@ -29,7 +37,7 @@ func (m *Model) setSizeForBigWidth(width, height int) {
 	leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
 	rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
 
-	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
+	m.navigableList.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
 }
 
@@ -49,7 +57,7 @@ func (m *Model) setSizeForSmallWidth(width, height int) {
 	leftPanelWidth := m.panelsStyle.leftPanelStyle.GetWidth() - leftWidthFrameSize
 	rightPanelWidth := m.panelsStyle.rightPanelStyle.GetWidth() - rightWidthFrameSize
 
-	m.list.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
+	m.navigableList.SetSize(leftPanelWidth, m.panelsStyle.leftPanelStyle.GetHeight()-leftHeightFrameSize)
 	m.textArea.SetSize(rightPanelWidth, m.panelsStyle.rightPanelStyle.GetHeight()-rightHeightFrameSize)
 }
 
@@ -65,7 +73,13 @@ func (m *Model) SetSize(width, height int, smallWidth bool) {
 func (m *Model) showDeleteModal() {
 	m.confirmationModal =
 		m.deleteConfirmationModalBuilder(
-			tea.Batch(shared.DeleteCurrentItemCmd(m.list.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
+			tea.Batch(shared.DeleteCurrentItemCmd(m.navigableList.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
 			shared.CloseConfirmationModalCmd())
 	m.currentRightPanel = modal
+}
+
+func (m *Model) InitializeDatabase() {
+	if m.databaseManager != nil {
+		m.navigableList.SetDatabase(m.databaseManager)
+	}
 }

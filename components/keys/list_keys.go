@@ -13,6 +13,7 @@ type ListKeyMap struct {
 	AddNewWorkflow key.Binding
 	Delete         key.Binding
 	Esc            key.Binding
+	Enter          key.Binding
 }
 
 func (k ListKeyMap) ShortHelp() []key.Binding {
@@ -57,6 +58,10 @@ var LisKeys = ListKeyMap{
 	),
 	Esc: key.NewBinding(
 		key.WithKeys("esc"),
-		key.WithHelp("esc", "close"),
+		key.WithHelp("esc", "close/back"),
+	),
+	Enter: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "open folder"),
 	),
 }
