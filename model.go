@@ -58,7 +58,7 @@ func (m model) Init() tea.Cmd {
 func new() model {
 	listScreen := commandlist.New()
 	listScreen.InitializeDatabase()
-	
+
 	return model{
 		confirmationModal: confirmationmodal.NewConfirmationModal("", "", "", nil, nil),
 		help:              help.New(),

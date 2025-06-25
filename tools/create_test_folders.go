@@ -65,9 +65,9 @@ func main() {
 	// First, let's see what items we have
 	database := dbManager.GetDatabase()
 	rootItems := database.GetItemsByFolder("/")
-	
+
 	fmt.Printf("\nFound %d items in root folder\n", len(rootItems))
-	
+
 	if len(rootItems) > 0 {
 		// Move the first few items to Development folder
 		for i, item := range rootItems {
@@ -90,12 +90,12 @@ func main() {
 	}
 
 	fmt.Println("\nTest folders created and database saved!")
-	
+
 	// Show folder structure
 	fmt.Println("\nFolder structure:")
 	folders, items, _ := dbManager.GetFolderContents("/")
 	fmt.Printf("Root folder - %d folders, %d items\n", len(folders), len(items))
-	
+
 	for _, folder := range folders {
 		subfolders, subitems, _ := dbManager.GetFolderContents(folder.Path)
 		fmt.Printf("  %s - %d folders, %d items\n", folder.Path, len(subfolders), len(subitems))

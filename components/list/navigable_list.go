@@ -131,15 +131,15 @@ func (m *NavigableModel) loadFolderContents(folderPath string) {
 func (m *NavigableModel) NavigateToFolder(folderPath string) tea.Cmd {
 	m.currentPath = folderPath
 	m.loadFolderContents(folderPath)
-	
+
 	// Force update of right panel with the newly selected item
 	m.lastSelectedIdx = -1 // Force trigger of setCurrentItemCmd on next update
-	
+
 	// Immediately trigger right panel update for the first item in the new folder
 	var cmds []tea.Cmd
 	cmds = append(cmds, shared.NavigatedToFolderCmd(folderPath))
 	cmds = m.setCurrentItemCmd(cmds)
-	
+
 	return tea.Batch(cmds...)
 }
 

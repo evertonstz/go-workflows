@@ -29,7 +29,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Update right panel with folder contents
 		// Set the folder in the text area for proper date display
 		m.textArea.SetCurrentFolder(msg.Folder)
-		
+
 		if m.databaseManager != nil {
 			subfolders, items, err := m.databaseManager.GetFolderContents(msg.Folder.Path)
 			if err != nil {
