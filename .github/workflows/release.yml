@@ -17,6 +17,15 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests before release
+        run: |
+          echo "Running comprehensive test suite before release..."
+          go test -v -race -coverprofile=coverage.out ./...
+          echo "All tests passed! Proceeding with release..."
+
       - name: Cross compile and package
         run: |
           mkdir -p bin

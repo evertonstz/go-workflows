@@ -2,71 +2,89 @@ name: Pull Request CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version-file: 'go.mod'
-        
-    - name: Check formatting
-      run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "Code is not formatted. Please run 'make format'"
-          gofmt -s -l .
-          exit 1
-        fi
-        
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: latest
-        
-#   test:
-#     name: Test
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v4
-    
-#     - name: Setup Go
-#       uses: actions/setup-go@v5
-#       with:
-#         go-version-file: 'go.mod'
-        
-#     - name: Run tests
-#       run: go test -v -race -coverprofile=coverage.out ./...
-      
-#     - name: Upload coverage to Codecov
-#       uses: codecov/codecov-action@v4
-#       with:
-#         file: ./coverage.out
-#         flags: unittests
-#         name: codecov-umbrella
-#         fail_ci_if_error: false
-      
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted. Please run 'make format'"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run unit tests
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Run teatest integration tests
+        run: go test -v -run "TestApp" .
+
+      - name: Verify golden files are up to date
+        run: |
+          # Run tests with -update to see if golden files need updating
+          go test -v -run "TestApp_FullOutput" . -update
+          # Check if any files were modified
+          if [ -n "$(git status --porcelain testdata/)" ]; then
+            echo "Golden files are out of date. Please run 'go test -v -run TestApp_FullOutput . -update' and commit the changes."
+            git status --porcelain testdata/
+            exit 1
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
   build:
     name: Build
+    needs: [lint, test] # Ensure tests pass before building
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version-file: 'go.mod'
-        
-    - name: Build
-      run: go build -ldflags "-X main.Version=ci-${{ github.sha }}" .
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build
+        run: go build -ldflags "-X main.Version=ci-${{ github.sha }}" .

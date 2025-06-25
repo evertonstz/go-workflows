@@ -93,7 +93,9 @@ func TestPersistenceService_LoadData_EmptyFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
-	file.Close()
+	if err := file.Close(); err != nil {
+		t.Fatalf("Failed to close test file: %v", err)
+	}
 
 	service := &PersistenceService{
 		dataFilePath: testDataFile,
