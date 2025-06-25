@@ -230,14 +230,16 @@ func (m NavigableModel) Update(msg tea.Msg) (NavigableModel, tea.Cmd) {
 			currentItem := m.CurrentItem()
 			if currentItem != nil && currentItem.IsFolder() {
 				folderItem := currentItem.(FolderItem)
-				return m, m.NavigateToFolder(folderItem.GetFolder().Path)
+				cmd := m.NavigateToFolder(folderItem.GetFolder().Path)
+				return m, cmd
 			}
 			// For items, do nothing (like current behavior)
 
 		case key.Matches(msg, helpkeys.LisKeys.Esc):
 			// Navigate up if not at root
 			if !m.IsAtRoot() {
-				return m, m.NavigateUp()
+				cmd := m.NavigateUp()
+				return m, cmd
 			}
 			// If at root, let the parent handle ESC (quit app)
 		}

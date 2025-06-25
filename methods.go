@@ -7,8 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
-	"github.com/evertonstz/go-workflows/components/list"
-	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
 	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/evertonstz/go-workflows/shared/di/services"
@@ -41,27 +39,6 @@ func (m *model) updatePanelSizes() {
 func (m *model) toggleHelpShowAll() {
 	m.help.ShowAll = !m.help.ShowAll
 	m.updatePanelSizes()
-}
-
-func (m model) persistItems() tea.Cmd {
-	var items []models.Item
-	for _, i := range m.listScreen.GetAllItems() {
-		// Only process workflow items, not folders
-		if !i.IsFolder() {
-			workflowItem := i.(list.WorkflowItem)
-			item := workflowItem.GetItem()
-			items = append(items, models.Item{
-				Title:       item.Title,
-				Desc:        item.Desc,
-				Command:     item.Command,
-				DateAdded:   item.DateAdded,
-				DateUpdated: item.DateUpdated,
-			})
-		}
-	}
-	data := models.Items{Items: items}
-
-	return messages.PersistListDataCmd(data)
 }
 
 func (m model) persistItemsV2() tea.Cmd {

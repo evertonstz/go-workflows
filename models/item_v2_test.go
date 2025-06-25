@@ -342,17 +342,27 @@ func TestDatabaseV2_GetItemsByFolder(t *testing.T) {
 	// Add folders
 	folder1 := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	folder2 := FolderV2{Name: "Utils", Path: "/utils", DateAdded: time.Now(), DateUpdated: time.Now()}
-	db.AddFolder(folder1)
-	db.AddFolder(folder2)
+	if err := db.AddFolder(folder1); err != nil {
+		t.Fatalf("Failed to add folder1: %v", err)
+	}
+	if err := db.AddFolder(folder2); err != nil {
+		t.Fatalf("Failed to add folder2: %v", err)
+	}
 
 	// Add items
 	item1 := ItemV2{Title: "Script1", FolderPath: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	item2 := ItemV2{Title: "Script2", FolderPath: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	item3 := ItemV2{Title: "Util1", FolderPath: "/utils", DateAdded: time.Now(), DateUpdated: time.Now()}
 
-	db.AddItem(item1)
-	db.AddItem(item2)
-	db.AddItem(item3)
+	if err := db.AddItem(item1); err != nil {
+		t.Fatalf("Failed to add item1: %v", err)
+	}
+	if err := db.AddItem(item2); err != nil {
+		t.Fatalf("Failed to add item2: %v", err)
+	}
+	if err := db.AddItem(item3); err != nil {
+		t.Fatalf("Failed to add item3: %v", err)
+	}
 
 	scriptsItems := db.GetItemsByFolder("/scripts")
 	if len(scriptsItems) != 2 {
@@ -371,7 +381,9 @@ func TestDatabaseV2_Search(t *testing.T) {
 
 	// Add folders
 	folder := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: testTime, DateUpdated: testTime}
-	db.AddFolder(folder)
+	if err := db.AddFolder(folder); err != nil {
+		t.Fatalf("Failed to add folder: %v", err)
+	}
 
 	// Add items
 	item1 := ItemV2{
@@ -393,8 +405,12 @@ func TestDatabaseV2_Search(t *testing.T) {
 		DateUpdated: testTime,
 	}
 
-	db.AddItem(item1)
-	db.AddItem(item2)
+	if err := db.AddItem(item1); err != nil {
+		t.Fatalf("Failed to add item1: %v", err)
+	}
+	if err := db.AddItem(item2); err != nil {
+		t.Fatalf("Failed to add item2: %v", err)
+	}
 
 	// Test search by query
 	result := db.Search(SearchCriteria{Query: "test"})
@@ -502,7 +518,9 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 
 	// Add folder
 	folder := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: testTime, DateUpdated: testTime}
-	db.AddFolder(folder)
+	if err := db.AddFolder(folder); err != nil {
+		t.Fatalf("Failed to add folder: %v", err)
+	}
 
 	// Add item
 	item := ItemV2{
@@ -513,7 +531,9 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 		DateAdded:   testTime,
 		DateUpdated: testTime,
 	}
-	db.AddItem(item)
+	if err := db.AddItem(item); err != nil {
+		t.Fatalf("Failed to add item: %v", err)
+	}
 
 	// Get the generated ID
 	itemID := db.Items[0].ID
@@ -547,7 +567,9 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 
 	// Test delete folder with items (should fail)
 	item2 := ItemV2{Title: "Test", FolderPath: "/scripts", DateAdded: testTime, DateUpdated: testTime}
-	db.AddItem(item2)
+	if err := db.AddItem(item2); err != nil {
+		t.Fatalf("Failed to add item2: %v", err)
+	}
 
 	err = db.DeleteFolder("/scripts")
 	if err == nil {
@@ -555,7 +577,9 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 	}
 
 	// Delete item first, then folder
-	db.DeleteItem(db.Items[0].ID)
+	if err := db.DeleteItem(db.Items[0].ID); err != nil {
+		t.Fatalf("Failed to delete item: %v", err)
+	}
 	err = db.DeleteFolder("/scripts")
 	if err != nil {
 		t.Fatalf("Failed to delete empty folder: %v", err)
