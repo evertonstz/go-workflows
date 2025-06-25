@@ -68,6 +68,12 @@ make test-verbose
 # Run tests with race detection
 make test-race
 
+# Run integration tests (Bubble Tea with teatest)
+make test-integration
+
+# Update golden files for integration tests
+make test-integration-update
+
 # Generate HTML coverage report
 make test-cover-html
 ```
@@ -84,13 +90,15 @@ We use the experimental `teatest` package to test the complete Bubble Tea applic
 
 ```bash
 # Run Bubble Tea integration tests
-go test -v -run "TestApp" ./
+make test-integration
 
 # Update golden files when UI changes
+make test-integration-update
+
+# Or use go test directly
+go test -v -run "TestApp" ./
 go test -v -run "TestApp_FullOutput" ./ -update
 ```
-
-For detailed testing information, see [TESTING.md](TESTING.md).
 
 ### CI/CD Pipeline
 

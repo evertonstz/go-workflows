@@ -1,4 +1,4 @@
-.PHONY: build run format lint lint-fix test test-verbose test-cover test-cover-html test-race test-clean help
+.PHONY: build run format lint lint-fix test test-verbose test-integration test-integration-update test-cover test-cover-html test-race test-clean help
 
 VERSION := $(shell git describe --tags --always)
 
@@ -19,6 +19,12 @@ test: ## Run all tests
 
 test-verbose: ## Run tests with verbose output
 	go test -v ./...
+
+test-integration: ## Run Bubble Tea integration tests with teatest
+	go test -v -run "TestApp" ./
+
+test-integration-update: ## Update golden files for integration tests
+	go test -v -run "TestApp_FullOutput" ./ -update
 
 test-cover: ## Run tests with coverage
 	go test -cover ./...
