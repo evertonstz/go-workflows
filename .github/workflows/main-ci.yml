@@ -33,6 +33,48 @@ jobs:
           echo "Running Bubble Tea integration tests..."
           go test -v -run "TestApp" .
 
+      - name: Verify golden files are up to date
+        run: |
+          echo "Verifying golden files are current..."
+          # Save current golden files for comparison
+          cp -r testdata/ testdata-backup/ || true
+          
+          # Run the golden file test with -update to check if files need updating
+          go test -v -run "TestApp_FullOutput" . -update
+          
+          # Check if any files were modified
+          if [ -n "$(git status --porcelain testdata/)" ]; then
+            echo "❌ Golden files are out of date!"
+            echo "Modified files:"
+            git status --porcelain testdata/
+            echo ""
+            echo "Detailed differences:"
+            for file in testdata/*.golden; do
+              if [ -f "testdata-backup/$(basename $file)" ]; then
+                echo "=== Diff for $(basename $file) ==="
+                diff -u "testdata-backup/$(basename $file)" "$file" || true
+                echo ""
+              fi
+            done
+            echo ""
+            echo "This could be due to:"
+            echo "1. UI changes that need golden file updates"
+            echo "2. Environment differences (terminal capabilities, etc.)"
+            echo ""
+            echo "To fix this:"
+            echo "1. Run 'make test-integration-update' locally"
+            echo "2. Review the changes in testdata/"
+            echo "3. If changes are expected, commit them"
+            echo "4. If changes are unexpected, investigate the UI logic"
+            echo ""
+            echo "Current environment info:"
+            echo "TERM: $TERM"
+            echo "COLORTERM: $COLORTERM"
+            echo "CI: $CI"
+            exit 1
+          fi
+          echo "✅ Golden files are up to date"
+
       - name: Generate coverage report
         run: go tool cover -html=coverage.out -o coverage.html
 

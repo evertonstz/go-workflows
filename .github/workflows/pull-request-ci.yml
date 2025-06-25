@@ -58,14 +58,45 @@ jobs:
 
       - name: Verify golden files are up to date
         run: |
-          # Run tests with -update to see if golden files need updating
+          echo "Verifying golden files are current..."
+          # Save current golden files for comparison
+          cp -r testdata/ testdata-backup/ || true
+          
+          # Run the golden file test with -update to check if files need updating
           go test -v -run "TestApp_FullOutput" . -update
+          
           # Check if any files were modified
           if [ -n "$(git status --porcelain testdata/)" ]; then
-            echo "Golden files are out of date. Please run 'go test -v -run TestApp_FullOutput . -update' and commit the changes."
+            echo "❌ Golden files are out of date!"
+            echo "Modified files:"
             git status --porcelain testdata/
+            echo ""
+            echo "Detailed differences:"
+            for file in testdata/*.golden; do
+              if [ -f "testdata-backup/$(basename $file)" ]; then
+                echo "=== Diff for $(basename $file) ==="
+                diff -u "testdata-backup/$(basename $file)" "$file" || true
+                echo ""
+              fi
+            done
+            echo ""
+            echo "This could be due to:"
+            echo "1. UI changes that need golden file updates"
+            echo "2. Environment differences (terminal capabilities, etc.)"
+            echo ""
+            echo "To fix this:"
+            echo "1. Run 'make test-integration-update' locally"
+            echo "2. Review the changes in testdata/"
+            echo "3. If changes are expected, commit them"
+            echo "4. If changes are unexpected, investigate the UI logic"
+            echo ""
+            echo "Current environment info:"
+            echo "TERM: $TERM"
+            echo "COLORTERM: $COLORTERM"
+            echo "CI: $CI"
             exit 1
           fi
+          echo "✅ Golden files are up to date"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
