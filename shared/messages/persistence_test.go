@@ -5,6 +5,7 @@ import (
 
 	"github.com/evertonstz/go-workflows/models"
 )
+
 func TestPersistenceCommands_Direct(t *testing.T) {
 	t.Run("Test message types", func(t *testing.T) {
 		// Test that message types can be created
