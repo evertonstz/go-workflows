@@ -119,9 +119,6 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
@@ -129,10 +126,10 @@ jobs:
 
       - name: Check formatting with goimports
         run: |
-          if [ "$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
+          if [ "$(go tool goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
             echo "Code is not formatted properly:"
             echo "Files that need formatting:"
-            goimports -local github.com/evertonstz/go-workflows -l .
+            go tool goimports -local github.com/evertonstz/go-workflows -l .
             echo "Please run 'make format' to fix formatting."
             exit 1
           fi
@@ -150,11 +147,8 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
-
       - name: Run vulnerability check
-        run: govulncheck ./...
+        run: go tool govulncheck ./...
 
   build-test:
     name: Build Test (Multiple OS)

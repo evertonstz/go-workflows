@@ -48,13 +48,13 @@ test-clean: ## Clean test cache and coverage files
 
 # Code quality
 format: ## Format Go code
-	goimports -local github.com/evertonstz/go-workflows -w .
+	go tool goimports -local github.com/evertonstz/go-workflows -w .
 
 format-check: ## Check if code is formatted correctly
 	@echo "Checking code formatting..."
-	@if [ "$$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then \
+	@if [ "$$(go tool goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then \
 		echo "Code is not formatted correctly. Files that need formatting:"; \
-		goimports -local github.com/evertonstz/go-workflows -l .; \
+		go tool goimports -local github.com/evertonstz/go-workflows -l .; \
 		echo "Please run 'make format' to fix formatting."; \
 		exit 1; \
 	fi
@@ -66,6 +66,9 @@ lint: ## Run golangci-lint
 lint-fix: ## Run golangci-lint with auto-fix
 	golangci-lint run --config=.golangci.yml --fix ./...
 
+vuln-check: ## Check for vulnerabilities
+	go tool govulncheck ./...
+
 # Development workflows
 dev: format test ## Format and test (quick dev workflow)
-ci: format-check lint test-race test-cover ## Full CI pipeline
+ci: format-check lint vuln-check test-race test-cover ## Full CI pipeline

@@ -117,6 +117,7 @@ The project uses GitHub Actions for continuous integration with **native GitHub 
   - **Coverage artifacts**: Downloadable HTML and profile reports (30-day retention)
 
 - **Main Branch CI**: Runs on main branch pushes and daily
+
   - Comprehensive test suite
   - Code formatting validation with `goimports`
   - Dependency vulnerability checks
