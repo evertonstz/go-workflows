@@ -38,7 +38,7 @@ Open your terminal to interact with the TUI and manage your snippets and command
 
 ### Prerequisites
 
-- Go 1.23 or higher
+- Go 1.24.4 or higher
 - Make (for using the Makefile)
 
 ### Building from Source
