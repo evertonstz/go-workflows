@@ -106,7 +106,7 @@ The project uses GitHub Actions for continuous integration:
 
 - **Pull Request CI**: Runs on every PR
 
-  - Linting and formatting checks
+  - Linting and formatting checks (using `goimports`)
   - Complete test suite with race detection
   - Cross-platform builds (Linux, Windows, macOS)
   - Golden file verification
@@ -114,6 +114,7 @@ The project uses GitHub Actions for continuous integration:
 - **Main Branch CI**: Runs on main branch pushes and daily
 
   - Comprehensive test suite
+  - Code formatting validation with `goimports`
   - Security scanning with `gosec`
   - Dependency vulnerability checks
   - Multi-version Go compatibility testing
@@ -126,9 +127,19 @@ The project uses GitHub Actions for continuous integration:
 ### Code Quality
 
 - **Linting**: Uses `golangci-lint` with comprehensive rules
-- **Formatting**: Enforced `gofmt` formatting
+- **Formatting**: Enforced `goimports` formatting with local package prioritization
 - **Security**: Regular `gosec` security scans
 - **Dependencies**: Vulnerability scanning with `govulncheck`
+
+### Make Commands
+
+```bash
+# Code quality
+make format          # Format code with goimports
+make format-check    # Check if code is properly formatted
+make lint           # Run golangci-lint
+make ci             # Run full CI pipeline (format-check, lint, test-race, test-cover)
+```
 
 ## License
 

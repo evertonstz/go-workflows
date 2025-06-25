@@ -1,4 +1,4 @@
-.PHONY: build run format lint lint-fix test test-verbose test-integration test-integration-update test-cover test-cover-html test-race test-clean help
+.PHONY: build run format format-check lint lint-fix test test-verbose test-integration test-integration-update test-cover test-cover-html test-race test-clean help
 
 VERSION := $(shell git describe --tags --always)
 
@@ -45,6 +45,16 @@ test-clean: ## Clean test cache and coverage files
 format: ## Format Go code
 	goimports -local github.com/evertonstz/go-workflows -w .
 
+format-check: ## Check if code is formatted correctly
+	@echo "Checking code formatting..."
+	@if [ "$$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then \
+		echo "Code is not formatted correctly. Files that need formatting:"; \
+		goimports -local github.com/evertonstz/go-workflows -l .; \
+		echo "Please run 'make format' to fix formatting."; \
+		exit 1; \
+	fi
+	@echo "Code formatting is correct ✓"
+
 lint: ## Run golangci-lint
 	golangci-lint run --config=.golangci.yml ./...
 
@@ -53,4 +63,4 @@ lint-fix: ## Run golangci-lint with auto-fix
 
 # Development workflows
 dev: format test ## Format and test (quick dev workflow)
-ci: format lint test-race test-cover ## Full CI pipeline
+ci: format-check lint test-race test-cover ## Full CI pipeline

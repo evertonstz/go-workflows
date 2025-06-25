@@ -17,13 +17,18 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Check formatting
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Check formatting with goimports
         run: |
-          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-            echo "Code is not formatted. Please run 'make format'"
-            gofmt -s -l .
+          if [ "$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted correctly. Please run 'make format'"
+            echo "Files that need formatting:"
+            goimports -local github.com/evertonstz/go-workflows -l .
             exit 1
           fi
+          echo "Code formatting is correct ✓"
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6

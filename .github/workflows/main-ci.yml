@@ -62,16 +62,21 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
 
-      - name: Check formatting
+      - name: Check formatting with goimports
         run: |
-          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          if [ "$(goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
             echo "Code is not formatted properly:"
-            gofmt -s -l .
+            echo "Files that need formatting:"
+            goimports -local github.com/evertonstz/go-workflows -l .
+            echo "Please run 'make format' to fix formatting."
             exit 1
           fi
           echo "Code formatting is correct ✓"
