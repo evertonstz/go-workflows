@@ -83,9 +83,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.TextArea.SetValue(m.currentItem.Command)
 	case shared.DidSetCurrentFolderMsg:
 		m.currentFolder = &msg.Folder
-		// Clear item when folder is set (dates will come from folder)
 		m.currentItem = models.Item{}
-		// Note: folder content should be set separately via SetValue
 	}
 
 	m.TextArea, cmd = m.TextArea.Update(msg)
@@ -98,7 +96,6 @@ func (m Model) View() string {
 	var lastUpdated string
 	var dateAdded string
 
-	// Use folder dates if folder is selected, otherwise use item dates
 	if m.currentFolder != nil {
 		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentFolder.DateAdded))
 		if m.currentFolder.DateAdded == m.currentFolder.DateUpdated {

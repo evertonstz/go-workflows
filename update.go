@@ -29,7 +29,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItemsV2()
 	case shared.DidNavigateToFolderMsg:
-		// Update the screen when navigating folders
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, nil
@@ -55,12 +54,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItemsV2()
 	case shared.DidSetCurrentItemMsg:
-		// Forward to list screen to update right panel
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, nil
 	case shared.DidSetCurrentFolderMsg:
-		// Forward to list screen to update right panel
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, nil
@@ -88,7 +85,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, helpkeys.LisKeys.Quit):
 				return m, tea.Quit
 			case key.Matches(msg, helpkeys.LisKeys.Esc):
-				// Only quit if at root folder
 				if m.listScreen.IsAtRoot() {
 					return m, tea.Quit
 				}

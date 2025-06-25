@@ -20,10 +20,8 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 
 	testTime := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	// Create test database v2
 	db := models.NewDatabaseV2()
 
-	// Add folder
 	folder := models.FolderV2{
 		Name:        "Scripts",
 		Description: "Development scripts",
@@ -37,7 +35,6 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Fatalf("Failed to add folder: %v", err)
 	}
 
-	// Add items
 	item1 := models.ItemV2{
 		Title:       "Test Workflow 1",
 		Desc:        "Description 1",
@@ -67,7 +64,6 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Fatalf("Failed to add item2: %v", err)
 	}
 
-	// Save v2 data
 	err = service.SaveDataV2(db)
 	if err != nil {
 		t.Fatalf("Failed to save v2 data: %v", err)
@@ -77,18 +73,15 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Fatal("Data file was not created")
 	}
 
-	// Load v2 data
 	loadedDb, err := service.LoadDataV2()
 	if err != nil {
 		t.Fatalf("Failed to load v2 data: %v", err)
 	}
 
-	// Verify version
 	if loadedDb.Version != "2.0" {
 		t.Errorf("Expected version '2.0', got %q", loadedDb.Version)
 	}
 
-	// Verify folders
 	if len(loadedDb.Folders) != 1 {
 		t.Fatalf("Expected 1 folder, got %d", len(loadedDb.Folders))
 	}
@@ -101,12 +94,10 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Errorf("Expected folder path %q, got %q", folder.Path, loadedFolder.Path)
 	}
 
-	// Verify items
 	if len(loadedDb.Items) != 2 {
 		t.Fatalf("Expected 2 items, got %d", len(loadedDb.Items))
 	}
 
-	// Find items by title (order might be different)
 	var loadedItem1, loadedItem2 *models.ItemV2
 	for _, item := range loadedDb.Items {
 		if item.Title == "Test Workflow 1" {
@@ -123,7 +114,6 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Fatal("Test Workflow 2 not found")
 	}
 
-	// Verify item1 details
 	if loadedItem1.Command != item1.Command {
 		t.Errorf("Expected command %q, got %q", item1.Command, loadedItem1.Command)
 	}
@@ -214,7 +204,6 @@ func TestPersistenceService_LoadDataBackwardCompatibility(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Create v1 format data
 	testTime := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 	v1Data := models.Items{
 		Items: []models.Item{
@@ -228,13 +217,11 @@ func TestPersistenceService_LoadDataBackwardCompatibility(t *testing.T) {
 		},
 	}
 
-	// Save as v1 format
 	err := service.SaveData(v1Data)
 	if err != nil {
 		t.Fatalf("Failed to save v1 data: %v", err)
 	}
 
-	// Load using v1 method (should work)
 	loadedV1, err := service.LoadData()
 	if err != nil {
 		t.Fatalf("Failed to load v1 data: %v", err)
@@ -244,7 +231,6 @@ func TestPersistenceService_LoadDataBackwardCompatibility(t *testing.T) {
 		t.Errorf("Expected 1 item, got %d", len(loadedV1.Items))
 	}
 
-	// Load using v2 method (should migrate)
 	loadedV2, err := service.LoadDataV2()
 	if err != nil {
 		t.Fatalf("Failed to load v1 data as v2: %v", err)
@@ -276,7 +262,6 @@ func TestPersistenceService_MigrateToV2(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Create v1 format data
 	testTime := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 	v1Data := models.Items{
 		Items: []models.Item{
@@ -290,25 +275,21 @@ func TestPersistenceService_MigrateToV2(t *testing.T) {
 		},
 	}
 
-	// Save as v1 format
 	err := service.SaveData(v1Data)
 	if err != nil {
 		t.Fatalf("Failed to save v1 data: %v", err)
 	}
 
-	// Migrate to v2
 	err = service.MigrateToV2()
 	if err != nil {
 		t.Fatalf("Failed to migrate to v2: %v", err)
 	}
 
-	// Check that backup was created
 	backupPath := testDataFile + ".v1.backup"
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
 		t.Error("Expected backup file to be created")
 	}
 
-	// Verify that the main file is now v2
 	version, err := service.GetDatabaseVersion()
 	if err != nil {
 		t.Fatalf("Failed to get database version: %v", err)
@@ -318,7 +299,6 @@ func TestPersistenceService_MigrateToV2(t *testing.T) {
 		t.Errorf("Expected version '2.0' after migration, got %q", version)
 	}
 
-	// Load and verify migrated data
 	loadedV2, err := service.LoadDataV2()
 	if err != nil {
 		t.Fatalf("Failed to load migrated data: %v", err)
@@ -343,20 +323,17 @@ func TestPersistenceService_MigrateAlreadyV2(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Create v2 format data
 	db := models.NewDatabaseV2()
 	err := service.SaveDataV2(db)
 	if err != nil {
 		t.Fatalf("Failed to save v2 data: %v", err)
 	}
 
-	// Try to migrate (should be no-op)
 	err = service.MigrateToV2()
 	if err != nil {
 		t.Fatalf("Failed to migrate already v2 data: %v", err)
 	}
 
-	// Check that backup was NOT created
 	backupPath := testDataFile + ".v1.backup"
 	if _, err := os.Stat(backupPath); !os.IsNotExist(err) {
 		t.Error("Backup file should not be created for already v2 data")
@@ -372,7 +349,6 @@ func TestPersistenceService_GetDatabaseVersion(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Test non-existent file
 	version, err := service.GetDatabaseVersion()
 	if err != nil {
 		t.Errorf("Unexpected error for non-existent file: %v", err)
@@ -381,7 +357,6 @@ func TestPersistenceService_GetDatabaseVersion(t *testing.T) {
 		t.Errorf("Expected empty version for non-existent file, got %q", version)
 	}
 
-	// Test v1 file
 	v1Data := models.Items{Items: []models.Item{}}
 	err = service.SaveData(v1Data)
 	if err != nil {
@@ -396,7 +371,6 @@ func TestPersistenceService_GetDatabaseVersion(t *testing.T) {
 		t.Errorf("Expected version '1.0' for v1 file, got %q", version)
 	}
 
-	// Test v2 file
 	db := models.NewDatabaseV2()
 	err = service.SaveDataV2(db)
 	if err != nil {
@@ -416,7 +390,6 @@ func TestPersistenceService_LoadDataV2_EmptyFile(t *testing.T) {
 	tempDir := t.TempDir()
 	testDataFile := filepath.Join(tempDir, "empty_v2.json")
 
-	// Create empty file
 	file, err := os.Create(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)

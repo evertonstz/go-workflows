@@ -80,13 +80,11 @@ func (m *Model) showDeleteModal() {
 func (m *Model) InitializeDatabase() {
 	if m.databaseManager != nil {
 		m.navigableList.SetDatabase(m.databaseManager)
-		// Trigger loading the first item's content
 		m.loadInitialContent()
 	}
 }
 
 func (m *Model) loadInitialContent() {
-	// Get the first item and trigger setting it as current
 	currentItem := m.navigableList.CurrentItem()
 	if currentItem == nil {
 		return
@@ -94,7 +92,6 @@ func (m *Model) loadInitialContent() {
 
 	if currentItem.IsFolder() {
 		folder := currentItem.(list.FolderItem).GetFolder()
-		// Set the folder in the text area for proper date display
 		m.textArea.SetCurrentFolder(folder)
 
 		if m.databaseManager != nil {
@@ -114,7 +111,6 @@ func (m *Model) loadInitialContent() {
 			}
 		}
 	} else {
-		// For items, set the command directly since textarea handles DidSetCurrentItemMsg
 		workflowItem := currentItem.(list.WorkflowItem).GetItem()
 		m.textArea.TextArea.SetValue(workflowItem.Command)
 	}

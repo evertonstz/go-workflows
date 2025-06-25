@@ -8,7 +8,6 @@ import (
 	"github.com/evertonstz/go-workflows/models"
 )
 
-// DatabaseManagerV2 provides high-level operations for the v2 database
 type DatabaseManagerV2 struct {
 	persistenceService *PersistenceService
 	database           models.DatabaseV2
@@ -26,10 +25,7 @@ func NewDatabaseManagerV2(persistenceService *PersistenceService) (*DatabaseMana
 	}, nil
 }
 
-// Folder operations
-
 func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) (*models.FolderV2, error) {
-	// Normalize parent path
 	if parentPath == "" {
 		parentPath = "/"
 	}
@@ -37,7 +33,6 @@ func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) 
 		parentPath = "/" + parentPath
 	}
 
-	// Generate folder path
 	var folderPath string
 	if parentPath == "/" {
 		folderPath = "/" + name
@@ -45,14 +40,12 @@ func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) 
 		folderPath = strings.TrimSuffix(parentPath, "/") + "/" + name
 	}
 
-	// Validate parent folder exists (if not root)
 	if parentPath != "/" {
 		if _, found := dm.database.GetFolderByPath(parentPath); !found {
 			return nil, fmt.Errorf("parent folder %s does not exist", parentPath)
 		}
 	}
 
-	// Normalize parent path for storage to match IsChildOf logic
 	normalizedParentPath := parentPath
 	if parentPath == "/" {
 		normalizedParentPath = ""
@@ -76,7 +69,6 @@ func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) 
 		return nil, fmt.Errorf("failed to save after creating folder: %w", err)
 	}
 
-	// Return the folder with generated ID
 	for _, f := range dm.database.Folders {
 		if f.Path == folderPath {
 			return &f, nil
@@ -95,7 +87,6 @@ func (dm *DatabaseManagerV2) GetFolder(path string) (*models.FolderV2, error) {
 }
 
 func (dm *DatabaseManagerV2) GetFolderContents(folderPath string) ([]models.FolderV2, []models.ItemV2, error) {
-	// Verify folder exists (unless it's root)
 	if folderPath != "/" && folderPath != "" {
 		if _, found := dm.database.GetFolderByPath(folderPath); !found {
 			return nil, nil, fmt.Errorf("folder %s does not exist", folderPath)
@@ -113,7 +104,6 @@ func (dm *DatabaseManagerV2) DeleteFolder(path string, force bool) error {
 		return fmt.Errorf("cannot delete root folder")
 	}
 
-	// Check if folder has contents
 	subfolders := dm.database.GetSubfolders(path)
 	items := dm.database.GetItemsByFolder(path)
 
@@ -123,14 +113,12 @@ func (dm *DatabaseManagerV2) DeleteFolder(path string, force bool) error {
 	}
 
 	if force {
-		// Delete all items in the folder
 		for _, item := range items {
 			if err := dm.database.DeleteItem(item.ID); err != nil {
 				return fmt.Errorf("failed to delete item %s: %w", item.ID, err)
 			}
 		}
 
-		// Recursively delete subfolders
 		for _, subfolder := range subfolders {
 			if err := dm.DeleteFolder(subfolder.Path, true); err != nil {
 				return fmt.Errorf("failed to delete subfolder %s: %w", subfolder.Path, err)
@@ -145,15 +133,11 @@ func (dm *DatabaseManagerV2) DeleteFolder(path string, force bool) error {
 	return dm.Save()
 }
 
-// Item operations
-
 func (dm *DatabaseManagerV2) CreateItem(title, description, command, folderPath string, tags []string, metadata map[string]string) (*models.ItemV2, error) {
-	// Normalize folder path
 	if folderPath == "" {
 		folderPath = "/"
 	}
 
-	// Validate folder exists (unless it's root)
 	if folderPath != "/" {
 		if _, found := dm.database.GetFolderByPath(folderPath); !found {
 			return nil, fmt.Errorf("folder %s does not exist", folderPath)
@@ -186,7 +170,6 @@ func (dm *DatabaseManagerV2) CreateItem(title, description, command, folderPath 
 		return nil, fmt.Errorf("failed to save after creating item: %w", err)
 	}
 
-	// Return the item with generated ID
 	for _, i := range dm.database.Items {
 		if i.Title == title && i.FolderPath == folderPath {
 			return &i, nil
@@ -205,13 +188,11 @@ func (dm *DatabaseManagerV2) GetItem(id string) (*models.ItemV2, error) {
 }
 
 func (dm *DatabaseManagerV2) UpdateItem(id string, title, description, command, folderPath string, tags []string, metadata map[string]string) error {
-	// Get current item
 	currentItem, found := dm.database.GetItemByID(id)
 	if !found {
 		return fmt.Errorf("item %s not found", id)
 	}
 
-	// Validate new folder exists (if changing)
 	if folderPath != "" && folderPath != currentItem.FolderPath {
 		if folderPath != "/" {
 			if _, found := dm.database.GetFolderByPath(folderPath); !found {
@@ -220,7 +201,6 @@ func (dm *DatabaseManagerV2) UpdateItem(id string, title, description, command, 
 		}
 	}
 
-	// Create updated item
 	updatedItem := *currentItem
 	if title != "" {
 		updatedItem.Title = title
@@ -257,20 +237,17 @@ func (dm *DatabaseManagerV2) DeleteItem(id string) error {
 }
 
 func (dm *DatabaseManagerV2) MoveItem(id, newFolderPath string) error {
-	// Validate new folder exists
 	if newFolderPath != "/" {
 		if _, found := dm.database.GetFolderByPath(newFolderPath); !found {
 			return fmt.Errorf("destination folder %s does not exist", newFolderPath)
 		}
 	}
 
-	// Get current item
 	currentItem, found := dm.database.GetItemByID(id)
 	if !found {
 		return fmt.Errorf("item %s not found", id)
 	}
 
-	// Update item with new folder path
 	updatedItem := *currentItem
 	updatedItem.FolderPath = newFolderPath
 	updatedItem.DateUpdated = time.Now()
@@ -281,8 +258,6 @@ func (dm *DatabaseManagerV2) MoveItem(id, newFolderPath string) error {
 
 	return dm.Save()
 }
-
-// Search operations
 
 func (dm *DatabaseManagerV2) Search(criteria models.SearchCriteria) models.SearchResult {
 	return dm.database.Search(criteria)
@@ -303,8 +278,6 @@ func (dm *DatabaseManagerV2) SearchByTags(tags []string) models.SearchResult {
 	return dm.database.Search(criteria)
 }
 
-// Database operations
-
 func (dm *DatabaseManagerV2) GetDatabase() models.DatabaseV2 {
 	return dm.database
 }
@@ -323,8 +296,6 @@ func (dm *DatabaseManagerV2) Reload() error {
 	return nil
 }
 
-// Statistics and metadata
-
 func (dm *DatabaseManagerV2) GetStatistics() map[string]interface{} {
 	stats := make(map[string]interface{})
 
@@ -332,14 +303,12 @@ func (dm *DatabaseManagerV2) GetStatistics() map[string]interface{} {
 	stats["total_folders"] = len(dm.database.Folders)
 	stats["total_items"] = len(dm.database.Items)
 
-	// Count items by folder
 	folderCounts := make(map[string]int)
 	for _, item := range dm.database.Items {
 		folderCounts[item.FolderPath]++
 	}
 	stats["items_by_folder"] = folderCounts
 
-	// Count folders by depth
 	depthCounts := make(map[int]int)
 	for _, folder := range dm.database.Folders {
 		depth := folder.GetDepth()
@@ -347,7 +316,6 @@ func (dm *DatabaseManagerV2) GetStatistics() map[string]interface{} {
 	}
 	stats["folders_by_depth"] = depthCounts
 
-	// Collect all tags
 	tagCounts := make(map[string]int)
 	for _, item := range dm.database.Items {
 		for _, tag := range item.Tags {
@@ -362,11 +330,9 @@ func (dm *DatabaseManagerV2) GetStatistics() map[string]interface{} {
 func (dm *DatabaseManagerV2) GetFolderTree() map[string]interface{} {
 	tree := make(map[string]interface{})
 
-	// Build folder hierarchy
 	rootFolders := dm.database.GetSubfolders("/")
 	tree["folders"] = dm.buildFolderTree(rootFolders)
 
-	// Add root items
 	rootItems := dm.database.GetItemsByFolder("/")
 	tree["items"] = rootItems
 
@@ -380,11 +346,9 @@ func (dm *DatabaseManagerV2) buildFolderTree(folders []models.FolderV2) []map[st
 		folderNode := make(map[string]interface{})
 		folderNode["folder"] = folder
 
-		// Get subfolders
 		subfolders := dm.database.GetSubfolders(folder.Path)
 		folderNode["subfolders"] = dm.buildFolderTree(subfolders)
 
-		// Get items in this folder
 		items := dm.database.GetItemsByFolder(folder.Path)
 		folderNode["items"] = items
 
@@ -394,12 +358,9 @@ func (dm *DatabaseManagerV2) buildFolderTree(folders []models.FolderV2) []map[st
 	return tree
 }
 
-// Validation
-
 func (dm *DatabaseManagerV2) ValidateDatabase() []string {
 	var issues []string
 
-	// Check for orphaned items (items in non-existent folders)
 	for _, item := range dm.database.Items {
 		if item.FolderPath != "/" {
 			if _, found := dm.database.GetFolderByPath(item.FolderPath); !found {
@@ -408,7 +369,6 @@ func (dm *DatabaseManagerV2) ValidateDatabase() []string {
 		}
 	}
 
-	// Check for invalid folder hierarchies
 	for _, folder := range dm.database.Folders {
 		if folder.ParentPath != "/" && folder.ParentPath != "" {
 			if _, found := dm.database.GetFolderByPath(folder.ParentPath); !found {
@@ -417,7 +377,6 @@ func (dm *DatabaseManagerV2) ValidateDatabase() []string {
 		}
 	}
 
-	// Check for duplicate folder paths
 	pathCounts := make(map[string]int)
 	for _, folder := range dm.database.Folders {
 		pathCounts[folder.Path]++

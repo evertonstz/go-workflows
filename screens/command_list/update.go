@@ -19,7 +19,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
 	case shared.DidDeleteItemMsg:
-		// Delete item from database
 		if m.databaseManager != nil {
 			currentItem := m.navigableList.CurrentItem()
 			if currentItem != nil && !currentItem.IsFolder() {
@@ -28,15 +27,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					return m, shared.ErrorCmd(err)
 				}
-				// Reload the current folder to update the UI
 				m.navigableList.ReloadCurrentFolder()
 			}
 		}
 		return m, nil
 	case shared.DidAddNewItemMsg:
-		// Add new item to the database
 		if m.databaseManager != nil {
-			// Create the new item in the current folder
 			currentPath := m.navigableList.CurrentPath()
 			_, err := m.databaseManager.CreateItem(
 				msg.Title,
@@ -50,21 +46,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, shared.ErrorCmd(err)
 			}
 
-			// Reload the current folder to show the new item
 			m.navigableList.ReloadCurrentFolder()
 		}
 		return m, nil
 	case shared.DidNavigateToFolderMsg:
-		// Update current folder display
 		return m, nil
 	case shared.DidSetCurrentItemMsg:
-		// The text area component will handle this message itself
-		// Just ensure the right panel is shown
 		m.currentRightPanel = textArea
-		// Don't return early - let the message flow to the text area component
 	case shared.DidSetCurrentFolderMsg:
-		// Update right panel with folder contents
-		// Set the folder in the text area for proper date display
 		m.textArea.SetCurrentFolder(msg.Folder)
 
 		if m.databaseManager != nil {
@@ -93,8 +82,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentRightPanel = textArea
 				return m, nil
 			}
-			// If at root folder, let parent handle ESC (quit app)
-			// If not at root, navigable list will handle going back
 		case key.Matches(msg, helpkeys.LisKeys.Delete):
 			currentItem := m.navigableList.CurrentItem()
 			if currentItem != nil && !currentItem.IsFolder() {
@@ -103,16 +90,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Update navigable list
 	m.navigableList, cmd = m.navigableList.Update(msg)
 	cmds = append(cmds, cmd)
 
-	// Update text area
 	taModel, cmd := m.textArea.Update(msg)
 	m.textArea = taModel.(textarea.Model)
 	cmds = append(cmds, cmd)
 
-	// Update confirmation modal if active
 	if m.currentRightPanel == modal {
 		confirmationModalModel, cmd := m.confirmationModal.Update(msg)
 		m.confirmationModal = confirmationModalModel.(confirmationmodal.Model)

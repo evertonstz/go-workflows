@@ -271,13 +271,11 @@ func TestDatabaseV2_AddFolder(t *testing.T) {
 		t.Error("Expected folder ID to be generated")
 	}
 
-	// Test duplicate path
 	err = db.AddFolder(folder)
 	if err == nil {
 		t.Error("Expected error when adding duplicate folder path")
 	}
 
-	// Test empty path
 	emptyFolder := FolderV2{Name: "Empty"}
 	err = db.AddFolder(emptyFolder)
 	if err == nil {
@@ -288,7 +286,6 @@ func TestDatabaseV2_AddFolder(t *testing.T) {
 func TestDatabaseV2_AddItem(t *testing.T) {
 	db := NewDatabaseV2()
 
-	// Add a folder first
 	folder := FolderV2{
 		Name:        "Scripts",
 		Path:        "/dev/scripts",
@@ -322,7 +319,6 @@ func TestDatabaseV2_AddItem(t *testing.T) {
 		t.Error("Expected item ID to be generated")
 	}
 
-	// Test adding item to non-existent folder
 	invalidItem := ItemV2{
 		Title:       "Invalid",
 		FolderPath:  "/nonexistent",
@@ -339,7 +335,6 @@ func TestDatabaseV2_AddItem(t *testing.T) {
 func TestDatabaseV2_GetItemsByFolder(t *testing.T) {
 	db := NewDatabaseV2()
 
-	// Add folders
 	folder1 := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	folder2 := FolderV2{Name: "Utils", Path: "/utils", DateAdded: time.Now(), DateUpdated: time.Now()}
 	if err := db.AddFolder(folder1); err != nil {
@@ -349,7 +344,6 @@ func TestDatabaseV2_GetItemsByFolder(t *testing.T) {
 		t.Fatalf("Failed to add folder2: %v", err)
 	}
 
-	// Add items
 	item1 := ItemV2{Title: "Script1", FolderPath: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	item2 := ItemV2{Title: "Script2", FolderPath: "/scripts", DateAdded: time.Now(), DateUpdated: time.Now()}
 	item3 := ItemV2{Title: "Util1", FolderPath: "/utils", DateAdded: time.Now(), DateUpdated: time.Now()}
@@ -379,13 +373,11 @@ func TestDatabaseV2_Search(t *testing.T) {
 	db := NewDatabaseV2()
 	testTime := time.Now()
 
-	// Add folders
 	folder := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: testTime, DateUpdated: testTime}
 	if err := db.AddFolder(folder); err != nil {
 		t.Fatalf("Failed to add folder: %v", err)
 	}
 
-	// Add items
 	item1 := ItemV2{
 		Title:       "Test Script",
 		Desc:        "A test script",
@@ -412,19 +404,16 @@ func TestDatabaseV2_Search(t *testing.T) {
 		t.Fatalf("Failed to add item2: %v", err)
 	}
 
-	// Test search by query
 	result := db.Search(SearchCriteria{Query: "test"})
 	if len(result.Items) != 1 {
 		t.Errorf("Expected 1 item with 'test' query, got %d", len(result.Items))
 	}
 
-	// Test search by folder
 	result = db.Search(SearchCriteria{FolderPath: "/scripts"})
 	if len(result.Items) != 2 {
 		t.Errorf("Expected 2 items in /scripts folder, got %d", len(result.Items))
 	}
 
-	// Test search by tag
 	result = db.Search(SearchCriteria{Tags: []string{"deploy"}})
 	if len(result.Items) != 1 {
 		t.Errorf("Expected 1 item with 'deploy' tag, got %d", len(result.Items))
@@ -473,7 +462,6 @@ func TestDatabaseV2_ToV1(t *testing.T) {
 	db := NewDatabaseV2()
 	testTime := time.Now()
 
-	// Add a folder first
 	folder := FolderV2{
 		Name:        "Scripts",
 		Path:        "/scripts",
@@ -516,13 +504,11 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 	db := NewDatabaseV2()
 	testTime := time.Now()
 
-	// Add folder
 	folder := FolderV2{Name: "Scripts", Path: "/scripts", DateAdded: testTime, DateUpdated: testTime}
 	if err := db.AddFolder(folder); err != nil {
 		t.Fatalf("Failed to add folder: %v", err)
 	}
 
-	// Add item
 	item := ItemV2{
 		Title:       "Original Title",
 		Desc:        "Original Description",
@@ -535,10 +521,8 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 		t.Fatalf("Failed to add item: %v", err)
 	}
 
-	// Get the generated ID
 	itemID := db.Items[0].ID
 
-	// Test update
 	updatedItem := item
 	updatedItem.Title = "Updated Title"
 	err := db.UpdateItem(itemID, updatedItem)
@@ -555,7 +539,6 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 		t.Errorf("Expected updated title 'Updated Title', got %q", retrieved.Title)
 	}
 
-	// Test delete
 	err = db.DeleteItem(itemID)
 	if err != nil {
 		t.Fatalf("Failed to delete item: %v", err)
@@ -565,7 +548,6 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 		t.Errorf("Expected 0 items after deletion, got %d", len(db.Items))
 	}
 
-	// Test delete folder with items (should fail)
 	item2 := ItemV2{Title: "Test", FolderPath: "/scripts", DateAdded: testTime, DateUpdated: testTime}
 	if err := db.AddItem(item2); err != nil {
 		t.Fatalf("Failed to add item2: %v", err)
@@ -576,7 +558,6 @@ func TestDatabaseV2_UpdateAndDelete(t *testing.T) {
 		t.Error("Expected error when deleting folder with items")
 	}
 
-	// Delete item first, then folder
 	if err := db.DeleteItem(db.Items[0].ID); err != nil {
 		t.Fatalf("Failed to delete item: %v", err)
 	}

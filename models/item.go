@@ -17,7 +17,6 @@ type (
 		Items []Item
 	}
 
-	// V2 Database structures with folder support
 	ItemV2 struct {
 		ID          string            `json:"id"`
 		Title       string            `json:"title"`
@@ -47,7 +46,6 @@ type (
 		Items   []ItemV2   `json:"items"`
 	}
 
-	// Search and filter structures
 	SearchCriteria struct {
 		Query      string     `json:"query,omitempty"`
 		FolderPath string     `json:"folder_path,omitempty"`
@@ -63,7 +61,6 @@ type (
 	}
 )
 
-// ItemV2 methods
 func (i *ItemV2) GenerateID() {
 	if i.ID == "" {
 		i.ID = fmt.Sprintf("item_%d", time.Now().UnixNano())
@@ -78,7 +75,6 @@ func (i ItemV2) GetFullPath() string {
 }
 
 func (i ItemV2) MatchesSearch(criteria SearchCriteria) bool {
-	// Search in title, description, and command
 	if criteria.Query != "" {
 		query := strings.ToLower(criteria.Query)
 		if !strings.Contains(strings.ToLower(i.Title), query) &&
@@ -88,12 +84,10 @@ func (i ItemV2) MatchesSearch(criteria SearchCriteria) bool {
 		}
 	}
 
-	// Filter by folder path
 	if criteria.FolderPath != "" && i.FolderPath != criteria.FolderPath {
 		return false
 	}
 
-	// Filter by tags
 	if len(criteria.Tags) > 0 {
 		hasTag := false
 		for _, tag := range criteria.Tags {
@@ -112,7 +106,6 @@ func (i ItemV2) MatchesSearch(criteria SearchCriteria) bool {
 		}
 	}
 
-	// Filter by date range
 	if criteria.DateFrom != nil && i.DateAdded.Before(*criteria.DateFrom) {
 		return false
 	}
@@ -123,7 +116,6 @@ func (i ItemV2) MatchesSearch(criteria SearchCriteria) bool {
 	return true
 }
 
-// FolderV2 methods
 func (f *FolderV2) GenerateID() {
 	if f.ID == "" {
 		f.ID = fmt.Sprintf("folder_%d", time.Now().UnixNano())
@@ -159,7 +151,6 @@ func (f FolderV2) MatchesSearch(criteria SearchCriteria) bool {
 	return true
 }
 
-// DatabaseV2 methods
 func NewDatabaseV2() DatabaseV2 {
 	return DatabaseV2{
 		Version: "2.0",
@@ -169,15 +160,12 @@ func NewDatabaseV2() DatabaseV2 {
 }
 
 func (db *DatabaseV2) AddFolder(folder FolderV2) error {
-	// Ensure ID is set
 	folder.GenerateID()
 
-	// Validate folder path
 	if folder.Path == "" {
 		return fmt.Errorf("folder path cannot be empty")
 	}
 
-	// Check for duplicate paths
 	for _, existingFolder := range db.Folders {
 		if existingFolder.Path == folder.Path {
 			return fmt.Errorf("folder with path %s already exists", folder.Path)
@@ -189,10 +177,8 @@ func (db *DatabaseV2) AddFolder(folder FolderV2) error {
 }
 
 func (db *DatabaseV2) AddItem(item ItemV2) error {
-	// Ensure ID is set
 	item.GenerateID()
 
-	// Validate that folder exists if specified
 	if item.FolderPath != "" && item.FolderPath != "/" {
 		found := false
 		for _, folder := range db.Folders {
@@ -234,14 +220,12 @@ func (db DatabaseV2) Search(criteria SearchCriteria) SearchResult {
 	var matchingItems []ItemV2
 	var matchingFolders []FolderV2
 
-	// Search items
 	for _, item := range db.Items {
 		if item.MatchesSearch(criteria) {
 			matchingItems = append(matchingItems, item)
 		}
 	}
 
-	// Search folders
 	for _, folder := range db.Folders {
 		if folder.MatchesSearch(criteria) {
 			matchingFolders = append(matchingFolders, folder)
@@ -296,19 +280,16 @@ func (db *DatabaseV2) DeleteItem(id string) error {
 }
 
 func (db *DatabaseV2) DeleteFolder(path string) error {
-	// Check if folder has items
 	items := db.GetItemsByFolder(path)
 	if len(items) > 0 {
 		return fmt.Errorf("cannot delete folder %s: contains %d items", path, len(items))
 	}
 
-	// Check if folder has subfolders
 	subfolders := db.GetSubfolders(path)
 	if len(subfolders) > 0 {
 		return fmt.Errorf("cannot delete folder %s: contains %d subfolders", path, len(subfolders))
 	}
 
-	// Delete the folder
 	for i, folder := range db.Folders {
 		if folder.Path == path {
 			db.Folders = append(db.Folders[:i], db.Folders[i+1:]...)
@@ -318,7 +299,6 @@ func (db *DatabaseV2) DeleteFolder(path string) error {
 	return fmt.Errorf("folder with path %s not found", path)
 }
 
-// Migration functions for backward compatibility
 func MigrateV1ToV2(v1Data Items) DatabaseV2 {
 	db := NewDatabaseV2()
 

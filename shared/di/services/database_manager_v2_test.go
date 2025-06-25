@@ -18,7 +18,6 @@ func TestDatabaseManagerV2_CreateFolder(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Initialize with empty v2 database
 	err := persistence.SaveDataV2(models.NewDatabaseV2())
 	if err != nil {
 		t.Fatalf("Failed to initialize database: %v", err)
@@ -29,7 +28,6 @@ func TestDatabaseManagerV2_CreateFolder(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create root level folder
 	folder, err := manager.CreateFolder("scripts", "Development scripts", "/")
 	if err != nil {
 		t.Fatalf("Failed to create folder: %v", err)
@@ -47,7 +45,6 @@ func TestDatabaseManagerV2_CreateFolder(t *testing.T) {
 		t.Error("Expected folder ID to be generated")
 	}
 
-	// Create subfolder
 	subfolder, err := manager.CreateFolder("utils", "Utility scripts", "/scripts")
 	if err != nil {
 		t.Fatalf("Failed to create subfolder: %v", err)
@@ -61,7 +58,6 @@ func TestDatabaseManagerV2_CreateFolder(t *testing.T) {
 		t.Errorf("Expected parent path '/scripts', got %q", subfolder.ParentPath)
 	}
 
-	// Test creating folder with non-existent parent
 	_, err = manager.CreateFolder("invalid", "Invalid folder", "/nonexistent")
 	if err == nil {
 		t.Error("Expected error when creating folder with non-existent parent")
@@ -77,7 +73,6 @@ func TestDatabaseManagerV2_CreateItem(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Initialize with empty v2 database
 	err := persistence.SaveDataV2(models.NewDatabaseV2())
 	if err != nil {
 		t.Fatalf("Failed to initialize database: %v", err)
@@ -88,13 +83,11 @@ func TestDatabaseManagerV2_CreateItem(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create folder first
 	_, err = manager.CreateFolder("scripts", "Scripts folder", "/")
 	if err != nil {
 		t.Fatalf("Failed to create folder: %v", err)
 	}
 
-	// Create item in root
 	rootItem, err := manager.CreateItem(
 		"Root Script",
 		"A script in root",
@@ -119,7 +112,6 @@ func TestDatabaseManagerV2_CreateItem(t *testing.T) {
 		t.Errorf("Expected metadata author 'test', got %q", rootItem.Metadata["author"])
 	}
 
-	// Create item in subfolder
 	subItem, err := manager.CreateItem(
 		"Sub Script",
 		"A script in subfolder",
@@ -136,7 +128,6 @@ func TestDatabaseManagerV2_CreateItem(t *testing.T) {
 		t.Errorf("Expected folder path '/scripts', got %q", subItem.FolderPath)
 	}
 
-	// Test creating item in non-existent folder
 	_, err = manager.CreateItem("Invalid", "Invalid item", "echo invalid", "/nonexistent", nil, nil)
 	if err == nil {
 		t.Error("Expected error when creating item in non-existent folder")
@@ -162,7 +153,6 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create folder structure
 	_, err = manager.CreateFolder("dev", "Development", "/")
 	if err != nil {
 		t.Fatalf("Failed to create dev folder: %v", err)
@@ -178,7 +168,6 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Fatalf("Failed to create tools folder: %v", err)
 	}
 
-	// Create items
 	_, err = manager.CreateItem("Root Item", "Root item", "echo root", "/", nil, nil)
 	if err != nil {
 		t.Fatalf("Failed to create root item: %v", err)
@@ -194,7 +183,6 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Fatalf("Failed to create script item: %v", err)
 	}
 
-	// Test root contents
 	subfolders, items, err := manager.GetFolderContents("/")
 	if err != nil {
 		t.Fatalf("Failed to get root contents: %v", err)
@@ -208,7 +196,6 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Errorf("Expected 1 item in root, got %d", len(items))
 	}
 
-	// Test dev folder contents
 	subfolders, items, err = manager.GetFolderContents("/dev")
 	if err != nil {
 		t.Fatalf("Failed to get dev contents: %v", err)
@@ -222,7 +209,6 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Errorf("Expected 1 item in /dev, got %d", len(items))
 	}
 
-	// Test scripts folder contents
 	subfolders, items, err = manager.GetFolderContents("/dev/scripts")
 	if err != nil {
 		t.Fatalf("Failed to get scripts contents: %v", err)
@@ -256,19 +242,16 @@ func TestDatabaseManagerV2_UpdateItem(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create folders
 	_, err = manager.CreateFolder("scripts", "Scripts", "/")
 	if err != nil {
 		t.Fatalf("Failed to create folder: %v", err)
 	}
 
-	// Create item
 	item, err := manager.CreateItem("Original", "Original desc", "echo original", "/", []string{"old"}, map[string]string{"version": "1"})
 	if err != nil {
 		t.Fatalf("Failed to create item: %v", err)
 	}
 
-	// Update item
 	err = manager.UpdateItem(
 		item.ID,
 		"Updated Title",
@@ -282,7 +265,6 @@ func TestDatabaseManagerV2_UpdateItem(t *testing.T) {
 		t.Fatalf("Failed to update item: %v", err)
 	}
 
-	// Verify update
 	updatedItem, err := manager.GetItem(item.ID)
 	if err != nil {
 		t.Fatalf("Failed to get updated item: %v", err)
@@ -324,7 +306,6 @@ func TestDatabaseManagerV2_Search(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create test data
 	_, err = manager.CreateFolder("scripts", "Scripts folder", "/")
 	if err != nil {
 		t.Fatalf("Failed to create folder: %v", err)
@@ -344,26 +325,21 @@ func TestDatabaseManagerV2_Search(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create backup item: %v", err)
 	}
-
-	// Test search by query
 	result := manager.Search(models.SearchCriteria{Query: "test"})
 	if len(result.Items) != 1 {
 		t.Errorf("Expected 1 item with 'test' query, got %d", len(result.Items))
 	}
 
-	// Test search in folder
 	result = manager.SearchInFolder("/scripts", "")
 	if len(result.Items) != 2 {
 		t.Errorf("Expected 2 items in /scripts folder, got %d", len(result.Items))
 	}
 
-	// Test search by tags
 	result = manager.SearchByTags([]string{"deploy"})
 	if len(result.Items) != 1 {
 		t.Errorf("Expected 1 item with 'deploy' tag, got %d", len(result.Items))
 	}
 
-	// Test search by folder in criteria
 	result = manager.Search(models.SearchCriteria{FolderPath: "/"})
 	if len(result.Items) != 1 {
 		t.Errorf("Expected 1 item in root folder, got %d", len(result.Items))
@@ -389,7 +365,6 @@ func TestDatabaseManagerV2_DeleteFolder(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create folder structure
 	_, err = manager.CreateFolder("temp", "Temporary folder", "/")
 	if err != nil {
 		t.Fatalf("Failed to create temp folder: %v", err)
@@ -405,25 +380,21 @@ func TestDatabaseManagerV2_DeleteFolder(t *testing.T) {
 		t.Fatalf("Failed to create temp item: %v", err)
 	}
 
-	// Test delete non-empty folder without force (should fail)
 	err = manager.DeleteFolder("/temp", false)
 	if err == nil {
 		t.Error("Expected error when deleting non-empty folder without force")
 	}
 
-	// Test delete with force (should succeed)
 	err = manager.DeleteFolder("/temp", true)
 	if err != nil {
 		t.Fatalf("Failed to delete folder with force: %v", err)
 	}
 
-	// Verify folder is deleted
 	_, err = manager.GetFolder("/temp")
 	if err == nil {
 		t.Error("Expected error when getting deleted folder")
 	}
 
-	// Verify items are deleted
 	db := manager.GetDatabase()
 	for _, item := range db.Items {
 		if item.FolderPath == "/temp" {
@@ -451,7 +422,6 @@ func TestDatabaseManagerV2_MoveItem(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create folders
 	_, err = manager.CreateFolder("source", "Source folder", "/")
 	if err != nil {
 		t.Fatalf("Failed to create source folder: %v", err)
@@ -462,19 +432,16 @@ func TestDatabaseManagerV2_MoveItem(t *testing.T) {
 		t.Fatalf("Failed to create destination folder: %v", err)
 	}
 
-	// Create item in source folder
 	item, err := manager.CreateItem("Movable Item", "Item to move", "echo move", "/source", nil, nil)
 	if err != nil {
 		t.Fatalf("Failed to create item: %v", err)
 	}
 
-	// Move item to destination
 	err = manager.MoveItem(item.ID, "/destination")
 	if err != nil {
 		t.Fatalf("Failed to move item: %v", err)
 	}
 
-	// Verify item is moved
 	movedItem, err := manager.GetItem(item.ID)
 	if err != nil {
 		t.Fatalf("Failed to get moved item: %v", err)
@@ -484,7 +451,6 @@ func TestDatabaseManagerV2_MoveItem(t *testing.T) {
 		t.Errorf("Expected folder path '/destination', got %q", movedItem.FolderPath)
 	}
 
-	// Verify source folder is empty
 	_, sourceItems, err := manager.GetFolderContents("/source")
 	if err != nil {
 		t.Fatalf("Failed to get source folder contents: %v", err)
@@ -494,7 +460,6 @@ func TestDatabaseManagerV2_MoveItem(t *testing.T) {
 		t.Errorf("Expected 0 items in source folder, got %d", len(sourceItems))
 	}
 
-	// Verify destination folder has the item
 	_, destItems, err := manager.GetFolderContents("/destination")
 	if err != nil {
 		t.Fatalf("Failed to get destination folder contents: %v", err)
@@ -524,7 +489,6 @@ func TestDatabaseManagerV2_GetStatistics(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Create test data
 	_, err = manager.CreateFolder("dev", "Development", "/")
 	if err != nil {
 		t.Fatalf("Failed to create dev folder: %v", err)
@@ -550,10 +514,8 @@ func TestDatabaseManagerV2_GetStatistics(t *testing.T) {
 		t.Fatalf("Failed to create item3: %v", err)
 	}
 
-	// Get statistics
 	stats := manager.GetStatistics()
 
-	// Verify statistics
 	if stats["version"] != "2.0" {
 		t.Errorf("Expected version '2.0', got %v", stats["version"])
 	}
@@ -566,7 +528,6 @@ func TestDatabaseManagerV2_GetStatistics(t *testing.T) {
 		t.Errorf("Expected 3 items, got %v", stats["total_items"])
 	}
 
-	// Check items by folder
 	itemsByFolder := stats["items_by_folder"].(map[string]int)
 	if itemsByFolder["/"] != 1 {
 		t.Errorf("Expected 1 item in root, got %d", itemsByFolder["/"])
@@ -578,7 +539,6 @@ func TestDatabaseManagerV2_GetStatistics(t *testing.T) {
 		t.Errorf("Expected 1 item in /dev/scripts, got %d", itemsByFolder["/dev/scripts"])
 	}
 
-	// Check tag usage
 	tagUsage := stats["tag_usage"].(map[string]int)
 	if tagUsage["common"] != 2 {
 		t.Errorf("Expected tag 'common' used 2 times, got %d", tagUsage["common"])
@@ -597,10 +557,8 @@ func TestDatabaseManagerV2_ValidateDatabase(t *testing.T) {
 		appName:      "test-app",
 	}
 
-	// Create invalid database with orphaned items
 	db := models.NewDatabaseV2()
 
-	// Add item without folder
 	item := models.ItemV2{
 		Title:       "Orphaned Item",
 		Desc:        "Item in non-existent folder",
@@ -622,14 +580,12 @@ func TestDatabaseManagerV2_ValidateDatabase(t *testing.T) {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
 
-	// Validate database
 	issues := manager.ValidateDatabase()
 
 	if len(issues) == 0 {
 		t.Error("Expected validation issues but found none")
 	}
 
-	// Check for orphaned item issue
 	found := false
 	for _, issue := range issues {
 		if strings.Contains(issue, "Orphaned Item") && strings.Contains(issue, "non-existent folder") {

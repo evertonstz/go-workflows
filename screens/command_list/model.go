@@ -69,11 +69,9 @@ func New() Model {
 		return modal
 	}
 
-	// Initialize database manager
 	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
 	databaseManager, err := services.NewDatabaseManagerV2(persistence)
 	if err != nil {
-		// Fallback to empty database if creation fails
 		databaseManager = nil
 	}
 

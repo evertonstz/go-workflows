@@ -18,7 +18,6 @@ type (
 		Items models.Items
 	}
 
-	// V2 specific messages
 	LoadedDataFileV2Msg struct {
 		Database models.DatabaseV2
 	}
@@ -27,7 +26,6 @@ type (
 
 	PersistedFileV2Msg struct{}
 
-	// Migration messages
 	MigrationCompletedMsg struct {
 		FromVersion string
 		ToVersion   string
@@ -101,13 +99,11 @@ func MigrateToV2Cmd() tea.Cmd {
 	return func() tea.Msg {
 		persistenceService := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
 
-		// Get current version
 		currentVersion, err := persistenceService.GetDatabaseVersion()
 		if err != nil {
 			return shared.ErrorMsg{Err: err}
 		}
 
-		// Perform migration
 		if err := persistenceService.MigrateToV2(); err != nil {
 			return shared.ErrorMsg{Err: err}
 		}
