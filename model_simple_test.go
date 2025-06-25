@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// Test pure functions and simple model methods - these are easily testable
 func TestModelHelpers_IsSmallWidth(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -24,13 +23,12 @@ func TestModelHelpers_IsSmallWidth(t *testing.T) {
 		{
 			name:     "Borderline width - 80",
 			width:    80,
-			expected: true, // Assuming threshold around 80
+			expected: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create minimal model with just the required field
 			testModel := model{
 				termDimensions: termDimensions{width: tt.width},
 			}
@@ -43,7 +41,6 @@ func TestModelHelpers_IsSmallWidth(t *testing.T) {
 	}
 }
 
-// Test termDimensions struct
 func TestTermDimensions(t *testing.T) {
 	dimensions := termDimensions{
 		width:  100,
@@ -58,7 +55,6 @@ func TestTermDimensions(t *testing.T) {
 	}
 }
 
-// Test screenState constants
 func TestScreenStateConstants(t *testing.T) {
 	if addNew != 0 {
 		t.Errorf("Expected addNew to be 0, got %d", addNew)
