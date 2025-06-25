@@ -54,6 +54,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItemsV2()
+	case shared.DidSetCurrentItemMsg:
+		// Forward to list screen to update right panel
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
+	case shared.DidSetCurrentFolderMsg:
+		// Forward to list screen to update right panel
+		updatedListModel, _ := m.listScreen.Update(msg)
+		m.listScreen = updatedListModel.(commandlist.Model)
+		return m, nil
 
 	case tea.KeyMsg:
 		switch m.screenState {

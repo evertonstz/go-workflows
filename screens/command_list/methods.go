@@ -71,15 +71,50 @@ func (m *Model) SetSize(width, height int, smallWidth bool) {
 }
 
 func (m *Model) showDeleteModal() {
-	m.confirmationModal =
-		m.deleteConfirmationModalBuilder(
-			tea.Batch(shared.DeleteCurrentItemCmd(m.navigableList.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
-			shared.CloseConfirmationModalCmd())
+	m.confirmationModal = m.deleteConfirmationModalBuilder(
+		tea.Batch(shared.DeleteCurrentItemCmd(m.navigableList.CurrentItemIndex()), shared.CloseConfirmationModalCmd()),
+		shared.CloseConfirmationModalCmd())
 	m.currentRightPanel = modal
 }
 
 func (m *Model) InitializeDatabase() {
 	if m.databaseManager != nil {
 		m.navigableList.SetDatabase(m.databaseManager)
+		// Trigger loading the first item's content
+		m.loadInitialContent()
+	}
+}
+
+func (m *Model) loadInitialContent() {
+	// Get the first item and trigger setting it as current
+	currentItem := m.navigableList.CurrentItem()
+	if currentItem == nil {
+		return
+	}
+
+	if currentItem.IsFolder() {
+		folder := currentItem.(list.FolderItem).GetFolder()
+		// We need to send the message through the update system
+		// For now, let's set the content directly
+		if m.databaseManager != nil {
+			subfolders, items, err := m.databaseManager.GetFolderContents(folder.Path)
+			if err != nil {
+				m.textArea.TextArea.SetValue("Error loading folder contents: " + err.Error())
+			} else {
+				content := "📁 " + folder.Name + "\n" + folder.Description + "\n\n"
+				content += "Contents:\n"
+				for _, subfolder := range subfolders {
+					content += "📁 " + subfolder.Name + " - " + subfolder.Description + "\n"
+				}
+				for _, item := range items {
+					content += "📄 " + item.Title + " - " + item.Desc + "\n"
+				}
+				m.textArea.TextArea.SetValue(content)
+			}
+		}
+	} else {
+		// For items, set the command directly since textarea handles DidSetCurrentItemMsg
+		workflowItem := currentItem.(list.WorkflowItem).GetItem()
+		m.textArea.TextArea.SetValue(workflowItem.Command)
 	}
 }

@@ -20,6 +20,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case shared.DidNavigateToFolderMsg:
 		// Update current folder display
 		return m, nil
+	case shared.DidSetCurrentItemMsg:
+		// The text area component will handle this message itself
+		// Just ensure the right panel is shown
+		m.currentRightPanel = textArea
+		return m, nil
+	case shared.DidSetCurrentFolderMsg:
+		// Update right panel with folder contents
+		if m.databaseManager != nil {
+			subfolders, items, err := m.databaseManager.GetFolderContents(msg.Folder.Path)
+			if err != nil {
+				m.textArea.TextArea.SetValue("Error loading folder contents: " + err.Error())
+			} else {
+				content := "📁 " + msg.Folder.Name + "\n" + msg.Folder.Description + "\n\n"
+				content += "Contents:\n"
+				for _, folder := range subfolders {
+					content += "📁 " + folder.Name + " - " + folder.Description + "\n"
+				}
+				for _, item := range items {
+					content += "📄 " + item.Title + " - " + item.Desc + "\n"
+				}
+				m.textArea.TextArea.SetValue(content)
+			}
+		}
+		m.currentRightPanel = textArea
+		return m, nil
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, helpkeys.LisKeys.Esc):

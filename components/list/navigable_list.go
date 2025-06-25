@@ -16,10 +16,10 @@ type FolderItem struct {
 	folder models.FolderV2
 }
 
-func (f FolderItem) Title() string       { return "📁 " + f.folder.Name }
-func (f FolderItem) Description() string { return f.folder.Description }
-func (f FolderItem) FilterValue() string { return f.folder.Name }
-func (f FolderItem) IsFolder() bool      { return true }
+func (f FolderItem) Title() string              { return "📁 " + f.folder.Name }
+func (f FolderItem) Description() string        { return f.folder.Description }
+func (f FolderItem) FilterValue() string        { return f.folder.Name }
+func (f FolderItem) IsFolder() bool             { return true }
 func (f FolderItem) GetFolder() models.FolderV2 { return f.folder }
 
 // WorkflowItem represents a workflow item in the list
@@ -27,10 +27,10 @@ type WorkflowItem struct {
 	item models.ItemV2
 }
 
-func (w WorkflowItem) Title() string       { return "📄 " + w.item.Title }
-func (w WorkflowItem) Description() string { return w.item.Desc }
-func (w WorkflowItem) FilterValue() string { return w.item.Title }
-func (w WorkflowItem) IsFolder() bool      { return false }
+func (w WorkflowItem) Title() string          { return "📄 " + w.item.Title }
+func (w WorkflowItem) Description() string    { return w.item.Desc }
+func (w WorkflowItem) FilterValue() string    { return w.item.Title }
+func (w WorkflowItem) IsFolder() bool         { return false }
 func (w WorkflowItem) GetItem() models.ItemV2 { return w.item }
 
 // ListItemInterface defines the common interface for both folders and items
@@ -95,6 +95,8 @@ func (m *NavigableModel) SetSize(width, height int) {
 func (m *NavigableModel) SetDatabase(db *services.DatabaseManagerV2) {
 	m.database = db
 	m.loadFolderContents(m.currentPath)
+	// Initialize with the first item selected
+	m.lastSelectedIdx = 0
 }
 
 func (m *NavigableModel) loadFolderContents(folderPath string) {
@@ -129,7 +131,7 @@ func (m *NavigableModel) loadFolderContents(folderPath string) {
 func (m *NavigableModel) NavigateToFolder(folderPath string) tea.Cmd {
 	m.currentPath = folderPath
 	m.loadFolderContents(folderPath)
-	
+
 	return shared.NavigatedToFolderCmd(folderPath)
 }
 
@@ -251,18 +253,18 @@ func (m NavigableModel) View() string {
 
 func NewNavigable() NavigableModel {
 	delegate := list.NewDefaultDelegate()
-	
+
 	// Customize the delegate to show folders and items differently
 	delegate.ShowDescription = true
-	
+
 	m := NavigableModel{
 		list:        list.New([]list.Item{}, delegate, 0, 0),
 		currentPath: "/",
 	}
-	
+
 	m.list.SetShowTitle(false)
 	m.list.SetShowHelp(false)
 	m.Init()
-	
+
 	return m
 }
