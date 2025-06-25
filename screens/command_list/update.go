@@ -6,6 +6,7 @@ import (
 
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
 	helpkeys "github.com/evertonstz/go-workflows/components/keys"
+	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared"
 )
@@ -17,6 +18,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case shared.DidCloseConfirmationModalMsg:
 		m.currentRightPanel = textArea
+	case shared.DidDeleteItemMsg:
+		// Delete item from database
+		if m.databaseManager != nil {
+			currentItem := m.navigableList.CurrentItem()
+			if currentItem != nil && !currentItem.IsFolder() {
+				workflowItem := currentItem.(list.WorkflowItem).GetItem()
+				err := m.databaseManager.DeleteItem(workflowItem.ID)
+				if err != nil {
+					return m, shared.ErrorCmd(err)
+				}
+				// Reload the current folder to update the UI
+				m.navigableList.ReloadCurrentFolder()
+			}
+		}
+		return m, nil
 	case shared.DidAddNewItemMsg:
 		// Add new item to the database
 		if m.databaseManager != nil {
