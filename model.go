@@ -38,6 +38,7 @@ type (
 		addNewScreen      addnew.Model
 		listScreen        commandlist.Model
 		persistPath       string
+		currentPath       string
 		notification      notification.Model
 		termDimensions    termDimensions
 		currentHelpHeight int
@@ -64,6 +65,7 @@ func new() model {
 		help:              help.New(),
 		addNewScreen:      addnew.New(),
 		listScreen:        listScreen,
+		currentPath:       "/",
 		notification:      notification.New("Workflows"),
 		panelsStyle: panelsStyle{
 			helpPanelStyle:         helpPanelStyle,

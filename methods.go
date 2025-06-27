@@ -17,6 +17,13 @@ const (
 	smallWidthThreshold = 100
 )
 
+func (m model) getNotificationTitle() string {
+	if m.currentPath == "/" {
+		return "Workflows"
+	}
+	return m.currentPath
+}
+
 func (m model) getHelpKeys() help.KeyMap {
 	if m.screenState == addNew {
 		return helpkeys.AddNewKeys
