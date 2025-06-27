@@ -71,6 +71,10 @@ func (m Model) View() string {
 	return style.SetString(m.Text).Render()
 }
 
+func (m *Model) SetDefaultText(text string) {
+	m.defaultText = text
+}
+
 type timerMsg struct{}
 
 func startTimer(duration time.Duration, done chan struct{}) tea.Cmd {

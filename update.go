@@ -29,6 +29,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, m.persistItemsV2()
 	case shared.DidNavigateToFolderMsg:
+		m.currentPath = msg.Path
+		m.notification.SetDefaultText(m.getNotificationTitle())
 		updatedListModel, _ := m.listScreen.Update(msg)
 		m.listScreen = updatedListModel.(commandlist.Model)
 		return m, nil
