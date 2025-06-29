@@ -65,7 +65,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
+		if key.Matches(msg, m.listScreen.Keys.Quit) {
 			return m, tea.Quit
 		}
 
@@ -84,10 +84,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, helpkeys.LisKeys.AddNewWorkflow):
 				m.screenState = addNew
 				return m, nil
-			case key.Matches(msg, helpkeys.LisKeys.Help):
+			case key.Matches(msg, m.listScreen.Keys.Help):
 				m.toggleHelpShowAll()
 				return m, nil
-			case key.Matches(msg, helpkeys.LisKeys.Esc):
+			case key.Matches(msg, m.listScreen.Keys.Esc):
 				if m.listScreen.IsAtRoot() {
 					return m, tea.Quit
 				}
