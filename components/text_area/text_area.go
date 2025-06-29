@@ -91,21 +91,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-// TODO: remove legacy code
 func (m Model) View() string {
+	// TODO: remove legacy code
 	var lastUpdated string
 	var dateAdded string
 
 	if m.currentFolder != nil {
 		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentFolder.DateAdded))
-		if m.currentFolder.DateAdded == m.currentFolder.DateUpdated {
+		if m.currentFolder.DateAdded.Equal(m.currentFolder.DateUpdated) {
 			lastUpdated = "Updated: never"
 		} else {
 			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentFolder.DateUpdated))
 		}
 	} else {
 		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentItem.DateAdded))
-		if m.currentItem.DateAdded == m.currentItem.DateUpdated {
+		if m.currentItem.DateAdded.Equal(m.currentItem.DateUpdated) {
 			lastUpdated = "Updated: never"
 		} else {
 			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentItem.DateUpdated))

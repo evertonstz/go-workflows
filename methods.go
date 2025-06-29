@@ -17,7 +17,7 @@ const (
 	smallWidthThreshold = 100
 )
 
-func (m model) getNotificationTitle() string {
+func (m model) notificationTitle() string {
 	if m.currentPath == "/" {
 		return "Workflows"
 	}

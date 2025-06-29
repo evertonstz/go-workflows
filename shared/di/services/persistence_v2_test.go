@@ -73,20 +73,20 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Fatal("Data file was not created")
 	}
 
-	loadedDb, err := service.LoadDataV2()
+	loadedDB, err := service.LoadDataV2()
 	if err != nil {
 		t.Fatalf("Failed to load v2 data: %v", err)
 	}
 
-	if loadedDb.Version != "2.0" {
-		t.Errorf("Expected version '2.0', got %q", loadedDb.Version)
+	if loadedDB.Version != "2.0" {
+		t.Errorf("Expected version '2.0', got %q", loadedDB.Version)
 	}
 
-	if len(loadedDb.Folders) != 1 {
-		t.Fatalf("Expected 1 folder, got %d", len(loadedDb.Folders))
+	if len(loadedDB.Folders) != 1 {
+		t.Fatalf("Expected 1 folder, got %d", len(loadedDB.Folders))
 	}
 
-	loadedFolder := loadedDb.Folders[0]
+	loadedFolder := loadedDB.Folders[0]
 	if loadedFolder.Name != folder.Name {
 		t.Errorf("Expected folder name %q, got %q", folder.Name, loadedFolder.Name)
 	}
@@ -94,15 +94,16 @@ func TestPersistenceService_SaveAndLoadDataV2(t *testing.T) {
 		t.Errorf("Expected folder path %q, got %q", folder.Path, loadedFolder.Path)
 	}
 
-	if len(loadedDb.Items) != 2 {
-		t.Fatalf("Expected 2 items, got %d", len(loadedDb.Items))
+	if len(loadedDB.Items) != 2 {
+		t.Fatalf("Expected 2 items, got %d", len(loadedDB.Items))
 	}
 
 	var loadedItem1, loadedItem2 *models.ItemV2
-	for _, item := range loadedDb.Items {
-		if item.Title == "Test Workflow 1" {
+	for _, item := range loadedDB.Items {
+		switch item.Title {
+		case "Test Workflow 1":
 			loadedItem1 = &item
-		} else if item.Title == "Test Workflow 2" {
+		case "Test Workflow 2":
 			loadedItem2 = &item
 		}
 	}
