@@ -1,0 +1,155 @@
+name: Validate Workflow Files
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed workflow files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: '.github/workflows/**'
+
+      - name: Validate YAML syntax
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Changed workflow files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          # Install yamllint if not available
+          pip install yamllint
+          
+          # Validate each changed YAML file
+          exit_code=0
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "Validating $file..."
+            if yamllint "$file"; then
+              echo "✅ $file is valid"
+            else
+              echo "❌ $file has YAML syntax errors"
+              exit_code=1
+            fi
+          done
+          
+          exit $exit_code
+
+      - name: Validate GitHub Actions workflow syntax
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install action-validator
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm install -g @action-validator/core @action-validator/cli
+
+      - name: Validate workflow files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          exit_code=0
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ "$file" == *.yml ]] || [[ "$file" == *.yaml ]]; then
+              echo "Validating GitHub Actions syntax for $file..."
+              if action-validator "$file"; then
+                echo "✅ $file has valid GitHub Actions syntax"
+              else
+                echo "❌ $file has GitHub Actions syntax errors"
+                exit_code=1
+              fi
+            fi
+          done
+          
+          exit $exit_code
+
+      - name: Comment on PR
+        if: failure() && steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Workflow Validation Failed')
+            );
+            
+            const commentBody = `## ❌ Workflow Validation Failed
+            
+The workflow files in this PR have validation errors. Please check the workflow run logs for details.
+
+**Changed files:**
+${{ steps.changed-files.outputs.all_changed_files }}
+
+Please fix the YAML syntax or GitHub Actions syntax errors and push your changes.`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+      - name: Comment success on PR
+        if: success() && steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              (comment.body.includes('Workflow Validation Failed') || comment.body.includes('Workflow Validation Passed'))
+            );
+            
+            const commentBody = `## ✅ Workflow Validation Passed
+            
+All workflow files in this PR have been validated successfully!
+
+**Validated files:**
+${{ steps.changed-files.outputs.all_changed_files }}`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
