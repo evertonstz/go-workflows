@@ -15,26 +15,27 @@ type ValidationService struct {
 func NewValidationService() *ValidationService {
 	v := validator.New()
 
-	// Register custom validation functions
-	v.RegisterValidation("folder_path", validateFolderPath)
-	v.RegisterValidation("alphanum_space_dash_underscore", validateTagCharacters)
+	if err := v.RegisterValidation("folder_path", validateFolderPath); err != nil {
+		panic(fmt.Sprintf("failed to register 'folder_path' validation: %v", err))
+	}
+
+	if err := v.RegisterValidation("alphanum_space_dash_underscore", validateTagCharacters); err != nil {
+		panic(fmt.Sprintf("failed to register 'alphanum_space_dash_underscore' validation: %v", err))
+	}
 
 	return &ValidationService{
 		validator: v,
 	}
 }
 
-// Validate validates a struct using the validation tags
 func (vs *ValidationService) Validate(s interface{}) error {
 	return vs.validator.Struct(s)
 }
 
-// ValidateVar validates a single variable
 func (vs *ValidationService) ValidateVar(field interface{}, tag string) error {
 	return vs.validator.Var(field, tag)
 }
 
-// GetValidationErrors returns user-friendly validation error messages
 func (vs *ValidationService) GetValidationErrors(err error) []string {
 	var errors []string
 
@@ -49,7 +50,6 @@ func (vs *ValidationService) GetValidationErrors(err error) []string {
 	return errors
 }
 
-// formatValidationError converts a validation error to a user-friendly message
 func (vs *ValidationService) formatValidationError(err validator.FieldError) string {
 	field := err.Field()
 	tag := err.Tag()
@@ -79,39 +79,29 @@ func (vs *ValidationService) formatValidationError(err validator.FieldError) str
 	}
 }
 
-// Custom validation functions
-
-// validateFolderPath validates that a folder path is in the correct format
 func validateFolderPath(fl validator.FieldLevel) bool {
 	path := fl.Field().String()
 
-	// Root folder is always valid
 	if path == "/" {
 		return true
 	}
 
-	// Empty path is valid only if it's optional
 	if path == "" {
 		return true
 	}
 
-	// Must start with /
 	if !strings.HasPrefix(path, "/") {
 		return false
 	}
 
-	// Must not end with / (except for root)
 	if len(path) > 1 && strings.HasSuffix(path, "/") {
 		return false
 	}
 
-	// Must not contain double slashes
 	if strings.Contains(path, "//") {
 		return false
 	}
 
-	// Check for valid characters: alphanumeric, hyphens, underscores, spaces
-	// Split by / and validate each segment
 	segments := strings.Split(strings.Trim(path, "/"), "/")
 	for _, segment := range segments {
 		if segment == "" {
@@ -125,22 +115,17 @@ func validateFolderPath(fl validator.FieldLevel) bool {
 	return true
 }
 
-// validateTagCharacters validates that a tag contains only allowed characters
 func validateTagCharacters(fl validator.FieldLevel) bool {
 	tag := fl.Field().String()
 	return isValidTag(tag)
 }
 
-// Helper functions
-
 func isValidPathSegment(segment string) bool {
-	// Allow alphanumeric, hyphens, underscores, spaces, and dots
 	matched, _ := regexp.MatchString(`^[a-zA-Z0-9\-_\s\.]+$`, segment)
 	return matched
 }
 
 func isValidTag(tag string) bool {
-	// Allow alphanumeric, hyphens, underscores, and spaces
 	matched, _ := regexp.MatchString(`^[a-zA-Z0-9\-_\s]+$`, tag)
 	return matched
 }

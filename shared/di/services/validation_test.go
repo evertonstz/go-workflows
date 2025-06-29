@@ -113,10 +113,8 @@ func TestValidationService_ValidateItem(t *testing.T) {
 				if !found && tt.errorContains != "" {
 					t.Errorf("Expected error containing '%s', but got: %v", tt.errorContains, errors)
 				}
-			} else {
-				if err != nil {
-					t.Errorf("Expected no validation error but got: %v", err)
-				}
+			} else if err != nil {
+				t.Errorf("Expected no validation error but got: %v", err)
 			}
 		})
 	}
@@ -195,10 +193,8 @@ func TestValidationService_ValidateFolder(t *testing.T) {
 				if !found && tt.errorContains != "" {
 					t.Errorf("Expected error containing '%s', but got: %v", tt.errorContains, errors)
 				}
-			} else {
-				if err != nil {
-					t.Errorf("Expected no validation error but got: %v", err)
-				}
+			} else if err != nil {
+				t.Errorf("Expected no validation error but got: %v", err)
 			}
 		})
 	}
