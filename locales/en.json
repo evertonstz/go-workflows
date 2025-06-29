@@ -29,5 +29,9 @@
   "error_fill_all_fields": "Please fill all fields!",
   "confirm_delete_workflow_message": "Are you sure you want to delete this workflow?",
   "notification_copied_to_clipboard": "Copied to clipboard!",
-  "notification_saved": "Saved!"
+  "notification_saved": "Saved!",
+  "flags_usage": "Usage:",
+  "flags_version": "Show the application version",
+  "flags_help": "Show help about the application",
+  "flags_print_config": "Show the location of the configuration file"
 }

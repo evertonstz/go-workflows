@@ -29,5 +29,9 @@
   "error_fill_all_fields": "Por favor, preencha todos os campos!",
   "confirm_delete_workflow_message": "Tem certeza que deseja deletar este workflow?",
   "notification_copied_to_clipboard": "Copiado para a área de transferência!",
-  "notification_saved": "Salvo!"
+  "notification_saved": "Salvo!",
+  "flags_usage": "Uso:",
+  "flags_version": "Exibe a versão do aplicativo",
+  "flags_help": "Exibe ajuda sobre o aplicativo",
+  "flags_print_config": "Exibe o local do arquivo de configuração"
 }
