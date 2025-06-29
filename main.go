@@ -21,6 +21,9 @@ func main() {
 
 	di.RegisterService(di.I18nServiceKey, i18nService)
 
+	validationService := services.NewValidationService()
+	di.RegisterService(di.ValidationServiceKey, validationService)
+
 	helpkeys.InitializeGlobalKeys(i18nService)
 
 	appName := "go-workflows"

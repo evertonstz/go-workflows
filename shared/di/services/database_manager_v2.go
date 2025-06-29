@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/evertonstz/go-workflows/models"
+	"github.com/evertonstz/go-workflows/shared/di"
 )
 
 type DatabaseManagerV2 struct {
 	persistenceService *PersistenceService
+	validationService  *ValidationService
 	database           models.DatabaseV2
 }
 
@@ -19,8 +21,11 @@ func NewDatabaseManagerV2(persistenceService *PersistenceService) (*DatabaseMana
 		return nil, fmt.Errorf("failed to load database: %w", err)
 	}
 
+	validationService := di.GetService[*ValidationService](di.ValidationServiceKey)
+
 	return &DatabaseManagerV2{
 		persistenceService: persistenceService,
+		validationService:  validationService,
 		database:           database,
 	}, nil
 }
@@ -59,6 +64,13 @@ func (dm *DatabaseManagerV2) CreateFolder(name, description, parentPath string) 
 		DateAdded:   time.Now(),
 		DateUpdated: time.Now(),
 		Metadata:    make(map[string]string),
+	}
+	folder.GenerateID()
+
+	// Validate the folder using struct tags
+	if err := dm.validationService.Validate(folder); err != nil {
+		validationErrors := dm.validationService.GetValidationErrors(err)
+		return nil, fmt.Errorf("validation failed: %s", strings.Join(validationErrors, ", "))
 	}
 
 	if err := dm.database.AddFolder(folder); err != nil {
@@ -161,6 +173,13 @@ func (dm *DatabaseManagerV2) CreateItem(title, description, command, folderPath 
 		Tags:        tags,
 		Metadata:    metadata,
 	}
+	item.GenerateID()
+
+	// Validate the item using struct tags
+	if err := dm.validationService.Validate(item); err != nil {
+		validationErrors := dm.validationService.GetValidationErrors(err)
+		return nil, fmt.Errorf("validation failed: %s", strings.Join(validationErrors, ", "))
+	}
 
 	if err := dm.database.AddItem(item); err != nil {
 		return nil, err
@@ -219,6 +238,12 @@ func (dm *DatabaseManagerV2) UpdateItem(id string, title, description, command, 
 	}
 	if metadata != nil {
 		updatedItem.Metadata = metadata
+	}
+
+	// Validate the updated item using struct tags
+	if err := dm.validationService.Validate(updatedItem); err != nil {
+		validationErrors := dm.validationService.GetValidationErrors(err)
+		return fmt.Errorf("validation failed: %s", strings.Join(validationErrors, ", "))
 	}
 
 	if err := dm.database.UpdateItem(id, updatedItem); err != nil {
@@ -361,6 +386,13 @@ func (dm *DatabaseManagerV2) buildFolderTree(folders []models.FolderV2) []map[st
 func (dm *DatabaseManagerV2) ValidateDatabase() []string {
 	var issues []string
 
+	// Validate the entire database structure using struct tags
+	if err := dm.validationService.Validate(dm.database); err != nil {
+		validationErrors := dm.validationService.GetValidationErrors(err)
+		issues = append(issues, validationErrors...)
+	}
+
+	// Existing business logic validations
 	for _, item := range dm.database.Items {
 		if item.FolderPath != "/" {
 			if _, found := dm.database.GetFolderByPath(item.FolderPath); !found {
@@ -388,4 +420,19 @@ func (dm *DatabaseManagerV2) ValidateDatabase() []string {
 	}
 
 	return issues
+}
+
+// ValidateItem validates a single item using struct tags
+func (dm *DatabaseManagerV2) ValidateItem(item models.ItemV2) error {
+	return dm.validationService.Validate(item)
+}
+
+// ValidateFolder validates a single folder using struct tags
+func (dm *DatabaseManagerV2) ValidateFolder(folder models.FolderV2) error {
+	return dm.validationService.Validate(folder)
+}
+
+// GetValidationErrors returns user-friendly validation error messages
+func (dm *DatabaseManagerV2) GetValidationErrors(err error) []string {
+	return dm.validationService.GetValidationErrors(err)
 }

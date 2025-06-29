@@ -18,38 +18,38 @@ type (
 	}
 
 	ItemV2 struct {
-		ID          string            `json:"id"`
-		Title       string            `json:"title"`
-		Desc        string            `json:"description"`
-		Command     string            `json:"command"`
-		DateAdded   time.Time         `json:"date_added"`
-		DateUpdated time.Time         `json:"date_updated"`
-		Tags        []string          `json:"tags,omitempty"`
-		Metadata    map[string]string `json:"metadata,omitempty"`
-		FolderPath  string            `json:"folder_path"` // Path to the folder containing this item
+		ID          string            `json:"id" validate:"required"`
+		Title       string            `json:"title" validate:"required,min=1,max=255"`
+		Desc        string            `json:"description" validate:"max=1000"`
+		Command     string            `json:"command" validate:"required,min=1,max=5000"`
+		DateAdded   time.Time         `json:"date_added" validate:"required"`
+		DateUpdated time.Time         `json:"date_updated" validate:"required"`
+		Tags        []string          `json:"tags,omitempty" validate:"dive,min=1,max=50,alphanum_space_dash_underscore"`
+		Metadata    map[string]string `json:"metadata,omitempty" validate:"dive,keys,min=1,max=100,endkeys,min=0,max=500"`
+		FolderPath  string            `json:"folder_path" validate:"required,folder_path"`
 	}
 
 	FolderV2 struct {
-		ID          string            `json:"id"`
-		Name        string            `json:"name"`
-		Description string            `json:"description,omitempty"`
-		Path        string            `json:"path"`                  // Full path from root (e.g., "/folder1/subfolder")
-		ParentPath  string            `json:"parent_path,omitempty"` // Path to parent folder
-		DateAdded   time.Time         `json:"date_added"`
-		DateUpdated time.Time         `json:"date_updated"`
-		Metadata    map[string]string `json:"metadata,omitempty"`
+		ID          string            `json:"id" validate:"required"`
+		Name        string            `json:"name" validate:"required,min=1,max=255"`
+		Description string            `json:"description,omitempty" validate:"max=1000"`
+		Path        string            `json:"path" validate:"required,folder_path"`                   // Full path from root (e.g., "/folder1/subfolder")
+		ParentPath  string            `json:"parent_path,omitempty" validate:"omitempty,folder_path"` // Path to parent folder
+		DateAdded   time.Time         `json:"date_added" validate:"required"`
+		DateUpdated time.Time         `json:"date_updated" validate:"required"`
+		Metadata    map[string]string `json:"metadata,omitempty" validate:"dive,keys,min=1,max=100,endkeys,min=0,max=500"`
 	}
 
 	DatabaseV2 struct {
-		Version string     `json:"version"`
-		Folders []FolderV2 `json:"folders"`
-		Items   []ItemV2   `json:"items"`
+		Version string     `json:"version" validate:"required,eq=2.0"`
+		Folders []FolderV2 `json:"folders" validate:"dive"`
+		Items   []ItemV2   `json:"items" validate:"dive"`
 	}
 
 	SearchCriteria struct {
-		Query      string     `json:"query,omitempty"`
-		FolderPath string     `json:"folder_path,omitempty"`
-		Tags       []string   `json:"tags,omitempty"`
+		Query      string     `json:"query,omitempty" validate:"max=1000"`
+		FolderPath string     `json:"folder_path,omitempty" validate:"omitempty,folder_path"`
+		Tags       []string   `json:"tags,omitempty" validate:"dive,min=1,max=50"`
 		DateFrom   *time.Time `json:"date_from,omitempty"`
 		DateTo     *time.Time `json:"date_to,omitempty"`
 	}

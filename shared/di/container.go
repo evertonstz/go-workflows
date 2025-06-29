@@ -19,6 +19,7 @@ type ServiceKey int
 const (
 	I18nServiceKey ServiceKey = iota
 	PersistenceServiceKey
+	ValidationServiceKey
 	// Add other service keys here as needed
 )
 
