@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
@@ -19,6 +20,8 @@ func main() {
 	}
 
 	di.RegisterService(di.I18nServiceKey, i18nService)
+
+	helpkeys.InitializeGlobalKeys(i18nService)
 
 	appName := "go-workflows"
 	persistenceService, err := services.NewPersistenceService(appName)

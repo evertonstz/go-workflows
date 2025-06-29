@@ -1,19 +1,15 @@
 package keys
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"github.com/charmbracelet/bubbles/key"
+
+	"github.com/evertonstz/go-workflows/shared/di/services"
+)
 
 type ListKeyMap struct {
-	Up             key.Binding
-	Down           key.Binding
-	Left           key.Binding
-	Right          key.Binding
-	Help           key.Binding
-	Quit           key.Binding
-	CopyWorkflow   key.Binding
-	AddNewWorkflow key.Binding
-	Delete         key.Binding
-	Esc            key.Binding
-	Enter          key.Binding
+	NavigationKeySet
+	ActionKeySet
+	WorkflowActionKeySet
 }
 
 func (k ListKeyMap) ShortHelp() []key.Binding {
@@ -27,41 +23,21 @@ func (k ListKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var LisKeys = ListKeyMap{
-	Delete: key.NewBinding(
-		key.WithKeys("d"),
-		key.WithHelp("d", "delete workflow"),
-	),
-	AddNewWorkflow: key.NewBinding(
-		key.WithKeys("a"),
-		key.WithHelp("a", "add workflow"),
-	),
-	CopyWorkflow: key.NewBinding(
-		key.WithKeys("y"),
-		key.WithHelp("y", "copy workflow"),
-	),
-	Up: key.NewBinding(
-		key.WithKeys("up"),
-		key.WithHelp("↑", "move up"),
-	),
-	Down: key.NewBinding(
-		key.WithKeys("down"),
-		key.WithHelp("↓", "move down"),
-	),
-	Help: key.NewBinding(
-		key.WithKeys("ctrl+h"),
-		key.WithHelp("ctrl+h", "toggle help"),
-	),
-	Quit: key.NewBinding(
-		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "quit"),
-	),
-	Esc: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "close/back"),
-	),
-	Enter: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "open folder"),
-	),
+func NewListKeys(i18n *services.I18nService) ListKeyMap {
+	builder := NewKeyBuilder(i18n)
+	navigation := builder.Navigation()
+	actions := builder.Actions()
+	workflowActions := builder.WorkflowActions()
+
+	return ListKeyMap{
+		NavigationKeySet:     navigation,
+		ActionKeySet:         actions,
+		WorkflowActionKeySet: workflowActions,
+	}
+}
+
+var LisKeys ListKeyMap
+
+func InitializeGlobalKeys(i18n *services.I18nService) {
+	LisKeys = NewListKeys(i18n)
 }

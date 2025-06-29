@@ -5,7 +5,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/notification"
 	"github.com/evertonstz/go-workflows/shared"
 )
@@ -16,7 +15,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, helpkeys.AddNewKeys.Down):
+		case key.Matches(msg, m.Keys.Down):
 			switch m.selectedInput {
 			case title:
 				return m.focusInput(description)
@@ -27,7 +26,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m, nil
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Up):
+		case key.Matches(msg, m.Keys.Up):
 			switch m.selectedInput {
 			case title:
 				return m, nil
@@ -38,18 +37,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case submit, close:
 				return m.focusInput(textArea)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Right):
+		case key.Matches(msg, m.Keys.Right):
 			if m.selectedInput == submit {
 				return m.focusInput(close)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Left):
+		case key.Matches(msg, m.Keys.Left):
 			if m.selectedInput == close {
 				return m.focusInput(submit)
 			}
-		case key.Matches(msg, helpkeys.AddNewKeys.Close):
+		case key.Matches(msg, m.Keys.Close):
 			m.ResetForm()
 			return m, shared.CloseAddNewScreenCmd()
-		case key.Matches(msg, helpkeys.AddNewKeys.Submit):
+		case key.Matches(msg, m.Keys.Submit):
 			switch m.selectedInput {
 			case submit:
 				if m.isFormValid() {
@@ -75,5 +74,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		TextArea:      textModel,
 		selectedInput: m.selectedInput,
 		styles:        m.styles,
+		notifications: m.notifications,
+		Keys:          m.Keys,
 	}, tea.Batch(titleCmd, descCmd, textCmd)
 }
