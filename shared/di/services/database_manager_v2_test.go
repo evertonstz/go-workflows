@@ -9,21 +9,27 @@ import (
 	"github.com/evertonstz/go-workflows/models"
 )
 
+func createTestDatabaseManager(dataFilePath string) (*DatabaseManagerV2, error) {
+	persistence := &PersistenceService{
+		dataFilePath: dataFilePath,
+		appName:      "test-app",
+	}
+
+	validation := NewValidationService()
+
+	err := persistence.SaveDataV2(models.NewDatabaseV2())
+	if err != nil {
+		return nil, err
+	}
+
+	return NewDatabaseManagerV2(persistence, validation)
+}
+
 func TestDatabaseManagerV2_CreateFolder(t *testing.T) {
 	tempDir := t.TempDir()
 	testDataFile := filepath.Join(tempDir, "test_db_manager.json")
 
-	persistence := &PersistenceService{
-		dataFilePath: testDataFile,
-		appName:      "test-app",
-	}
-
-	err := persistence.SaveDataV2(models.NewDatabaseV2())
-	if err != nil {
-		t.Fatalf("Failed to initialize database: %v", err)
-	}
-
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -78,7 +84,7 @@ func TestDatabaseManagerV2_CreateItem(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -148,7 +154,7 @@ func TestDatabaseManagerV2_GetFolderContents(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -237,7 +243,7 @@ func TestDatabaseManagerV2_UpdateItem(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -301,7 +307,7 @@ func TestDatabaseManagerV2_Search(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -360,7 +366,7 @@ func TestDatabaseManagerV2_DeleteFolder(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -417,7 +423,7 @@ func TestDatabaseManagerV2_MoveItem(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -484,7 +490,7 @@ func TestDatabaseManagerV2_GetStatistics(t *testing.T) {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := createTestDatabaseManager(testDataFile)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}
@@ -557,6 +563,8 @@ func TestDatabaseManagerV2_ValidateDatabase(t *testing.T) {
 		appName:      "test-app",
 	}
 
+	validation := NewValidationService()
+
 	db := models.NewDatabaseV2()
 
 	item := models.ItemV2{
@@ -575,7 +583,7 @@ func TestDatabaseManagerV2_ValidateDatabase(t *testing.T) {
 		t.Fatalf("Failed to save invalid database: %v", err)
 	}
 
-	manager, err := NewDatabaseManagerV2(persistence)
+	manager, err := NewDatabaseManagerV2(persistence, validation)
 	if err != nil {
 		t.Fatalf("Failed to create database manager: %v", err)
 	}

@@ -4,6 +4,7 @@ on:
     branches:
       - main
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
 
@@ -14,11 +15,8 @@ permissions:
 
 jobs:
   golangci:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
     name: lint
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -27,6 +25,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.1.6
           comment-on-pr: true
           only-new-issues: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
