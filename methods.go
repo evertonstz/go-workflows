@@ -49,7 +49,8 @@ func (m *model) toggleHelpShowAll() {
 
 func (m model) persistItemsV2() tea.Cmd {
 	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
-	databaseManager, err := services.NewDatabaseManagerV2(persistence)
+	validation := di.GetService[*services.ValidationService](di.ValidationServiceKey)
+	databaseManager, err := services.NewDatabaseManagerV2(persistence, validation)
 	if err != nil {
 		return shared.ErrorCmd(err)
 	}

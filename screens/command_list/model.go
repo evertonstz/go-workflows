@@ -72,7 +72,8 @@ func New() Model {
 	}
 
 	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
-	databaseManager, err := services.NewDatabaseManagerV2(persistence)
+	validation := di.GetService[*services.ValidationService](di.ValidationServiceKey)
+	databaseManager, err := services.NewDatabaseManagerV2(persistence, validation)
 	if err != nil {
 		databaseManager = nil
 	}
