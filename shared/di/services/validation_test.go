@@ -1,6 +1,7 @@
 package services
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -103,7 +104,7 @@ func TestValidationService_ValidateItem(t *testing.T) {
 				errors := validationService.GetValidationErrors(err)
 				found := false
 				for _, errMsg := range errors {
-					if tt.errorContains != "" && contains(errMsg, tt.errorContains) {
+					if tt.errorContains != "" && strings.Contains(errMsg, tt.errorContains) {
 						found = true
 						break
 					}
@@ -185,7 +186,7 @@ func TestValidationService_ValidateFolder(t *testing.T) {
 				errors := validationService.GetValidationErrors(err)
 				found := false
 				for _, errMsg := range errors {
-					if tt.errorContains != "" && contains(errMsg, tt.errorContains) {
+					if tt.errorContains != "" && strings.Contains(errMsg, tt.errorContains) {
 						found = true
 						break
 					}
@@ -236,18 +237,4 @@ func TestValidationService_ValidateFolderPath(t *testing.T) {
 			}
 		})
 	}
-}
-
-// Helper function to check if a string contains a substring
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || (len(s) > len(substr) &&
-		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
-			func() bool {
-				for i := 1; i < len(s)-len(substr)+1; i++ {
-					if s[i:i+len(substr)] == substr {
-						return true
-					}
-				}
-				return false
-			}())))
 }
