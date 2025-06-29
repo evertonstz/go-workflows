@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 
-	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/shared"
 	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/evertonstz/go-workflows/shared/di/services"
@@ -26,9 +25,9 @@ func (m model) notificationTitle() string {
 
 func (m model) getHelpKeys() help.KeyMap {
 	if m.screenState == addNew {
-		return helpkeys.AddNewKeys
+		return m.addNewScreen.Keys
 	}
-	return helpkeys.LisKeys
+	return m.listScreen.Keys
 }
 
 func (m model) isSmallWidth() bool {
@@ -49,7 +48,6 @@ func (m *model) toggleHelpShowAll() {
 }
 
 func (m model) persistItemsV2() tea.Cmd {
-	// Get database manager from DI container
 	persistence := di.GetService[*services.PersistenceService](di.PersistenceServiceKey)
 	databaseManager, err := services.NewDatabaseManagerV2(persistence)
 	if err != nil {

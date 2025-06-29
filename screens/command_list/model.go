@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	confirmationmodal "github.com/evertonstz/go-workflows/components/confirmation_modal"
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/components/list"
 	textarea "github.com/evertonstz/go-workflows/components/text_area"
 	"github.com/evertonstz/go-workflows/shared/di"
@@ -39,6 +40,7 @@ type (
 		currentRightPanel              currentRightPanel
 		isSmallWidth                   bool
 		databaseManager                *services.DatabaseManagerV2
+		Keys                           helpkeys.ListKeyMap
 	}
 	currentRightPanel uint
 )
@@ -80,6 +82,7 @@ func New() Model {
 		confirmationModal:              initialModal,
 		deleteConfirmationModalBuilder: deleteConfirmationModalBuilder,
 		textArea:                       textAreaModel,
+		Keys:                           helpkeys.NewListKeys(i18n),
 		panelsStyle: panelsStyle{
 			leftPanelStyle:  leftPanelStyle,
 			rightPanelStyle: rightPanelStyle,

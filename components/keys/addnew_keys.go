@@ -1,15 +1,13 @@
 package keys
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/evertonstz/go-workflows/shared/di/services"
+)
 
 type AddNewKeyMap struct {
-	Up     key.Binding
-	Down   key.Binding
-	Left   key.Binding
-	Right  key.Binding
-	Help   key.Binding
-	Close  key.Binding
-	Submit key.Binding
+	NavigationKeySet
+	ActionKeySet
 }
 
 func (k AddNewKeyMap) ShortHelp() []key.Binding {
@@ -19,37 +17,23 @@ func (k AddNewKeyMap) ShortHelp() []key.Binding {
 func (k AddNewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Left, k.Right},
-		{k.Help, k.Close},
+		{k.Submit, k.Close, k.Help, k.Quit},
 	}
 }
 
-var AddNewKeys = AddNewKeyMap{
-	Up: key.NewBinding(
-		key.WithKeys("up"),
-		key.WithHelp("↑", "move up"),
-	),
-	Down: key.NewBinding(
-		key.WithKeys("down"),
-		key.WithHelp("↓", "move down"),
-	),
-	Right: key.NewBinding(
-		key.WithKeys("right"),
-		key.WithHelp("→", "move right"),
-	),
-	Left: key.NewBinding(
-		key.WithKeys("left"),
-		key.WithHelp("←", "move left"),
-	),
-	Help: key.NewBinding(
-		key.WithKeys("ctrl+h"),
-		key.WithHelp("ctrl+h", "toggle help"),
-	),
-	Submit: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "submit"),
-	),
-	Close: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "close"),
-	),
+func NewAddNewKeys(i18n *services.I18nService) AddNewKeyMap {
+	builder := NewKeyBuilder(i18n)
+	navigation := builder.Navigation()
+	actions := builder.Actions()
+
+	return AddNewKeyMap{
+		NavigationKeySet: navigation,
+		ActionKeySet: ActionKeySet{
+			Submit: actions.Submit,
+			Close:  actions.Close,
+			Help:   actions.Help,
+			Quit:   actions.Quit,
+			// Not including Enter, Esc as they're not used in add new screen
+		},
+	}
 }

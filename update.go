@@ -65,17 +65,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
+		if msg.String() == "ctrl+c" {
+			return m, tea.Quit
+		}
+
 		switch m.screenState {
 		case addNew:
 			switch {
-			case key.Matches(msg, helpkeys.LisKeys.Help):
+			case key.Matches(msg, m.addNewScreen.Keys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, helpkeys.LisKeys.Quit):
-				return m, tea.Quit
+				return m, nil
 			default:
-				if m.help.ShowAll {
-					m.toggleHelpShowAll()
-				}
+				// Let the add new screen handle its own keys
+				// The screen update will be called later in the method
 			}
 		case newList:
 			switch {
@@ -84,8 +86,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case key.Matches(msg, helpkeys.LisKeys.Help):
 				m.toggleHelpShowAll()
-			case key.Matches(msg, helpkeys.LisKeys.Quit):
-				return m, tea.Quit
+				return m, nil
 			case key.Matches(msg, helpkeys.LisKeys.Esc):
 				if m.listScreen.IsAtRoot() {
 					return m, tea.Quit

@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	helpkeys "github.com/evertonstz/go-workflows/components/keys"
 	"github.com/evertonstz/go-workflows/shared/di"
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
@@ -50,6 +51,7 @@ type (
 		selectedInput inputs
 		styles        Styles
 		notifications Notifications
+		Keys          helpkeys.AddNewKeyMap
 	}
 )
 
@@ -84,6 +86,7 @@ func New() Model {
 		Description:   descModel,
 		TextArea:      textareaModel,
 		selectedInput: title,
+		Keys:          helpkeys.NewAddNewKeys(i18n),
 		notifications: Notifications{
 			fillAllFields: i18n.Translate("error_fill_all_fields"),
 		},

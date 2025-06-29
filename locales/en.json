@@ -17,6 +17,7 @@
   "key_help_add_workflow": "add workflow",
   "key_help_copy_workflow": "copy workflow",
   "key_help_quit": "quit",
+  "key_help_open_folder": "open folder",
   "submit_button_label": "Submit",
   "title_placeholder": "Title",
   "description_placeholder": "Description",
