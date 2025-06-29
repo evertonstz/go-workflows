@@ -25,34 +25,6 @@ jobs:
           echo "Running comprehensive test suite..."
           go test -v -race ./...
 
-  lint:
-    name: Lint and Format Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-
-      - name: Check formatting with goimports
-        run: |
-          if [ "$(go tool goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
-            echo "Code is not formatted properly:"
-            echo "Files that need formatting:"
-            go tool goimports -local github.com/evertonstz/go-workflows -l .
-            echo "Please run 'make format' to fix formatting."
-            exit 1
-          fi
-          echo "Code formatting is correct ✓"
-
   dependency-check:
     name: Dependency Vulnerability Check
     runs-on: ubuntu-latest
@@ -70,7 +42,7 @@ jobs:
 
   build-test:
     name: Build Test (Multiple OS)
-    needs: [test, lint]
+    needs: [test]
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]

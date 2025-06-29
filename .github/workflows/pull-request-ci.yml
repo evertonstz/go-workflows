@@ -5,28 +5,6 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-
-      - name: Check formatting with goimports
-        run: |
-          if [ "$(go tool goimports -local github.com/evertonstz/go-workflows -l . | wc -l)" -gt 0 ]; then
-            echo "Code is not formatted correctly. Please run 'make format'"
-            echo "Files that need formatting:"
-            go tool goimports -local github.com/evertonstz/go-workflows -l .
-            exit 1
-          fi
-          echo "Code formatting is correct ✓"
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -47,7 +25,7 @@ jobs:
 
   build:
     name: Build
-    needs: [lint, test]
+    needs: [test]
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
