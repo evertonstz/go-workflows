@@ -30,8 +30,8 @@ func main() {
 	}
 	di.RegisterService(di.PersistenceServiceKey, persistenceService)
 
-	showVersion, showHelp := ParseFlags()
-	HandleFlags(showVersion, showHelp)
+	showVersion, showHelp, showConfig := ParseFlags(i18nService)
+	HandleFlags(showVersion, showHelp, showConfig)
 
 	p := tea.NewProgram(new(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
