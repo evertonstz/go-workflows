@@ -1,87 +1,33 @@
 name: Update Homebrew Formula
 
 on:
-  workflow_run:
-    workflows: ["Build and release Go Project"]
-    types:
-      - completed
+  release:
+    types: [published]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   update-formula:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Source Repository
-        uses: actions/checkout@v4
-
-      - name: Get Release Info
-        id: release_info
-        run: |
-          TAG_NAME=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}" \
-            | jq -r '.head_branch')
-          
-          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-          echo "BASE_URL=https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}" >> $GITHUB_ENV
-
-      - name: Get SHA256 Sums
-        id: sha256
-        run: |
-          mkdir -p bin
-          for PLATFORM in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
-            FILE="go-workflows-${PLATFORM}.tar.gz"
-            curl -L -o bin/$FILE ${{ env.BASE_URL }}/$FILE
-            HASH=$(sha256sum bin/$FILE | awk '{print $1}')
-            echo "${PLATFORM}=${HASH}" >> sha256_hashes.txt
-          done
-          cat sha256_hashes.txt
-
-      - name: Checkout Homebrew Tap Repository
-        uses: actions/checkout@v4
-        with:
-          repository: evertonstz/homebrew-go-workflows
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          path: homebrew-tap
-
       - name: Update Homebrew Formula
-        run: |
-          TAG_NAME="${{ env.TAG_NAME }}"
-          FORMULA_PATH="homebrew-tap/Formula/go-workflows.rb"
-
-          # Update version
-          sed -i "s|version \".*\"|version \"${TAG_NAME}\"|g" $FORMULA_PATH
-
-          # Update URLs and SHA256s
-          while IFS="=" read -r PLATFORM HASH; do
-            URL="${{ env.BASE_URL }}/go-workflows-${PLATFORM}.tar.gz"
-
-            sed -i "/${PLATFORM}/!b;n;c\        sha256 \"${HASH}\"" $FORMULA_PATH
-            sed -i "s|url \".*${PLATFORM}.*\"|url \"${URL}\"|g" $FORMULA_PATH
-          done < sha256_hashes.txt
-
-          echo "Updated formula:"
-          cat $FORMULA_PATH
-
-      - name: Commit and Push Changes
-        run: |
-          cd homebrew-tap
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Formula/go-workflows.rb
-          git commit -m "Update Homebrew formula to ${{ env.TAG_NAME }}"
-          git push
+        uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          tap: evertonstz/homebrew-go-workflows
+          formula: go-workflows
+          tag: ${{ github.event.release.tag_name }}
+          revision: ${{ github.sha }}
 
       - name: Notify Success or Error
         if: always()
         run: |
           CHANNEL="${{ secrets.NTFY_CHANNEL }}"
           if [ "${{ job.status }}" == "success" ]; then
-            curl -H "Title: Homebrew Update Success" -d "Homebrew formula update succeeded for tag ${{ env.TAG_NAME }}" ntfy.sh/$CHANNEL
+            curl -H "Title: Homebrew Update Success" -d "Homebrew formula updated to ${{ github.event.release.tag_name }}" ntfy.sh/$CHANNEL
           else
-            curl -H "Title: Homebrew Update Failure" -d "Homebrew formula update failed for tag ${{ env.TAG_NAME }}" ntfy.sh/$CHANNEL
+            curl -H "Title: Homebrew Update Failure" -d "Homebrew formula update failed for ${{ github.event.release.tag_name }}" ntfy.sh/$CHANNEL
           fi
