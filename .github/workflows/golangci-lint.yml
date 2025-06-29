@@ -27,3 +27,5 @@ jobs:
         with:
           comment-on-pr: true
           only-new-issues: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
