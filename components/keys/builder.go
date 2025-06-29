@@ -2,6 +2,7 @@ package keys
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+
 	"github.com/evertonstz/go-workflows/shared/di/services"
 )
 
