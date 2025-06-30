@@ -29,14 +29,38 @@ jobs:
         if: steps.changed-locales.outputs.any_changed == 'true'
         id: file-list
         run: |
-          # Convert space-separated list to comma-separated for Docker action
+          # Convert space-separated list to comma-separated, excluding schema.json
           files="${{ steps.changed-locales.outputs.all_changed_files }}"
-          comma_separated=$(echo $files | tr ' ' ',')
-          echo "files=$comma_separated" >> $GITHUB_OUTPUT
+          # Filter out schema.json since it's not a locale file
+          filtered_files=""
+          for file in $files; do
+            if [[ "$file" != *"schema.json" ]]; then
+              if [[ -z "$filtered_files" ]]; then
+                filtered_files="$file"
+              else
+                filtered_files="$filtered_files,$file"
+              fi
+            fi
+          done
+          echo "files=$filtered_files" >> $GITHUB_OUTPUT
+          echo "Locale files to validate: $filtered_files"
 
       - name: Validate JSON syntax and schema
-        if: steps.changed-locales.outputs.any_changed == 'true'
+        if: steps.changed-locales.outputs.any_changed == 'true' && steps.file-list.outputs.files != ''
         uses: docker://orrosenblatt/validate-json-action:latest
         env:
           INPUT_SCHEMA: locales/schema.json
           INPUT_JSONS: ${{ steps.file-list.outputs.files }}
+
+      - name: Validate schema.json syntax
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        run: |
+          # Check if schema.json was changed and validate its syntax
+          if echo "${{ steps.changed-locales.outputs.all_changed_files }}" | grep -q "schema.json"; then
+            echo "Validating schema.json syntax..."
+            if ! jq empty locales/schema.json > /dev/null 2>&1; then
+              echo "❌ Invalid JSON syntax in locales/schema.json"
+              exit 1
+            fi
+            echo "✅ Valid JSON syntax in locales/schema.json"
+          fi
