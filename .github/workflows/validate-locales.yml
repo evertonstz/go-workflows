@@ -25,9 +25,18 @@ jobs:
         with:
           files: "locales/*.json"
 
+      - name: Convert file list to comma-separated
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        id: file-list
+        run: |
+          # Convert space-separated list to comma-separated for Docker action
+          files="${{ steps.changed-locales.outputs.all_changed_files }}"
+          comma_separated=$(echo $files | tr ' ' ',')
+          echo "files=$comma_separated" >> $GITHUB_OUTPUT
+
       - name: Validate JSON syntax and schema
         if: steps.changed-locales.outputs.any_changed == 'true'
         uses: docker://orrosenblatt/validate-json-action:latest
         env:
           INPUT_SCHEMA: locales/schema.json
-          INPUT_JSONS: ${{ steps.changed-locales.outputs.all_changed_files }}
+          INPUT_JSONS: ${{ steps.file-list.outputs.files }}
