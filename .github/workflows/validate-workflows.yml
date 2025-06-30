@@ -1,3 +1,4 @@
+---
 name: Validate Workflow Files
 
 on:
@@ -104,8 +105,8 @@ jobs:
         with:
           script: |
             const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
-            const summary = '${{ job.status }}' === 'success' 
-              ? 'All workflow files passed validation ✅' 
+            const summary = '${{ job.status }}' === 'success'
+              ? 'All workflow files passed validation ✅'
               : 'Workflow validation failed ❌';
 
             await github.rest.checks.update({
