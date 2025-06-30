@@ -64,3 +64,47 @@ jobs:
             fi
             echo "✅ Valid JSON syntax in locales/schema.json"
           fi
+
+      - name: Validate key consistency across locale files
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        run: |
+          echo "Checking key consistency across locale files..."
+          
+          # Get all locale files (excluding schema.json)
+          locale_files=$(find locales -name "*.json" ! -name "schema.json" | sort)
+          
+          if [ -z "$locale_files" ]; then
+            echo "No locale files found to validate"
+            exit 0
+          fi
+          
+          # Count keys in each file and store results
+          declare -A file_counts
+          expected_count=""
+          first_file=""
+          
+          for file in $locale_files; do
+            if [ ! -f "$file" ]; then
+              echo "File $file not found"
+              continue
+            fi
+            
+            # Count the number of keys in the JSON file
+            count=$(jq 'keys | length' "$file")
+            file_counts["$file"]=$count
+            
+            echo "File $file has $count keys"
+            
+            if [ -z "$expected_count" ]; then
+              expected_count=$count
+              first_file=$file
+            elif [ "$count" -ne "$expected_count" ]; then
+              echo "❌ Key count mismatch!"
+              echo "  $first_file has $expected_count keys"
+              echo "  $file has $count keys"
+              echo "All locale files must have the same number of keys"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All locale files have consistent key counts ($expected_count keys each)"
