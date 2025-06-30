@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  checks: write
+  issues: write
 
 jobs:
   validate-yaml:
@@ -22,6 +24,45 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: '.github/workflows/**'
+
+      - name: Debug workflow trigger
+        run: |
+          echo "Workflow triggered by PR #${{ github.event.number }}"
+          echo "Changed files detected: ${{ steps.changed-files.outputs.any_changed }}"
+          echo "All changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          echo "Changed workflow files count: ${{ steps.changed-files.outputs.all_changed_files_count }}"
+
+      - name: Always comment on PR to confirm workflow runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔍 **Workflow Validation Started**
+              
+Starting validation for PR #${{ github.event.number }}
+Changed files: ${{ steps.changed-files.outputs.any_changed }}
+Files to validate: ${{ steps.changed-files.outputs.all_changed_files }}
+              
+This comment confirms the workflow is running...`
+            });
+
+      - name: Create check run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: checkRun } = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Workflow Validation',
+              head_sha: context.sha,
+              status: 'in_progress',
+              started_at: new Date().toISOString(),
+            });
+            core.setOutput('check_run_id', checkRun.id);
+        id: check-run
 
       - name: Validate YAML syntax
         if: steps.changed-files.outputs.any_changed == 'true'
@@ -153,3 +194,27 @@ ${{ steps.changed-files.outputs.all_changed_files }}`;
                 body: commentBody
               });
             }
+
+      - name: Update check run status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            const summary = '${{ job.status }}' === 'success' 
+              ? 'All workflow files passed validation ✅' 
+              : 'Workflow validation failed ❌';
+            
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: '${{ steps.check-run.outputs.check_run_id }}',
+              status: 'completed',
+              conclusion: conclusion,
+              completed_at: new Date().toISOString(),
+              output: {
+                title: 'Workflow Validation Results',
+                summary: summary,
+                text: `Changed files: ${{ steps.changed-files.outputs.all_changed_files }}`
+              }
+            });
