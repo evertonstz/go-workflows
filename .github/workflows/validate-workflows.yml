@@ -42,6 +42,6 @@ jobs:
 
       - name: Validate GitHub Actions workflow syntax
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: mpalmer/action-validator@v1
+        uses: jazzsequence/github-action-validator@v1
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
