@@ -9,8 +9,6 @@ import (
 
 	"github.com/evertonstz/go-workflows/models"
 	"github.com/evertonstz/go-workflows/shared"
-
-	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -97,18 +95,18 @@ func (m Model) View() string {
 	var dateAdded string
 
 	if m.currentFolder != nil {
-		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentFolder.DateAdded))
+		dateAdded = fmt.Sprintf("Added: %s", shared.HumanizeTime(m.currentFolder.DateAdded))
 		if m.currentFolder.DateAdded.Equal(m.currentFolder.DateUpdated) {
 			lastUpdated = "Updated: never"
 		} else {
-			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentFolder.DateUpdated))
+			lastUpdated = fmt.Sprintf("Updated: %s", shared.HumanizeTime(m.currentFolder.DateUpdated))
 		}
 	} else {
-		dateAdded = fmt.Sprintf("Added: %s", humanize.Time(m.currentItem.DateAdded))
+		dateAdded = fmt.Sprintf("Added: %s", shared.HumanizeTime(m.currentItem.DateAdded))
 		if m.currentItem.DateAdded.Equal(m.currentItem.DateUpdated) {
 			lastUpdated = "Updated: never"
 		} else {
-			lastUpdated = fmt.Sprintf("Updated: %s", humanize.Time(m.currentItem.DateUpdated))
+			lastUpdated = fmt.Sprintf("Updated: %s", shared.HumanizeTime(m.currentItem.DateUpdated))
 		}
 	}
 
