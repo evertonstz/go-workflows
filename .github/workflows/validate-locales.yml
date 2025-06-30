@@ -31,22 +31,6 @@ jobs:
         with:
           jsons: ${{ steps.changed-locales.outputs.all_changed_files }}
 
-      - name: Create check run for key consistency
-        if: steps.changed-locales.outputs.any_changed == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: checkRun } = await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Locale Key Consistency',
-              head_sha: context.sha,
-              status: 'in_progress',
-              started_at: new Date().toISOString(),
-            });
-            core.setOutput('check_run_id', checkRun.id);
-        id: key-check
-
       - name: Validate locale keys consistency
         if: steps.changed-locales.outputs.any_changed == 'true'
         run: |
@@ -93,27 +77,3 @@ jobs:
           fi
 
           exit $exit_code
-
-      - name: Update key consistency check status
-        if: always() && steps.changed-locales.outputs.any_changed == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
-            const summary = '${{ job.status }}' === 'success'
-              ? 'All locale files have consistent keys ✅'
-              : 'Locale key consistency validation failed ❌';
-
-            await github.rest.checks.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              check_run_id: '${{ steps.key-check.outputs.check_run_id }}',
-              status: 'completed',
-              conclusion: conclusion,
-              completed_at: new Date().toISOString(),
-              output: {
-                title: 'Locale Key Consistency Results',
-                summary: summary,
-                text: 'Checked that all locale files have the same keys'
-              }
-            });
