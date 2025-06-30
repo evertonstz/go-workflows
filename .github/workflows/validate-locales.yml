@@ -1,7 +1,7 @@
 ---
 name: Validate Locale Files
 
-on:
+"on":
   pull_request:
     paths:
       - "locales/*.json"
@@ -72,10 +72,10 @@ jobs:
             if [ "$file" = "$reference_file" ]; then
               continue
             fi
-            
+
             echo "Comparing keys in $file with $reference_file..."
             current_keys=$(jq -r 'keys[]' "$file" | sort)
-            
+
             if [ "$reference_keys" = "$current_keys" ]; then
               echo "✅ $file has matching keys with $reference_file"
             else
@@ -100,8 +100,8 @@ jobs:
         with:
           script: |
             const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
-            const summary = '${{ job.status }}' === 'success' 
-              ? 'All locale files have consistent keys ✅' 
+            const summary = '${{ job.status }}' === 'success'
+              ? 'All locale files have consistent keys ✅'
               : 'Locale key consistency validation failed ❌';
 
             await github.rest.checks.update({
