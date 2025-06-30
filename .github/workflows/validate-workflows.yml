@@ -4,7 +4,8 @@ name: Validate Workflow Files
 on:
   pull_request:
     paths:
-      - ".github/workflows/**"
+      - ".github/workflows/*.yml"
+      - ".github/workflows/*.yaml"
     types: [opened, synchronize, reopened]
 
 permissions:
