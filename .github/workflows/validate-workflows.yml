@@ -33,21 +33,6 @@ jobs:
           echo "All changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
           echo "Changed workflow files count: ${{ steps.changed-files.outputs.all_changed_files_count }}"
 
-      - name: Create check run
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: checkRun } = await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Workflow Validation',
-              head_sha: context.sha,
-              status: 'in_progress',
-              started_at: new Date().toISOString(),
-            });
-            core.setOutput('check_run_id', checkRun.id);
-        id: check-run
-
       - name: Validate YAML syntax
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: ibiqlik/action-yamllint@v3
@@ -57,52 +42,6 @@ jobs:
 
       - name: Validate GitHub Actions workflow syntax
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/setup-node@v4
+        uses: SchemaStore/test@v1
         with:
-          node-version: "18"
-
-      - name: Install action-validator
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: npm install -g @action-validator/core @action-validator/cli
-
-      - name: Validate workflow files
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          exit_code=0
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            if [[ "$file" == *.yml ]] || [[ "$file" == *.yaml ]]; then
-              echo "Validating GitHub Actions syntax for $file..."
-              if action-validator "$file"; then
-                echo "✅ $file has valid GitHub Actions syntax"
-              else
-                echo "❌ $file has GitHub Actions syntax errors"
-                exit_code=1
-              fi
-            fi
-          done
-
-          exit $exit_code
-
-      - name: Update check run status
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
-            const summary = '${{ job.status }}' === 'success'
-              ? 'All workflow files passed validation ✅'
-              : 'Workflow validation failed ❌';
-
-            await github.rest.checks.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              check_run_id: '${{ steps.check-run.outputs.check_run_id }}',
-              status: 'completed',
-              conclusion: conclusion,
-              completed_at: new Date().toISOString(),
-              output: {
-                title: 'Workflow Validation Results',
-                summary: summary,
-                text: `Changed files: ${{ steps.changed-files.outputs.all_changed_files }}`
-              }
-            });
+          files: ${{ steps.changed-files.outputs.all_changed_files }}
