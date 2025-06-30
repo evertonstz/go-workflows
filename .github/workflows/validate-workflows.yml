@@ -61,7 +61,7 @@ jobs:
           exit_code=0
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "Validating $file..."
-            if yamllint "$file"; then
+            if yamllint -c .yamllint "$file"; then
               echo "✅ $file is valid"
             else
               echo "❌ $file has YAML syntax errors"
