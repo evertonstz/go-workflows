@@ -26,13 +26,6 @@ jobs:
         with:
           files: ".github/workflows/**"
 
-      - name: Debug workflow trigger
-        run: |
-          echo "Workflow triggered by PR #${{ github.event.number }}"
-          echo "Changed files detected: ${{ steps.changed-files.outputs.any_changed }}"
-          echo "All changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
-          echo "Changed workflow files count: ${{ steps.changed-files.outputs.all_changed_files_count }}"
-
       - name: Validate YAML syntax
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: ibiqlik/action-yamllint@v3
@@ -44,4 +37,4 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: jazzsequence/github-action-validator@v1
         with:
-          files: ${{ steps.changed-files.outputs.all_changed_files }}
+          path-to-workflows: .github/workflows/
