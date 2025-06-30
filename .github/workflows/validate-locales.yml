@@ -25,55 +25,9 @@ jobs:
         with:
           files: "locales/*.json"
 
-      - name: Validate JSON syntax
+      - name: Validate JSON syntax and schema
         if: steps.changed-locales.outputs.any_changed == 'true'
         uses: docker://orrosenblatt/validate-json-action:latest
-        with:
-          jsons: ${{ steps.changed-locales.outputs.all_changed_files }}
-
-      - name: Validate locale keys consistency
-        if: steps.changed-locales.outputs.any_changed == 'true'
-        run: |
-          echo "Validating locale keys consistency..."
-
-          # Get all locale files
-          locale_files=(locales/*.json)
-
-          if [ ${#locale_files[@]} -lt 2 ]; then
-            echo "ℹ️ Only one locale file found, skipping key consistency check"
-            exit 0
-          fi
-
-          # Extract keys from the first file as reference
-          reference_file="${locale_files[0]}"
-          echo "Using $reference_file as reference for key comparison"
-
-          # Get sorted keys from reference file
-          reference_keys=$(jq -r 'keys[]' "$reference_file" | sort)
-
-          exit_code=0
-          for file in "${locale_files[@]}"; do
-            if [ "$file" = "$reference_file" ]; then
-              continue
-            fi
-
-            echo "Comparing keys in $file with $reference_file..."
-            current_keys=$(jq -r 'keys[]' "$file" | sort)
-
-            if [ "$reference_keys" = "$current_keys" ]; then
-              echo "✅ $file has matching keys with $reference_file"
-            else
-              echo "❌ $file has different keys from $reference_file"
-              echo "Missing or extra keys detected:"
-              diff <(echo "$reference_keys") <(echo "$current_keys") || true
-              exit_code=1
-            fi
-          done
-
-          if [ $exit_code -eq 0 ]; then
-            echo "✅ All locale files have consistent keys"
-          else
-            echo "❌ Locale key consistency validation failed"
-          fi
-
-          exit $exit_code
+        env:
+          INPUT_SCHEMA: locales/schema.json
+          INPUT_JSONS: ${{ steps.changed-locales.outputs.all_changed_files }}
