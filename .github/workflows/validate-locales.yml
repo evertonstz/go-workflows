@@ -1,0 +1,119 @@
+---
+name: Validate Locale Files
+
+on:
+  pull_request:
+    paths:
+      - "locales/*.json"
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate-locales:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed locale files
+        id: changed-locales
+        uses: tj-actions/changed-files@v44
+        with:
+          files: "locales/*.json"
+
+      - name: Validate JSON syntax
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        uses: docker://orrosenblatt/validate-json-action:latest
+        with:
+          jsons: ${{ steps.changed-locales.outputs.all_changed_files }}
+
+      - name: Create check run for key consistency
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: checkRun } = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Locale Key Consistency',
+              head_sha: context.sha,
+              status: 'in_progress',
+              started_at: new Date().toISOString(),
+            });
+            core.setOutput('check_run_id', checkRun.id);
+        id: key-check
+
+      - name: Validate locale keys consistency
+        if: steps.changed-locales.outputs.any_changed == 'true'
+        run: |
+          echo "Validating locale keys consistency..."
+
+          # Get all locale files
+          locale_files=(locales/*.json)
+
+          if [ ${#locale_files[@]} -lt 2 ]; then
+            echo "ℹ️ Only one locale file found, skipping key consistency check"
+            exit 0
+          fi
+
+          # Extract keys from the first file as reference
+          reference_file="${locale_files[0]}"
+          echo "Using $reference_file as reference for key comparison"
+
+          # Get sorted keys from reference file
+          reference_keys=$(jq -r 'keys[]' "$reference_file" | sort)
+
+          exit_code=0
+          for file in "${locale_files[@]}"; do
+            if [ "$file" = "$reference_file" ]; then
+              continue
+            fi
+            
+            echo "Comparing keys in $file with $reference_file..."
+            current_keys=$(jq -r 'keys[]' "$file" | sort)
+            
+            if [ "$reference_keys" = "$current_keys" ]; then
+              echo "✅ $file has matching keys with $reference_file"
+            else
+              echo "❌ $file has different keys from $reference_file"
+              echo "Missing or extra keys detected:"
+              diff <(echo "$reference_keys") <(echo "$current_keys") || true
+              exit_code=1
+            fi
+          done
+
+          if [ $exit_code -eq 0 ]; then
+            echo "✅ All locale files have consistent keys"
+          else
+            echo "❌ Locale key consistency validation failed"
+          fi
+
+          exit $exit_code
+
+      - name: Update key consistency check status
+        if: always() && steps.changed-locales.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            const summary = '${{ job.status }}' === 'success' 
+              ? 'All locale files have consistent keys ✅' 
+              : 'Locale key consistency validation failed ❌';
+
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: '${{ steps.key-check.outputs.check_run_id }}',
+              status: 'completed',
+              conclusion: conclusion,
+              completed_at: new Date().toISOString(),
+              output: {
+                title: 'Locale Key Consistency Results',
+                summary: summary,
+                text: 'Checked that all locale files have the same keys'
+              }
+            });
