@@ -50,23 +50,10 @@ jobs:
 
       - name: Validate YAML syntax
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          echo "Changed workflow files:"
-          echo "${{ steps.changed-files.outputs.all_changed_files }}"
-
-          # Validate each changed YAML file using go tool yamllint
-          exit_code=0
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "Validating $file..."
-            if go tool yamllint -c .yamllint "$file"; then
-              echo "✅ $file is valid"
-            else
-              echo "❌ $file has YAML syntax errors"
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: ${{ steps.changed-files.outputs.all_changed_files }}
+          config_file: .yamllint
 
       - name: Validate GitHub Actions workflow syntax
         if: steps.changed-files.outputs.any_changed == 'true'
