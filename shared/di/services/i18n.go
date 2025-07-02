@@ -62,7 +62,7 @@ func NewI18nService(defaultLang string, localesDir string) (*I18nService, error)
 			return err
 		}
 
-		if !info.IsDir() && filepath.Ext(path) == ".json" {
+		if !info.IsDir() && filepath.Ext(path) == ".json" && filepath.Base(path) != "schema.json" {
 			if _, err := bundle.LoadMessageFile(path); err != nil {
 				log.Fatalf("Failed to load translation file %s: %v", path, err)
 			}
